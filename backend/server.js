@@ -23,5 +23,5 @@ app.get('/', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`✨ Node.js server running at http://localhost:${port}! (backend)`);
+    console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
 });
