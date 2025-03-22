@@ -1,16 +1,23 @@
-const express = require('express'); 
-const app = express(); 
-const port = process.env.PORT || 5000; 
+// backend/server.js
 
+const express = require('express');
+const connectDB = require('./database');  // Import the connection function
 
-app.use(express.json());
+const app = express();
+const port = 5000;
 
+// Connect to MongoDB
+connectDB();
 
+// Middleware
+app.use(express.json());  // Middleware to parse JSON bodies
+
+// Example route
 app.get('/', (req, res) => {
-  res.send('TEST');
+  res.send('Hello from the backend!');
 });
 
-// Start server
+// Start the server
 app.listen(port, () => {
-  console.log(`✨ Server running on at http://localhost:5000 ✨`);
+  console.log(`✨ Server running at https://localhost:${port} ✨`);
 });

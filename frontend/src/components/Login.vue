@@ -9,7 +9,7 @@ const count = ref(0)
 
 <template>
   
-<h1 class="prose-xl font-bold">Log in to {{username}}</h1>
+<h1 class="prose-xl font-bold m-12">Log in to {{username}}</h1>
 
 <fieldset class="fieldset">
   <legend class="fieldset-legend">Username</legend>
