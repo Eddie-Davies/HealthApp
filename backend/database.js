@@ -1,6 +1,7 @@
 // Import and Connect to MongoDB
 const mongoose = require('mongoose');
-const mongoURI = 'mongodb+srv://aidanleonard:W0qzGd2JBHwEEoYR@softenghealthapp.vzlak.mongodb.net/health-app?retryWrites=true&w=majority';
+require('dotenv').config();
+const mongoURI = process.env.MONGO_URI;
 
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }) // useNewUrlParser: true prevents a deprecation warning || useUnifiedTopology: true enables the new MongoDB connection engine, improving stability.
