@@ -1,15 +1,22 @@
+// Import and Connect to MongoDB
 const mongoose = require('mongoose');
+const mongoURI = 'mongodb://127.0.0.1:27017/health-app';
 
-// MongoDB connection string (replace with your MongoDB Atlas connection string if using Atlas)
-const mongoURI = "mongodb://localhost:27017/healthdb";  // for local MongoDB
-// const mongoURI = "mongodb+srv://<username>:<password>@cluster0.mongodb.net/yourDatabaseName?retryWrites=true&w=majority"; // for MongoDB Atlas
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }) // useNewUrlParser: true prevents a deprecation warning || useUnifiedTopology: true enables the new MongoDB connection engine, improving stability.
+    .then(() => console.log('✅ Connected to MongoDB'))                        // Logs if successfully connected to Database
+    .catch(err => console.log('❌ MongoDB Connection Error:', err));
 
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('✨ Connected to MongoDB');
-  })
-  .catch(err => {
-    console.log('Error connecting to MongoDB:', err);
-  });
+// Define User Schema
+const UserSchema = new mongoose.Schema({
+    firstName: String,
+    lastName: String,
+    age: Number,
+    email: String,
+    gender: Boolean,
+    weight: Number,
+    targetWeight: Number
+});
 
-module.exports = connect;  // Export the connectDB function
+const UserModel = mongoose.model("users", UserSchema);
+
+module.exports = UserModel;

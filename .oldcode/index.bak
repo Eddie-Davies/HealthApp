@@ -1,11 +1,14 @@
+// Import and setup express module for http requests.
 const express = require('express');
-const mongoose = require('mongoose');
-
 const app = express();
 const port = 5000;
 
-mongoose.connect('mongodb://127.0.0.1:27017/health-app')
+// Import and connect to MongoDB
+const mongoose = require('mongoose');
+const mongoURI = 'mongodb://127.0.0.1:27017/health-app'
+mongoose.connect(mongoURI)
 
+// Define user schema
 const UserSchema = mongoose.mongoose.Schema({
     firstName: String,
     lastName: String,
@@ -26,13 +29,15 @@ app.get("/getUsers", (req, res) =>{
     })
 })
 
+// Test at root
 app.get('/', (req, res) => {
     res.send('Hello from the backend!');
   });
   
 
+// Server launch log
 app.listen(port, () => {
-    console.log(`✨ Server running at http://localhost:${port} ✨`);
+    console.log(`✨ BACKEND: Node.js server running at http://localhost:${port} ✨`);
   });
 
   

@@ -1,23 +1,27 @@
-// backend/server.js
-
+// Import Express and userModel from database.js
 const express = require('express');
-const connectDB = require('./database');  // Import the connection function
+const UserModel = require('./database'); 
 
 const app = express();
 const port = 5000;
 
-// Connect to MongoDB
-connectDB();
+// Fetch Users
+app.get("/getUsers", async (req, res) => {
+    try {
+        const users = await UserModel.find({});
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
-// Middleware
-app.use(express.json());  // Middleware to parse JSON bodies
-
-// Example route
+// Test route
 app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
+    res.send('<h1>Testing index from the backend!</h1>');
 });
 
 // Start the server
 app.listen(port, () => {
-  console.log(`✨ Server running at https://localhost:${port} ✨`);
+    console.log(`✨ BACKEND: Node.js server running at http://localhost:${port} ✨`);
 });
