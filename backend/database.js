@@ -4,8 +4,8 @@ require('dotenv').config();
 const mongoURI = process.env.MONGO_URI;
 
 
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }) // useNewUrlParser: true prevents a deprecation warning || useUnifiedTopology: true enables the new MongoDB connection engine, improving stability.
-    .then(() => console.log('✅ Connected to MongoDB'))                        // Logs if successfully connected to Database
+mongoose.connect(mongoURI)
+    .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.log('❌ MongoDB Connection Error:', err));
 
 // Define User Schema
