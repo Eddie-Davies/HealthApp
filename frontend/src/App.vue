@@ -3,9 +3,11 @@ import Login from './components/Login.vue'
 </script>
 
 <template>
+  <div id="app">
+    <Login username="Aidan" />
+    <!-- <HelloWorld msg="Hello" /> -->
+  </div>
 
-  <Login username="Aidan" />
-  <HelloWorld msg="Hello" />
 </template>
 
 <style scoped>
