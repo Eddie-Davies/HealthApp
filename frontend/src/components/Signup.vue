@@ -17,4 +17,8 @@
     </div>
   </template>
 
-  <script></script>
+  <script>
+  export default {
+    name: 'Signup'
+  }
+</script>
