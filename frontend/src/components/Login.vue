@@ -19,7 +19,7 @@ const count = ref(0)
   </fieldset>
   <fieldset class="fieldset">
     <legend class="fieldset-legend">Password</legend>
-    <input type="password" class="input" placeholder="Enter Password" />
+    <input type="password" class="bg-white text-black input" placeholder="Enter Password" />
   </fieldset>
   <button class="btn">Log In</button>
   <button class="btn block mt-2">I forgot my password</button>
