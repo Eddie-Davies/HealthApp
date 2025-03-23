@@ -13,7 +13,10 @@ const UserSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     age: Number,
-    email: String,
+    email: {
+        unique: true,
+        type: String
+    },
     gender: Boolean,
     weight: Number,
     targetWeight: Number
