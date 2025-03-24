@@ -39,23 +39,17 @@ export default {
     }
   },
   methods: {
-    handleSubmit() {
-      const data = {
+    async handleSubmit() {
+
+      // POST DATA TO BACKEND
+      const response = await axios.post('signup', {
         first_name: this.first_name,
         last_name: this.first_name,
         email: this.email,
         password: this.password,
-      };
+      });
 
-      // POST DATA TO BACKEND
-      axios.post('signup', data).then(res => {
-        console.log(res)
-      }).catch(
-        err => {
-          console.log(err)
-        }
-      )
-      console.log(data)
+      console.log(response)
       console.log("Details have been submitted!")
     }
   }
