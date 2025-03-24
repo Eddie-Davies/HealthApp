@@ -48,7 +48,7 @@ export default {
       };
 
       // POST DATA TO BACKEND
-      axios.post('http://localhost:5000/signup', data).then(res => {
+      axios.post('signup', data).then(res => {
         console.log(res)
       }).catch(
         err => {
