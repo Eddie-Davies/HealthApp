@@ -8,15 +8,15 @@ export default {
 <div class="flex items-center justify-center min-h-screen bg-[#191830]">
   <div class="box">
       <!-- <h1 class=" prose-xl font-bold flex items-center justify-center pb-5">Log in to {{username}}</h1> -->
-      <h1 class=" prose-xl font-bold flex items-center justify-center pb-5">Log in to Account</h1>
+      <h1 class="text-white prose-xl font-bold flex items-center justify-center pb-5">Log in to Account</h1>
 
     <fieldset class="fieldset">
-      <legend class="fieldset-legend">Username</legend>
+      <legend class="fieldset-legend text-white">Username</legend>
       <input type="text" class="input" placeholder="Enter Username" />
       <p class="fieldset-label">Email works too!</p>
     </fieldset>
     <fieldset class="fieldset">
-      <legend class="fieldset-legend">Password</legend>
+      <legend class="fieldset-legend text-white">Password</legend>
       <input type="password" class="input" placeholder="Enter Password" />
     </fieldset>
     <button class="btn">Log In</button>
