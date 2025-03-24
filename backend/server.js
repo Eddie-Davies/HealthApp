@@ -1,9 +1,15 @@
 // Import Express and userModel from database.js
 const express = require('express');
 const UserModel = require('./database'); 
+const cors = require('cors')
+
+
+
 
 const app = express();
 const port = 5000;
+
+app.use(cors()) // Use this after the variable declaration
 
 // Fetch Users
 app.get("/getUsers", async (req, res) => {
