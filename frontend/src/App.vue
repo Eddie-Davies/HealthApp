@@ -1,26 +1,36 @@
 <script setup>
-import Login from './components/Login.vue'
+// import Login from './components/Login.vue'
+// import Signup from './components/Signup.vue'
+// import router from './router.js';
 </script>
+
+<!-- OLD COMPONENTS (no router) -->
+    <!-- <Signup/> -->
+    <!-- <HelloWorld msg="Hello" /> -->
 
 <template>
   <div id="app">
-    <Login username="Aidan" />
-    <!-- <HelloWorld msg="Hello" /> -->
+    <div class="auth-wrapper">
+      <div class="auth-inner">
+        <router-view />
+      </div>
+    </div>
+
   </div>
 
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>
+
+<script>
+// LATER USE THIS TO EXPORT navbar AND THINGS THAT ARE EACH AND EVERY PAGE
+// export default {
+//   name: 'App',
+//     components: {
+//       Signup,
+//       Login
+    
+//     }
+//   }
+</script>

@@ -1,9 +1,17 @@
 // Import Express and userModel from database.js
 const express = require('express');
 const UserModel = require('./database'); 
+const cors = require('cors')
+
+
+
 
 const app = express();
 const port = 5000;
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}))
 
 // Fetch Users
 app.get("/getUsers", async (req, res) => {
@@ -19,6 +27,14 @@ app.get("/getUsers", async (req, res) => {
 // Test route
 app.get('/', (req, res) => {
     res.send('<h1>Testing index from the backend!</h1>');
+});
+
+app.post('/signup', (req, res) => {
+    try {
+        console.log(res.json())
+    } catch (err){
+        console.log(err);
+    }
 });
 
 // Start the server

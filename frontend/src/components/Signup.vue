@@ -1,53 +1,59 @@
 <template>
-    <div>
-    <fieldset class="fieldset">
+  <div>
+    <!-- NOTE: V-MODEL CAUSING THE CONSOLE ERRORS without the returns-->
+    <form @submit.prevent="handleSubmit">
+      <fieldset class="fieldset">
         <legend class="fieldset-legend">First Name</legend>
-        <input type="text" v-model="firstname" class="input" placeholder="Enter First Name" />
-    </fieldset>
-    <fieldset class="fieldset">
+        <input type="text" v-model="first_name" class="input" placeholder="Enter First Name" />
+      </fieldset>
+      <fieldset class="fieldset">
         <legend class="fieldset-legend">Last Name</legend>
-        <input type="text" v-model="lastname" class="input" placeholder="Enter Last Name" />
-    </fieldset>
-    <fieldset class="fieldset">
+        <input type="text" v-model="last_name" class="input" placeholder="Enter Last Name" />
+      </fieldset>
+      <fieldset class="fieldset">
         <legend class="fieldset-legend">Email</legend>
         <input type="text" v-model="email" class="input" placeholder="Enter Email Address" />
-    </fieldset>
-    <button class="btn" @click="signup">Signup</button>
-      {{ error }}
-    </div>
-  </template>
+      </fieldset>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Password</legend>
+        <input type="password" v-model="password" class="input" placeholder="Enter a strong password" />
+      </fieldset>
+      <!-- <button class="btn" @click="signup">Signup</button>
+      {{ error }} -->
+      <button class="btn">Signup</button>
+    </form>
+  </div>
+</template>
 
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'Signup',
-    data() {
-      return {
-        name: '',
-        email: '',
-        password: '',
-  
-        error: '',
-      }
-    },
-    methods: {
-      signup() {
-        let newUser = {
-          name: this.name,
-          email: this.email,
-          password: this.password
-        }
-        axios.post('http://localhost:5000/signup', newUser)
-          .then(res => {
-            this.error = '';
-            this.$router.push('/login');
-          }, err => {
-            console.log(err.response)
-            this.error = err.response.data.error
-          })
-      }
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'Signup',
+  data() {
+    return {
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    async handleSubmit() {
+
+      // POST DATA TO BACKEND
+      const response = await axios.post('signup', {
+        first_name: this.first_name,
+        last_name: this.first_name,
+        email: this.email,
+        password: this.password,
+      });
+
+      console.log(response)
+      console.log("Details have been submitted!")
     }
   }
-  </script>
-  
+
+
+}
+</script>

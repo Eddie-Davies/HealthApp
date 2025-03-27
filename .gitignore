@@ -33,5 +33,5 @@ dist/
 .env
 /backend/.env
 
-#extensions
+# extensions
 .timetracker
