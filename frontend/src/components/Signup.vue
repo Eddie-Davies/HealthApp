@@ -42,7 +42,7 @@ export default {
     async handleSubmit() {
 
       // POST DATA TO BACKEND
-      const response = await axios.post('signup', {
+      await axios.post('signup', {
         first_name: this.first_name,
         last_name: this.first_name,
         email: this.email,
@@ -51,6 +51,7 @@ export default {
 
       console.log(response)
       console.log("Details have been submitted!")
+      this.$router.push('/login');
     }
   }
 

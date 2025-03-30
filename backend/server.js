@@ -37,6 +37,14 @@ app.post('/signup', (req, res) => {
     }
 });
 
+app.post('/login', (req, res) => {
+    try {
+        console.log(res.json())
+    } catch (err){
+        console.log(err);
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
