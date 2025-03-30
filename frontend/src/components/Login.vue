@@ -44,15 +44,19 @@ export default {
       password: ''
     }
   },
-  methods: {  
+methods: {
     async handleSubmit() {
-      const response = await axios.post('login', {
-        email: this.email,
-        password: this.password
-      });
-      
-      console.log(response)
-}}
-
-}
+      try {
+        const response = await axios.post('login', {
+          email: this.email,
+          password: this.password
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error in handleSubmit:', error.response?.data || error.message);
+      }
+      localStorage.setItem('token', response.data.token);
+    }
+  }
+};
 </script>
