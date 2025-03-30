@@ -49,7 +49,7 @@ export default {
         password: this.password,
       });
 
-      console.log(response)
+      // console.log(response)
       console.log("Details have been submitted!")
       this.$router.push('/login');
     }
