@@ -10,13 +10,11 @@ mongoose.connect(mongoURI)
 
 // Define User Schema
 const UserSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    age: Number,
-    email: {
-        unique: true,
-        type: String
-    },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    age: { type: Number, required: true },
+    email: { type: String, unique: true, required: true },
+    password: { type: String, required: true }, // Added password field
     gender: Boolean,
     weight: Number,
     targetWeight: Number
