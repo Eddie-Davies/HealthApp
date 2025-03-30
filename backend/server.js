@@ -2,6 +2,10 @@
 const express = require('express');
 const UserModel = require('./database');
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
 
 
 
@@ -38,17 +42,35 @@ app.post('/signup', (req, res) => {
     }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     try {
-        console.log('Incoming request to /login');
-        console.log('Request body:', req.body);
+        console.log('Incoming request to /login:', req.body);
 
         const { email, password } = req.body;
 
-        res.json({ message: 'Login data received by backend!' });
+        // Check if user exists
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            console.log('User not found');
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Normally, password should be hashed. Plaintext for now to make it easy.
+        if (user.password !== password) {
+            console.log('Incorrect password');
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+
+        console.log('✅ Login successful, token generated. ');
+        res.json({ token });
+
     } catch (error) {
-        console.error('Error in /login route:', error.message);
-        res.status(500).send('Server error');
+        console.error('Error in /login route:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
