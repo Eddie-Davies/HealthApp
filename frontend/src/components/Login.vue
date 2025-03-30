@@ -51,12 +51,22 @@ methods: {
           email: this.email,
           password: this.password
         });
-        console.log(response.data);
+
+        console.log('Full backend response:', response); // Log full response
+
+        if (response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          console.log('Token stored successfully:', response.data.token);
+        } else {
+          console.error('Token not received from backend', response.data);
+        }
       } catch (error) {
         console.error('Error in handleSubmit:', error.response?.data || error.message);
       }
-      localStorage.setItem('token', response.data.token);
     }
-  }
+}
+
+
+  
 };
 </script>
