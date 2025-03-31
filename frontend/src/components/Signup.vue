@@ -47,14 +47,14 @@ export default {
         return;
       }
       try {
-      // POST DATA TO BACKEND
-      await axios.post('signup', {
-        first_name: this.first_name,
-        last_name: this.last_name,
-        email: this.email,
-        password: this.password,
-      });
-      } catch (error){
+        // POST DATA TO BACKEND
+        await axios.post('signup', {
+          first_name: this.first_name,
+          last_name: this.last_name,
+          email: this.email,
+          password: this.password,
+        });
+      } catch (error) {
         console.error("Signup failed:", error.response?.data || error.message);
         this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
       }
