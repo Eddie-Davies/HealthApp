@@ -9,7 +9,7 @@
   <div class="hero bg-base-200 min-h-screen">
     <div class="hero-content flex-col lg:flex-col"> <!-- Changed to flex-col for vertical stacking -->
       <div class="text-center lg:text-left">
-        <h1 class="text-5xl font-bold">Signup!</h1>
+        <h1 class="text-5xl font-bold">Sign up!</h1>
       </div>
       
       <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl min-w-[23rem] mt-10">
@@ -24,7 +24,7 @@
             <label class="fieldset-label">Password</label>
             <input type="password" class="input" placeholder="Password" />
             <div><a class="link link-hover">Forgot password?</a></div>
-            <button class="btn btn-neutral mt-4">Signup</button>
+            <button class="btn btn-neutral mt-4">Sign up</button>
           </fieldset>
         </div>
       </div>
