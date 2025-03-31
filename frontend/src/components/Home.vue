@@ -1,12 +1,8 @@
 <template>
   <div>
       <h1>Welcome to the Home Page</h1>
-      <p v-if="users.length === 0">Loading users...</p>
-      <ul v-else>
-          <li v-for="user in users" :key="user._id">
-              {{ user.firstName }} {{ user.lastName }} - {{ user.email }}
-          </li>
-      </ul>
+      <p v-if="user">Hi, {{user.first_name}} {{user.last_name}}. You are logged into your account with the email {{ user.email }}.</p>
+      <p v-if="!user">You aren't logged in.</p>
   </div>
 </template>
 
@@ -16,7 +12,7 @@ export default {
 name: 'Home',
 data() {
   return {
-    users: []
+    user: null
   };
 },
 async created() {
@@ -28,13 +24,13 @@ async created() {
       return;
     }
 
-    const response = await axios.get('getUsers');
+    const response = await axios.get('user');
 
-    console.log('✅ Users received:', response.data);
-    this.users = response.data;
+    console.log('✅ User received:', response.data);
+    this.user = response.data;
   } catch (error) {
-    console.error('❌ Error fetching users:', error.response?.data || error.message);
-    this.$router.push('/login'); // Redirect on error
+    console.error('❌ Error fetching user:', error.response?.data || error.message);
+    // this.$router.push('/login'); // Redirect on error
   }
 }
 }
