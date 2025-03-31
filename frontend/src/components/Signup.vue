@@ -20,6 +20,7 @@
       </fieldset>
       <!-- <button class="btn" @click="signup">Signup</button>
       {{ error }} -->
+      <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
       <button class="btn">Signup</button>
     </form>
   </div>
@@ -35,12 +36,17 @@ export default {
       first_name: '',
       last_name: '',
       email: '',
-      password: ''
+      password: '',
+      errorMessage: '' // Store error message
     }
   },
   methods: {
     async handleSubmit() {
-
+      if (!this.first_name || !this.last_name || !this.email || !this.password) {
+        this.errorMessage = "All fields are required.";
+        return;
+      }
+      try {
       // POST DATA TO BACKEND
       await axios.post('signup', {
         first_name: this.first_name,
@@ -48,6 +54,10 @@ export default {
         email: this.email,
         password: this.password,
       });
+      } catch (error){
+        console.error("Signup failed:", error.response?.data || error.message);
+        this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+      }
 
       // console.log(response)
       console.log("Details have been submitted!")
