@@ -2,8 +2,7 @@
   <div class="min-h-screen bg-white text-neutral">
     <!-- "Navbar" -->
     <div class="navbar bg-white text-black">
-      <div class="flex-1 px-2 text-lg font-bold">Blossom</div>
-      <div class="flex-none">
+      <div class="flex-1 px-2 text-lg font-bold"><a @click="$router.push('/')" class="link link-hover">Blossom</a></div>      <div class="flex-none">
         <button @click="$router.push('/login')" class="btn btn-outline btn-black">Login</button>
       </div>
     </div>

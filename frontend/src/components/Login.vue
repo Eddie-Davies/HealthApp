@@ -8,7 +8,7 @@ export default {
   <div class="flex flex-start bg-base-200 text-neutral">
     <!-- "Navbar" -->
     <div class="navbar hero bg-base-200 text-primary">
-      <div class="flex-1 px-2 text-lg font-bold">Blossom</div>
+      <div class="flex-1 px-2 text-lg font-bold"><a @click="$router.push('/')" class="link link-hover">Blossom</a></div>
     </div>
   </div>
   
