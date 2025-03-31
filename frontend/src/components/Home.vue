@@ -13,7 +13,7 @@
       <div class="hero-content flex flex-col">
         <h1 class="text-4xl font-bold text-black">Blossom with Strength, Thrive in Health</h1>
         <p class="py-4">Set fitness goals, track meals, and manage exercise routines in one place.</p>
-        <button class="btn bg-[#0e7afe] text-white mt-2 border-0">Get Started</button>
+        <button @click="$router.push('/signup')" class="btn bg-[#0e7afe] text-white mt-2 border-0">Get Started</button>
       </div>
     </div>
 
