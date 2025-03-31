@@ -34,11 +34,25 @@ app.get('/', (req, res) => {
     res.send('<h1>Testing index from the backend!</h1>');
 });
 
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
     try {
-        console.log(res.json())
+        console.log('Incoming request to /signup:', req.body);
+        const { first_name, last_name, email, password } = req.body;
+        const user = { first_name, last_name, email, password };
+
+        // Check if email is already in database.
+        const emailInDB = await UserModel.findOne({ email });
+        if (emailInDB) {
+            console.log('User already has an account! ');
+            return res.status(401).json({ message: `This email (${email}) is already associated with an account.` });
+        }
+
+        const newUser = await UserModel.insertOne(user);
+        console.log(`User (${email}) added to database.`);
+        return res.status(201).json({ message: "User registered successfully!", user: newUser });
     } catch (err) {
-        console.log(err);
+        console.log("Error during signup:", err);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
