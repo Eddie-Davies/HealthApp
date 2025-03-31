@@ -57,9 +57,11 @@ methods: {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           console.log('Token stored successfully:', response.data.token);
+          this.$router.push('/home');
         } else {
           console.error('Token not received from backend', response.data);
         }
+
       } catch (error) {
         console.error('Error in handleSubmit:', error.response?.data || error.message);
       }
