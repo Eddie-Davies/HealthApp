@@ -4,7 +4,7 @@
     <div class="navbar bg-white text-black">
       <div class="flex-1 px-2 text-lg font-bold">Blossom</div>
       <div class="flex-none">
-        <button class="btn btn-outline btn-black">Login</button>
+        <button @click="$router.push('/login')" class="btn btn-outline btn-black">Login</button>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
     <!-- Sign up (bottom of page) -->
     <div class="text-center py-4">
       <h2 class="text-2xl font-bold text-neutral">Join Now and Stay Fit!</h2>
-      <button class="btn bg-[#0e7afe] text-white mt-2 border-0">Sign Up</button>
+      <button @click="$router.push('/signup')" class="btn bg-[#0e7afe] text-white mt-2 border-0">Sign Up</button>
     </div>
 
   </div>
