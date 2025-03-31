@@ -44,7 +44,7 @@ export default {
       // POST DATA TO BACKEND
       await axios.post('signup', {
         first_name: this.first_name,
-        last_name: this.first_name,
+        last_name: this.last_name,
         email: this.email,
         password: this.password,
       });
