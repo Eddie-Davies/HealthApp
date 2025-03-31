@@ -13,10 +13,39 @@ const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT sec
 const app = express();
 const port = 5000;
 
-app.use(cors({
+app.use(cors({ // This is needed because frontend and backend are on different urls.
     origin: 'http://localhost:3000'
 }))
 app.use(express.json());
+
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) return res.status(401).json({ message: 'Unauthorized: No token provided' });
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Forbidden: Invalid token' });
+
+        req.user = user; // Add user data to request
+        next();
+    });
+};
+
+app.get('/user', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        console.log("User found:", user);
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        res.json(user);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // Fetch Users
 app.get("/getUsers", async (req, res) => {
