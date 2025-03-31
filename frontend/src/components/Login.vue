@@ -63,6 +63,14 @@ methods: {
         }
 
       } catch (error) {
+          if (error.response && error.response.status === 401) {
+              console.error("Signup failed:", error.response.data.message);
+              alert(error.response.data.message); // Show user-friendly message
+          } else {
+              console.error("An error occurred:", error);
+              alert("Something went wrong. Please try again later.");
+          }
+        
         console.error('Error in handleSubmit:', error.response?.data || error.message);
       }
     }
