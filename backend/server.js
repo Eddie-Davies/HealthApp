@@ -2,6 +2,7 @@
 const express = require('express');
 const UserModel = require('./database');
 const cors = require('cors')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -21,7 +22,7 @@ app.use(express.json());
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1]; // Get token from headers.
 
     if (!token) return res.status(401).json({ message: 'Unauthorized: No token provided' });
 
@@ -65,9 +66,8 @@ app.get('/', (req, res) => {
 
 app.post('/signup', async (req, res) => {
     try {
-        console.log('Incoming request to /signup:', req.body);
         const { first_name, last_name, email, password } = req.body;
-        const user = { first_name, last_name, email, password };
+        console.log(`Incoming request to /signup: Email: ${email}`);
 
         // Check if email is already in database.
         const emailInDB = await UserModel.findOne({ email });
@@ -76,7 +76,12 @@ app.post('/signup', async (req, res) => {
             return res.status(401).json({ message: `This email (${email}) is already associated with an account.` });
         }
 
-        const newUser = await UserModel.insertOne(user);
+        // Hash Password before storing
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        user = {first_name, last_name, email, password: hashedPassword} // password: hashedpassword keeps the correct label.
+        const newUser = await UserModel.create(user);
+
         console.log(`User (${email}) added to database.`);
         return res.status(201).json({ message: "User registered successfully!", user: newUser });
     } catch (err) {
@@ -87,9 +92,8 @@ app.post('/signup', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        console.log('Incoming request to /login:', req.body);
-
         const { email, password } = req.body;
+        console.log(`Incoming request to /login: Email: ${email}`);
 
         // Check if user exists
         const user = await UserModel.findOne({ email });
@@ -99,8 +103,8 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Normally, password should be hashed. Plaintext for now to make it easy.
-        if (user.password !== password) {
+        const passwordCorrect = await bcrypt.compare(password, user.password)
+        if (!passwordCorrect) {
             console.log('Incorrect password');
             return res.status(401).json({ message: 'Invalid email or password' });
         }
