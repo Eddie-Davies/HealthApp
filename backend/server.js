@@ -66,9 +66,10 @@ app.get('/', (req, res) => {
 
 app.post('/signup', async (req, res) => {
     try {
-        const { first_name, last_name, email, password } = req.body;
-        console.log(`Incoming request to /signup: Email: ${email}`);
+        let { first_name, last_name, email, password } = req.body;
+        email = email.toLowerCase().trim();
 
+        console.log(`Incoming request to /signup: Email: ${email}`);
         // Check if email is already in database.
         const emailInDB = await UserModel.findOne({ email });
         if (emailInDB) {
@@ -79,7 +80,7 @@ app.post('/signup', async (req, res) => {
         // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        user = {first_name, last_name, email, password: hashedPassword} // password: hashedpassword keeps the correct label.
+        user = {first_name, last_name, email, password_hash: hashedPassword} // password: hashedpassword keeps the correct label.
         const newUser = await UserModel.create(user);
 
         console.log(`User (${email}) added to database.`);
@@ -103,7 +104,7 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const passwordCorrect = await bcrypt.compare(password, user.password)
+        const passwordCorrect = await bcrypt.compare(password, user.password_hash)
         if (!passwordCorrect) {
             console.log('Incorrect password');
             return res.status(401).json({ message: 'Invalid email or password' });

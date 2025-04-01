@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     last_name: { type: String, required: true },
     age: { type: Number, required: false },
     email: { type: String, unique: true, required: true },
-    password: { type: String, required: true }, // Added password field
+    password_hash: { type: String, required: true }, // Added password field
     gender: Boolean,
     weight: Number,
     targetWeight: Number
