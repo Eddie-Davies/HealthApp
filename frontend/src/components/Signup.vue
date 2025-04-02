@@ -16,14 +16,20 @@
           <fieldset class="fieldset">
             <label class="fieldset-label">First Name</label>
             <input type="text" required placeholder="First Name" minlength="2" pattern="^[a-zA-Z0-9_]{3,}$" title="Must be at least 2 characters long" class="input valid:border-success user-invalid:border-red-500" />
+          </fieldset>
+          <fieldset class="fieldset">
             <label class="fieldset-label">Last Name</label>
             <input type="text" required placeholder="Last Name" minlength="2" pattern="^[a-zA-Z0-9_]{3,}$" title="Must be at least 2 characters long" class="input valid:border-success user-invalid:border-red-500" />
+          </fieldset>
+          <fieldset class="fieldset">
             <label class="fieldset-label">Email</label>
             <label class="input validator join-item">
               <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></g></svg>
               <input type="email" placeholder="mail@site.com" required/>
             </label>
             <div class="validator-hint hidden">Enter valid email address</div>
+          </fieldset>
+          <fieldset class="fieldset">
             <label class="fieldset-label">Password</label>
             <label class="input validator">
               <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></g></svg>
@@ -35,9 +41,9 @@
               <br/>At least one lowercase letter
               <br/>At least one uppercase letter
             </p>            <div><a class="link link-hover">Forgot password?</a></div>
+          </fieldset>
             <button class="btn btn-neutral mt-4">Sign up</button>
             <div><a @click="$router.push('/login')" class="link link-hover">Don't have an account yet?</a></div>
-          </fieldset>
         </div>
       </div>
     </div>
