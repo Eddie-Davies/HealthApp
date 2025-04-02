@@ -14,7 +14,7 @@
         <h1 class="text-5xl font-bold">Sign up!</h1>
       </div>
 
-      <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10 px-4 py-6">
+      <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
         <div class="card-body">
           <fieldset class="fieldset">
             <label class="fieldset-label">First Name</label>
