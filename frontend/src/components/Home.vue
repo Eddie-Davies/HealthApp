@@ -12,8 +12,6 @@
       the email {{ user.email }}.</p>
     <p v-if="!user">You aren't logged in.</p>
   </div>
-
-
 </template>
 
 <script>

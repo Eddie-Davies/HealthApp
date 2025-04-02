@@ -1,28 +1,47 @@
 <template>
   <div class="flex flex-start bg-base-200 text-neutral">
-    <!-- "Navbar" -->
+    <!-- Navbar -->
     <div class="navbar hero bg-base-200 text-primary">
-      <div class="flex-1 px-2 text-lg font-bold">Blossom</div>
+      <div class="flex-1 px-2 text-lg font-bold">
+        <a @click="$router.push('/')" class="link link-hover">Blossom</a>
+      </div>
     </div>
   </div>
-
-  <div class="hero bg-base-200 min-h-screen">
-    <div class="hero-content flex-col lg:flex-col"> <!-- Changed to flex-col for vertical stacking -->
-      <div class="text-center lg:text-left">
+  <div class="hero bg-base-200 min-h-screen flex items-center justify-center">
+    <div class="hero-content flex flex-col items-center w-full max-w-[90%] md:max-w-lg">
+      <div class="text-center">
         <h1 class="text-5xl font-bold">Login!</h1>
       </div>
-      <form @submit.prevent="handleSubmit">
-        <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl min-w-[23rem] mt-10">
-          <div class="card-body">
-            <fieldset class="fieldset">
-              <label class="fieldset-label">Email</label>
-              <input type="email" v-model="email" class="input" placeholder="Email" />
-              <label class="fieldset-label">Password</label>
-              <input type="password" v-model="password" class="input" placeholder="Password" />
-              <div><a class="link link-hover">Forgot password?</a></div>
-            </fieldset>
-            <button class="btn btn-neutral mt-4">Login</button>
-          </div>
+      
+      <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
+        <div class="card-body">
+          <fieldset class="fieldset">
+            <label class="fieldset-label">Email</label>
+            <label class="input w-full">
+              <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+                  <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </g>
+              </svg>
+              <input type="email" placeholder="mail@site.com" required class="w-full"/>
+            </label>
+            
+            <label class="fieldset-label">Password</label>
+            <label class="input w-full">
+              <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+                  <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path>
+                  <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                </g>
+              </svg>
+              <input type="password" required placeholder="Password" class="w-full"/>
+            </label>
+            
+            <div><a class="link link-hover">Forgot password?</a></div>
+            <button class="btn btn-neutral mt-4 w-full">Login</button>
+            <div><a @click="$router.push('/signup')" class="link link-hover">Don't have an account?</a></div>
+          </fieldset>
         </div>
         <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
