@@ -30,7 +30,7 @@
               </svg>
               <input v-model="email" @input="validateField('email')" type="email" placeholder="mail@site.com" required />
             </label>
-            <div v-if="errors.email" class="validator-hint">{{errors.email}}</div>
+            <div v-if="errors.email" class="validator-hint hidden">{{errors.email}}</div>
             <label class="fieldset-label">Password</label>
             <label class="input validator">
               <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -93,8 +93,7 @@ export default {
       }
 
       if (field === "email") {
-        const emailInput = this.$refs.emailInput;
-        if (!emailInput.validity.valid) {
+        if (!this.email.match(/^[\w.-]+@[\w.-]+\.(com)$/)) {
           this.errors.email = "Enter a valid email address";
         } else {
           this.errors.email = null;
