@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Landing from './components/Landing.vue';
 import Login from './components/Login.vue';
 import Signup from './components/Signup.vue';
-import Landing from './components/Landing.vue';
 import Home from './components/Home.vue';
 
 

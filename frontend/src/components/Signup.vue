@@ -16,10 +16,10 @@
         <div class="card-body">
         <form @submit.prevent="handleSubmit">
           <fieldset class="fieldset">
-            <label v-model="first_name" class="fieldset-label">First Name</label>
-            <input type="text" class="input" placeholder="First Name" />
-            <label v-model="last_name" class="fieldset-label">Last Name</label>
-            <input type="text" class="input" placeholder="Last Name" />
+            <label class="fieldset-label">First Name</label>
+            <input type="text" v-model="first_name" class="input" placeholder="First Name" />
+            <label class="fieldset-label">Last Name</label>
+            <input type="text" v-model="last_name" class="input" placeholder="Last Name" />
             <label class="fieldset-label">Email</label>
             <input v-model="email" type="email" class="input" placeholder="Email" />
             <label class="fieldset-label">Password</label>
@@ -27,16 +27,16 @@
             <div><a class="link link-hover">Forgot password?</a></div>
             <button class="btn btn-neutral mt-4">Signup</button>
           </fieldset>
-            <button class="btn">Signup</button>
-            <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
+         </form>
+         
+        </div>
+      </div>
+      <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <span>{{errorMessage}}</span>
             </div>
-         </form>
-        </div>
-      </div>
     </div>
   </div>
 </template>
