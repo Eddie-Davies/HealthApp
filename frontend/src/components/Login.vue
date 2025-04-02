@@ -12,7 +12,7 @@
       <div class="text-center">
         <h1 class="text-5xl font-bold">Login!</h1>
       </div>
-      
+      <form @submit.prevent="handleSubmit">
       <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
         <div class="card-body">
           <fieldset class="fieldset">
@@ -24,7 +24,7 @@
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                 </g>
               </svg>
-              <input type="email" placeholder="mail@site.com" required class="w-full"/>
+              <input type="email" v-model="email" placeholder="mail@site.com" required class="w-full"/>
             </label>
             
             <label class="fieldset-label">Password</label>
@@ -35,7 +35,7 @@
                   <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
                 </g>
               </svg>
-              <input type="password" required placeholder="Password" class="w-full"/>
+              <input type="password" v-model="password" required placeholder="Password" class="w-full"/>
             </label>
             
             <div><a class="link link-hover">Forgot password?</a></div>
@@ -43,6 +43,8 @@
             <div><a @click="$router.push('/signup')" class="link link-hover">Don't have an account?</a></div>
           </fieldset>
         </div>
+      </div>
+      </form>
         <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
             viewBox="0 0 24 24">
@@ -51,9 +53,9 @@
           </svg>
           <span>{{ errorMessage }}</span>
         </div>
-      </form>
     </div>
   </div>
+
 
 </template>
 
