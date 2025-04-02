@@ -93,7 +93,7 @@ export default {
       }
 
       if (field === "email") {
-        if (!this.email.match(/^\S+@\S+\.\S+$/)) {
+        if (!this.email.match(/^[\w.-]+@[\w.-]+\.(com)$/)) {
           this.errors.email = "Enter a valid email address";
         } else {
           this.errors.email = null;
