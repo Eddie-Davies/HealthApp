@@ -13,7 +13,7 @@
         <h1 class="text-5xl font-bold">Login!</h1>
       </div>
       <form @submit.prevent="handleSubmit">
-      <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
+      <div class="bg-base-100 w-full max-w-sm shrink-0 shadow-2xl min-w-[23rem] mt-10">
         <div class="card-body">
           <fieldset class="fieldset">
             <label class="fieldset-label">Email</label>
