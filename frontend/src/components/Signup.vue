@@ -40,7 +40,7 @@
                   <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
                 </g>
               </svg>
-              <input v-model="password" @input="validateField('password')" type="password" required placeholder="Password" minlength="8" pattern="(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"/>
+              <input v-model="password" @input="validateField('password')" type="password" required placeholder="Password" minlength="8" title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"/>
             </label>
             <div v-if="errors.password" class="validator-hint">{{errors.password}}</div>
             <div><a class="link link-hover">Forgot password?</a></div>
