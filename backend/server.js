@@ -46,7 +46,7 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
-// Fetch Users
+// Fetch Users - To remove before Release so no route exists to show user information even with or without auth.
 app.get("/getUsers", async (req, res) => {
     try {
         const users = await UserModel.find({});

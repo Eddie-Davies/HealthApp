@@ -12,7 +12,7 @@ const {
     GroupModel
 } = require('./database');
 
-// To run migration, CD into Backend adn then run:
+// To run migration, CD into Backend and then run:
 // node migrateDB.js
 
 // Comment out completed migrations, add new migrate functions below:
@@ -57,4 +57,4 @@ async function runMigration2() {
     }
   }
 
-  runMigration2();
+  // runMigration2();
