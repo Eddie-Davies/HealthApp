@@ -46,7 +46,34 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
-// Fetch Users - To remove before Release so no route exists to show user information even with or without auth.
+// admin Tools
+
+// deleteUser (not authed)
+// This route is for deleting a user by email. It does not require authentication.
+app.delete('/deleteUser', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const deletedUser = await UserModel.findOneAndDelete({ email: email.toLowerCase().trim() });
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log(`User with email ${email} deleted.`);
+        res.json({ message: 'User deleted successfully', user: deletedUser });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Fetch Users (not authed)
+// This route is for fetching all users. It does not require authentication.
 app.get("/getUsers", async (req, res) => {
     try {
         const users = await UserModel.find({});
@@ -56,6 +83,8 @@ app.get("/getUsers", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+//--------------------------------------------------------------------------------------------------------------------
 
 // Test route
 app.get('/', (req, res) => {
