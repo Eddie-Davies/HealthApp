@@ -120,6 +120,52 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/user/goals', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ goals: user.goals });
+    } catch (error) {
+        console.error('Error fetching user goals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/user/goals', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, target, current, endDate } = req.body;
+
+        if (!name || typeof type !== 'boolean' || !target || current === undefined || !endDate) {
+            return res.status(400).json({ message: 'Missing or invalid goal fields' });
+        }
+
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newGoal = {
+            name,
+            type,
+            target,
+            current,
+            endDate: new Date(endDate)
+        };
+
+        user.goals.push(newGoal);
+        await user.save();
+
+        res.status(201).json({ message: 'Goal added successfully', goal: newGoal });
+    } catch (error) {
+        console.error('Error adding goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // Start the server
 app.listen(port, () => {
