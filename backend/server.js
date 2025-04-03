@@ -50,12 +50,13 @@ app.get('/user', authenticateToken, async (req, res) => {
 
 // deleteUser (not authed)
 // This route is for deleting a user by email. It does not require authentication.
-app.delete('/deleteUser', async (req, res) => {
+//Example use: http://localhost:5000/deleteUser/test@example.com
+app.delete('/deleteUser/:email', async (req, res) => {
     try {
-        const { email } = req.body;
+        const email = req.params.email;
 
         if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
+            return res.status(400).json({ message: 'Email is required in URL parameter' });
         }
 
         const deletedUser = await UserModel.findOneAndDelete({ email: email.toLowerCase().trim() });
@@ -81,6 +82,30 @@ app.get("/getUsers", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// Fetch User by Email (not authed)
+// This route is for fetching a user by email. It does not require authentication.
+// Example use: http://localhost:5000/getUserByEmail?email=test@example.com
+app.get('/getUserByEmail', async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
