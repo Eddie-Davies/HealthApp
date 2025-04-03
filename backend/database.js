@@ -43,15 +43,12 @@ const GoalSchema = new mongoose.Schema({
 
 // User Schema
 const UserSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    age: Number,
-    email: {
-        type: String,
-        unique: true
-    },
-    password: String,
-    gender: Boolean, // true = Male, false = Female
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
+    age: { type: Number, required: false },
+    email: { type: String, unique: true, required: true },
+    password_hash: { type: String, required: true }, // Added password field
+    gender: Boolean,
     weight: Number,
     targetWeight: Number,
     meal: [MealSchema],
