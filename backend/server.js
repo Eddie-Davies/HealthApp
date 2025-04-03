@@ -1,14 +1,12 @@
 // Import Express and userModel from database.js
 const express = require('express');
-const UserModel = require('./database');
+const { UserModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
-
-
 
 
 const app = express();

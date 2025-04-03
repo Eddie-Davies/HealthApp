@@ -7,14 +7,17 @@
       </div>
     </div>
   </div>
+  
   <div class="hero bg-base-200 min-h-screen flex items-center justify-center">
     <div class="hero-content flex flex-col items-center w-full max-w-[90%] md:max-w-lg">
       <div class="text-center">
         <h1 class="text-5xl font-bold">Login!</h1>
       </div>
-      <form @submit.prevent="handleSubmit">
+
       <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
+        
         <div class="card-body">
+          <form @submit.prevent="handleSubmit">
           <fieldset class="fieldset">
             <label class="fieldset-label">Email</label>
             <label class="input w-full">
@@ -42,10 +45,11 @@
             <button class="btn btn-neutral mt-4 w-full">Login</button>
             <div><a @click="$router.push('/signup')" class="link link-hover">Don't have an account?</a></div>
           </fieldset>
+              </form>
         </div>
       </div>
-      </form>
-        <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
+
+    <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
             viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -55,9 +59,8 @@
         </div>
     </div>
   </div>
-
-
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -90,17 +93,21 @@ export default {
         }
 
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          console.error("Login failed:", error.response.data.message);
-          this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
-        } else {
-          console.error("An error occurred:", error);
-          alert("Something went wrong. Please try again later.");
-          this.errorMessage = "Something went wrong. Please try again later.";
-        }
-
-        console.error('Error in handleSubmit():', error.response?.data || error.message);
+        if (error.response) {
+      if (error.response.status === 401) {
+        console.error("Login failed:", error.response.data.message);
+        this.errorMessage = "Invalid email or password.";
+      } else if (error.response.status === 500) {
+        console.error("Server error:", error.response.data.message);
+        this.errorMessage = "Server error. Please try again later.";
+      } else {
+        this.errorMessage = error.response?.data?.message || "Something went wrong.";
       }
+    } else {
+      this.errorMessage = "Network error. Please check your connection.";
+    }
+    console.error('Error in handleSubmit():', error.response?.data || error.message);
+  }
     }
   }
 }
