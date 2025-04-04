@@ -12,12 +12,20 @@
       the email {{ user.email }}.</p>
     <p v-if="!user">You aren't logged in.</p>
   </div>
+  <router-view></router-view>
+  <Navbar/>
 </template>
 
 <script>
 import axios from 'axios'
+import Navbar from './navbar/Navbar.vue';
+
 export default {
   name: 'Home',
+  components: {
+      Navbar
+    },
+
   data() {
     return {
       user: null
@@ -36,7 +44,7 @@ export default {
       const token = localStorage.getItem('token');
       if (!token) {
         console.error('No token found, redirecting to login...');
-        this.$router.push('/login'); // Redirect if no token
+        // this.$router.push('/login'); // Redirect if no token
         return;
       }
 
