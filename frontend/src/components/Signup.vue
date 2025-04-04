@@ -73,7 +73,7 @@
         </svg>
         <span>{{ errorMessage }}</span>
       </div>
-      
+
       <ul v-if="errors.length" role="alert" class="alert alert-warning mt-4">
         <li v-for="(err, index) in errors" :key="index" class="flex items-center space-x-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
@@ -149,39 +149,36 @@ export default {
     },
 
     async handleSubmit() {
-  this.errorMessage = ""; // Clear previous errors
-  this.errors = []; // Reset errors array if using multiple errors
+      this.errorMessage = "";
+      this.errors = [];
+      
+      if (!this.first_name || !this.last_name || !this.email || !this.password) {
+        this.errorMessage = "All fields are required.";
+        return;
+      }
+    
+      try {
+        const response = await axios.post('/signup', {
+          first_name: this.first_name,
+          last_name: this.last_name,
+          email: this.email,
+          password: this.password,
+        });
 
-  if (!this.first_name || !this.last_name || !this.email || !this.password) {
-    this.errorMessage = "All fields are required.";
-    return;
-  }
+        console.log(response);
+        console.log("Details have been submitted!");
+        this.$router.push('/login');
 
-  try {
-    // Send data to backend
-    const response = await axios.post('/signup', {
-      first_name: this.first_name,
-      last_name: this.last_name,
-      email: this.email,
-      password: this.password,
-    });
+      } catch (error) {
+        console.error("Signup failed:", error.response?.data || error.message);
 
-    console.log(response);
-    console.log("Details have been submitted!");
-    this.$router.push('/login'); // Redirect to login page on success
-
-  } catch (error) {
-    console.error("Signup failed:", error.response?.data || error.message);
-
-    // Check if backend sent validation errors
-    if (error.response?.status === 400 && error.response?.data?.errors) {
-      this.errors = error.response.data.errors; // Capture array of errors
-    } else {
-      this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+        if (error.response?.status === 400 && error.response?.data?.errors) {
+          this.errors = error.response.data.errors;
+        } else {
+          this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+        }
+      }
     }
-  }
-}
-
   }
 }
 </script>
