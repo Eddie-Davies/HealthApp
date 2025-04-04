@@ -65,7 +65,33 @@ app.get('/', (req, res) => {
 app.post('/signup', async (req, res) => {
     try {
         let { first_name, last_name, email, password } = req.body;
-        email = email.toLowerCase().trim();
+
+        first_name = first_name?.trim();
+        last_name = last_name?.trim();
+        email = email?.toLowerCase().trim();
+        password = password?.trim();
+
+        const errors = [];
+
+        if (!first_name || !/^[a-zA-Z]{2,30}$/.test(first_name)) {
+            errors.push("First name must be between 2 and 30 alphabetic characters.");
+        }
+        if (!last_name || !/^[a-zA-Z]{2,30}$/.test(last_name)) {
+            errors.push("Last name must be between 2 and 30 alphabetic characters.");
+        }
+        if (!email || !/^[^\s@]+@[^\s@]+$/.test(email)) {
+            errors.push("Invalid email format.");
+        }
+        if (!password || !/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/.test(password)) {
+            errors.push("Password must be at least 8 characters long and contain at least one number, one lowercase letter, and one uppercase letter.");
+        }
+
+        // Return validation errors if any
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+
 
         console.log(`Incoming request to /signup: Email: ${email}`);
         // Check if email is already in database.
