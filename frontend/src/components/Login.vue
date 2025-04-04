@@ -59,13 +59,19 @@
         </div>
     </div>
   </div>
+  
+  <Navbar/>
 </template>
 
 
 <script>
 import axios from 'axios';
+import Navbar from './navbar/Navbar.vue';
 export default {
   name: 'Login',
+    components: {
+      Navbar
+    },
   data() {
     return {
       email: '',
