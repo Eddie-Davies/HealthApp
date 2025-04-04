@@ -1,8 +1,8 @@
 <template>
-    <div class="flex flex-col items-center":class="{'text-blue-500': isActive, 'text-gray-400': !isActive}">
+    <router-link :to="to" class="flex flex-col items-center" :class="{'text-blue-500': isActive, 'text-gray-400': !isActive}">
         <i :class="icon" class="text-2xl"></i>
         <slot class="block"></slot>
-    </div>
+    </router-link>
 </template>
 
 <script>
