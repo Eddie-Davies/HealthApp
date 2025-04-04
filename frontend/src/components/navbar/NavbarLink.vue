@@ -1,7 +1,7 @@
 <template>
-    <router-link :to="to" class="flex flex-col items-center" :class="{'text-blue-500': isActive, 'text-gray-400': !isActive}">
-        <i :class="icon" class="text-2xl"></i>
-        <slot class="block"></slot>
+    <router-link :to="to" class="flex flex-col items-center" :class="{'text-primary': isActive, 'text-base-content/60': !isActive}">
+        <i :class="icon" class="mb-2 text-3xl"></i>
+        <slot class=""></slot>
     </router-link>
 </template>
 
