@@ -13,7 +13,7 @@
     <!-- Statement -->
     <div class="hero min-h-[50vh] bg-base-100 text-center">
       <div class="hero-content flex flex-col">
-        <h1 class="text-4xl font-bold text-base-content"><span class="text-primary">Blossom</span> with Strength, Thrive in Health</h1>
+        <h1 class="text-4xl font-bold text-base-content"><span class="bg-gradient-to-r from-secondary via-primary to-yellow-200 inline-block text-transparent bg-clip-text">Blossom</span> with Strength, Thrive in Health</h1>
         <p class="py-4">Set fitness goals, track meals, and manage exercise routines in one place.</p>
         <router-link to="/signup" class="btn bg-secondary text-white mt-2 border-0">
           Get Started
