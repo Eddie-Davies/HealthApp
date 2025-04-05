@@ -35,4 +35,4 @@ dist/
 
 # extensions
 .timetracker
-# backend/.env-example
+backend/.env-example
