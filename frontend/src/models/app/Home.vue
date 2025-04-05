@@ -1,5 +1,15 @@
 <template>
-  <div v-if="!user" class="justify-center flex my-10">
+  <div class="flex justify-end px-3 pt-3">
+    <div class="avatar avatar-placeholder">
+      <div class="bg-neutral text-neutral-content w-12 rounded-full">
+        <span class="text-1xl">AL</span>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- <div v-if="!user" class="justify-center flex my-10">
     <router-link to="/login" class="btn btn-primary mr-10">Login</router-link>
     <router-link to="/signup" class="btn btn-secondary">Signup</router-link>
   </div>
@@ -11,9 +21,9 @@
     <p v-if="user">Hi, {{ user.first_name }} {{ user.last_name }}.<br> You have successfully logged into your account with
       the email {{ user.email }}.</p>
     <p v-if="!user">You aren't logged in.</p>
-  </div>
+  </div> -->
   <router-view></router-view>
-  <Navbar/>
+  <Navbar />
 </template>
 
 <script>
