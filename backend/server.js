@@ -10,7 +10,7 @@ require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD
-
+// Test - hi eddie
 const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
