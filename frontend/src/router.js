@@ -4,6 +4,7 @@ import Login from './components/Login.vue';
 import Signup from './components/Signup.vue';
 import Home from './components/Home.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
+import newPassword  from './components/newPassword.vue';
 
 
 const routes = [
@@ -11,7 +12,8 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/signup', component: Signup },
   { path: '/home', component: Home },
-  { path: '/forgotpassword', component: ForgotPassword }
+  { path: '/forgotpassword', component: ForgotPassword },
+  {path: '/newpassword', component: newPassword}
 
 ];
 
