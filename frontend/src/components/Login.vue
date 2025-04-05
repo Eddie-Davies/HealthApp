@@ -41,7 +41,7 @@
               <input type="password" v-model="password" required placeholder="Password" class="w-full"/>
             </label>
             
-            <div><a class="link link-hover">Forgot password?</a></div>
+            <div><a @click="$router.push('/forgotpassword')" class="link link-hover">Forgot password?</a></div>
             <button class="btn btn-neutral mt-4 w-full">Login</button>
             <div><a @click="$router.push('/signup')" class="link link-hover">Don't have an account?</a></div>
           </fieldset>

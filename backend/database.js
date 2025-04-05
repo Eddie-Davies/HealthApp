@@ -51,6 +51,7 @@ const UserSchema = new mongoose.Schema({
     gender: Boolean,
     weight: Number,
     targetWeight: Number,
+    recoveryCode: String,
     meal: [MealSchema],
     exercise: [ExerciseSchema],
     goals: [GoalSchema]
