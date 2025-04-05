@@ -73,6 +73,19 @@ app.delete('/deleteUser/:email', async (req, res) => {
     }
 });
 
+// deleteAllUsers (not authed)
+// This route is for deleting all users from the database. It does not require authentication.
+app.get('/deleteAllUsers', async (req, res) => {
+    try {
+        const result = await UserModel.deleteMany({});
+        console.log(`All users deleted. Count: ${result.deletedCount}`);
+        res.json({ message: 'All users deleted successfully', deletedCount: result.deletedCount });
+    } catch (error) {
+        console.error('Error deleting all users:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // Fetch Users (not authed)
 // This route is for fetching all users. It does not require authentication.
 app.get("/getUsers", async (req, res) => {
