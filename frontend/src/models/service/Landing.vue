@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen text-neutral">
     <!-- "Navbar" -->
-    <div class="navbar bg-base-200 text-base">
+    <div class="navbar bg-base-100 text-base">
       <div class="flex-1 px-2 text-lg font-bold text-primary">Blossom</div>
       <div class="flex-none">
         <router-link to="/login" class="btn btn-outline btn-black">
@@ -15,7 +15,7 @@
       <div class="hero-content flex flex-col">
         <h1 class="text-4xl font-bold text-base-content"><span class="bg-gradient-to-r from-secondary via-primary to-yellow-200 inline-block text-transparent bg-clip-text">Blossom</span> with Strength, Thrive in Health</h1>
         <p class="py-4">Set fitness goals, track meals, and manage exercise routines in one place.</p>
-        <router-link to="/signup" class="btn bg-secondary text-white mt-2 border-0">
+        <router-link to="/signup" class="btn bg-secondary text-secondary-content mt-2 border-0">
           Get Started
         </router-link>
       </div>
