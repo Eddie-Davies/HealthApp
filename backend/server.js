@@ -4,9 +4,23 @@ const { UserModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
+const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD
+
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: EMAIL_ADDRESS,
+        pass: EMAIL_PASSWORD,
+    },
+});
 
 
 const app = express();
@@ -31,6 +45,37 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+app.post('/forgotPassword', async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.body.email });
+        console.log("User found:", user);
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        
+        
+        try {
+            const email = user;
+            await transporter.sendMail({
+                from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`, // sender address
+                to: email, // list of receivers
+                subject: "RESET PASSWORD", // Subject line
+                text: "FLOOD ONCOMING", // plain text body
+
+            });
+            res.status(200).send("Alert emails sent successfully!");
+        } catch (error) {
+            console.error("An error occurred while sending alert emails:", error);
+            res.status(500).send("An error occurred while sending alert emails");
+        }
+
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+);
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {

@@ -56,7 +56,6 @@
     data() {
       return {
         email: '',
-        password: '',
         errorMessage: ''
       }
     },
@@ -64,26 +63,24 @@
   
       async handleSubmit() {
         try {
-          const response = await axios.post('login', {
+          const response = await axios.post('forgotPassword', {
             email: this.email,
-            password: this.password
           });
   
           console.log('Full backend response:', response); // Log full response
   
-          if (response.data && response.data.token) {
-            localStorage.setItem('token', response.data.token);
-            console.log('Token stored successfully:', response.data.token);
-            this.$router.push('/home');
+          if (response.data) {
+            console.log("success");
           } else {
-            console.error('Token not received from backend', response.data);
+            console.error('Unexpected response format:', response);
+            this.errorMessage = "Unexpected response format.";
           }
   
         } catch (error) {
           if (error.response) {
         if (error.response.status === 401) {
-          console.error("Login failed:", error.response.data.message);
-          this.errorMessage = "Invalid email or password.";
+          console.error("Password Reset Failed:", error.response.data.message);
+          this.errorMessage = "Invalid email.";
         } else if (error.response.status === 500) {
           console.error("Server error:", error.response.data.message);
           this.errorMessage = "Server error. Please try again later.";
