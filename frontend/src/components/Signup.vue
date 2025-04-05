@@ -58,7 +58,6 @@
                   title="Must be more than 8 characters, including number, lowercase letter, uppercase letter" />
               </label>
               <div v-if="errors.password" class="validator-hint">{{ errors.password }}</div>
-              <div><a class="link link-hover">Forgot password?</a></div>
               <button class="btn btn-neutral mt-4 w-full">Sign up</button>
               <div><a @click="$router.push('/login')" class="link link-hover">Already have an account?</a></div>
             </fieldset>

@@ -66,7 +66,7 @@ app.post('/forgotPassword', async (req, res) => {
                 from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`, // sender address
                 to: email, // list of receivers
                 subject: "RESET PASSWORD", // Subject line
-                text: `${recoveryCode}`, // plain text body
+                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`, // plain text body
 
             });
         } catch (error) {
