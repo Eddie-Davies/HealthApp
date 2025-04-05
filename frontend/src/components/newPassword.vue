@@ -38,7 +38,7 @@
                   <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
                 </g>
               </svg>
-              <input type="password" v-model="password" required placeholder="Password" class="w-full"/>
+              <input type="password" v-model="newpassword" required placeholder="New Password" class="w-full"/>
             </label>
             
             <label class="fieldset-label">Code</label>
@@ -71,11 +71,12 @@
   <script>
   import axios from 'axios';
   export default {
-    name: 'ForgotPassword',
+    name: 'NewPassword',
     data() {
       return {
         email: '',
-        password: '',
+        newpassword: '',
+        code: '',
         errorMessage: ''
       }
     },
@@ -83,26 +84,27 @@
   
       async handleSubmit() {
         try {
-          const response = await axios.post('login', {
+          const response = await axios.post('newPassword', {
             email: this.email,
-            password: this.password
+            newpassword: this.newpassword,
+            code: this.code
           });
   
           console.log('Full backend response:', response); // Log full response
   
-          if (response.data && response.data.token) {
-            localStorage.setItem('token', response.data.token);
-            console.log('Token stored successfully:', response.data.token);
-            this.$router.push('/home');
+          if (response.data) {
+            console.log("success");
+            this.$router.push('/login');
           } else {
-            console.error('Token not received from backend', response.data);
+            console.error('Unexpected response format:', response);
+            this.errorMessage = "Unexpected response format.";
           }
   
         } catch (error) {
           if (error.response) {
         if (error.response.status === 401) {
-          console.error("Login failed:", error.response.data.message);
-          this.errorMessage = "Invalid email or password.";
+          console.error("Password Reset Failed:", error.response.data.message);
+          this.errorMessage = "Invalid email.";
         } else if (error.response.status === 500) {
           console.error("Server error:", error.response.data.message);
           this.errorMessage = "Server error. Please try again later.";

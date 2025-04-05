@@ -71,6 +71,7 @@
   
           if (response.data) {
             console.log("success");
+            this.$router.push('/newpassword');
           } else {
             console.error('Unexpected response format:', response);
             this.errorMessage = "Unexpected response format.";
