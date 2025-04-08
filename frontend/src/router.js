@@ -4,7 +4,7 @@ import Login from './models/service/Login.vue';
 import Signup from './models/service/Signup.vue';
 
 import Home from './models/app/Home.vue';
-import Goals from './models/app/Goals.vue';
+import Goals from './models/app/goals/Goals.vue';
 import Groups from './models/app/Groups.vue';
 import Exercise from './models/app/Exercise.vue';
 import Diet from './models/app/Diet.vue';
