@@ -1,27 +1,6 @@
 <template>
-  <div class="flex justify-end px-3 pt-3">
-    <div class="avatar avatar-placeholder">
-      <div class="bg-neutral text-neutral-content w-12 rounded-full">
-        <span class="text-1xl">AL</span>
-      </div>
-    </div>
-  </div>
-
-
-
-  <!-- <div v-if="!user" class="justify-center flex my-10">
-    <router-link to="/login" class="btn btn-primary mr-10">Login</router-link>
-    <router-link to="/signup" class="btn btn-secondary">Signup</router-link>
-  </div>
-  <div v-if="user" class="justify-center flex my-10">
-    <a href="javascript:void(0)" @click="handleClick" class="btn btn-warning mr-10">Log Out</a>
-  </div>
-  <div>
-    <h1 class="text-3xl font-bold">Welcome to the Home Page</h1>
-    <p v-if="user">Hi, {{ user.first_name }} {{ user.last_name }}.<br> You have successfully logged into your account with
-      the email {{ user.email }}.</p>
-    <p v-if="!user">You aren't logged in.</p>
-  </div> -->
+  <Avatar initials="AL" />
+  <PageHeader :title="$route.meta.title" />
   <router-view></router-view>
   <Navbar />
 </template>
@@ -29,10 +8,15 @@
 <script>
 import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
+import Avatar from '../../components/avatar/Avatar.vue';
+import PageHeader from '../../components/header/PageHeader.vue'
 
 export default {
   name: 'Home',
   components: {
+      
+      Avatar,
+      PageHeader,
       Navbar
     },
 
@@ -69,3 +53,18 @@ export default {
   }
 }
 </script>
+
+
+  <!-- <div v-if="!user" class="justify-center flex my-10">
+    <router-link to="/login" class="btn btn-primary mr-10">Login</router-link>
+    <router-link to="/signup" class="btn btn-secondary">Signup</router-link>
+  </div>
+  <div v-if="user" class="justify-center flex my-10">
+    <a href="javascript:void(0)" @click="handleClick" class="btn btn-warning mr-10">Log Out</a>
+  </div>
+  <div>
+    <h1 class="text-3xl font-bold">Welcome to the Home Page</h1>
+    <p v-if="user">Hi, {{ user.first_name }} {{ user.last_name }}.<br> You have successfully logged into your account with
+      the email {{ user.email }}.</p>
+    <p v-if="!user">You aren't logged in.</p>
+  </div> -->

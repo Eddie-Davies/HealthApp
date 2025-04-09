@@ -19,10 +19,10 @@ const routes = [
     path: "/home",
     component: Home,
     children: [
-      { path: "goals", component: Goals },
-      { path: "groups", component: Groups },
-      { path: "exercise", component: Exercise},
-      { path: "diet", component: Diet},
+      { path: "goals", component: Goals, meta: {title: 'My Goals'}},
+      { path: "groups", component: Groups, meta: {title: 'My Groups'} },
+      { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
+      { path: "diet", component: Diet, meta: {title: 'My Diet'}},
     ],
   },
 ];
