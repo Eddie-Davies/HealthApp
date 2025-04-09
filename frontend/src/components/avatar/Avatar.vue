@@ -1,5 +1,5 @@
 <template>
-    <div class="flex justify-end px-3 pt-3">
+    <div class="flex justify-end p-3">
         <div class="avatar avatar-placeholder">
             <div class="bg-neutral text-neutral-content w-12 rounded-full">
                 <span class="text-1xl">{{ initials }}</span>
