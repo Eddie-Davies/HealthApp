@@ -34,7 +34,6 @@ const ExerciseSchema = new mongoose.Schema({
 
 // Goal Schema
 const GoalSchema = new mongoose.Schema({
-    name: String,
     target: Number,
     current: Number,
     unit: String,

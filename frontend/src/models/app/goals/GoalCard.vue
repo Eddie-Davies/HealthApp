@@ -34,10 +34,6 @@
   export default {
     name: 'GoalCard',
     props: {
-      goalName: {
-        type: String,
-        default: 'My Goal'
-      },
       target: {
         type: Number,
         default: 100
