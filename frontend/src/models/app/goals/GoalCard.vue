@@ -4,8 +4,8 @@
       <!-- Top: Eaten + Remaining -->
       <div class="flex justify-between w-full">
         <div>
-          <p class="text-success">{{ progress.label }}</p>
-          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ progress.value }}</h1>
+          <p class="text-success">{{ completed.label }}</p>
+          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
           <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
           <p class="text-success mt-3">{{ remaining.label }}</p>
           <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
@@ -55,12 +55,12 @@
         default: 'units'
       },
       date: {
-        type: Date,
+        type: [Date, String],
         default: () => new Date()
       }
     },
     computed: {
-      progress() {
+      completed() {
         return {
           label: this.progressLabel,
           value: this.progress
@@ -75,8 +75,12 @@
       progressPercentage() {
         return (this.progress / this.target) * 100;
       },
+      parsedDate() {
+        const parsed = new Date(this.date);
+        return isNaN(parsed.getTime()) ? new Date() : parsed; // fallback if invalid
+      },
       formattedDate() {
-        const date = new Date(this.date);
+        const date = this.parsedDate;
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
