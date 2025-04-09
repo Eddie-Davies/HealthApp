@@ -13,7 +13,7 @@
         </div>
         <!-- Vertical Progress Bar -->
         <div class="flex flex-col items-center justify-end">
-          <p class="mb-1 text-neutral-400">{{ goalAim }}</p>
+          <p class="mb-1 text-neutral-400">{{ target }}</p>
           <div class="w-4 h-20 bg-neutral-200/20 rounded-full overflow-hidden relative">
             <div
               class="absolute bottom-0 w-full bg-gradient-to-t from-accent via- to-warning rounded-full"
@@ -38,11 +38,11 @@
         type: String,
         default: 'My Goal'
       },
-      goalAim: {
+      target: {
         type: Number,
         default: 100
       },
-      progressValue: {
+      progress: {
         type: Number,
         default: 0
       },
@@ -67,17 +67,17 @@
       progress() {
         return {
           label: this.progressLabel,
-          value: this.progressValue
+          value: this.progress
         };
       },
       remaining() {
         return {
           label: this.remainingLabel,
-          value: this.goalAim - this.progressValue
+          value: this.target - this.progress
         };
       },
       progressPercentage() {
-        return (this.progressValue / this.goalAim) * 100;
+        return (this.progress / this.target) * 100;
       },
       formattedDate() {
         const date = new Date(this.date);
