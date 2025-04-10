@@ -46,7 +46,48 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
-// Fetch Users
+// admin Tools
+
+// deleteUser (not authed)
+// This route is for deleting a user by email. It does not require authentication.
+//Example use: http://localhost:5000/deleteUser/test@example.com
+app.delete('/deleteUser/:email', async (req, res) => {
+    try {
+        const email = req.params.email;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required in URL parameter' });
+        }
+
+        const deletedUser = await UserModel.findOneAndDelete({ email: email.toLowerCase().trim() });
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log(`User with email ${email} deleted.`);
+        res.json({ message: 'User deleted successfully', user: deletedUser });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// deleteAllUsers (not authed)
+// This route is for deleting all users from the database. It does not require authentication.
+app.get('/deleteAllUsers', async (req, res) => {
+    try {
+        const result = await UserModel.deleteMany({});
+        console.log(`All users deleted. Count: ${result.deletedCount}`);
+        res.json({ message: 'All users deleted successfully', deletedCount: result.deletedCount });
+    } catch (error) {
+        console.error('Error deleting all users:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Fetch Users (not authed)
+// This route is for fetching all users. It does not require authentication.
 app.get("/getUsers", async (req, res) => {
     try {
         const users = await UserModel.find({});
@@ -57,6 +98,32 @@ app.get("/getUsers", async (req, res) => {
     }
 });
 
+// Fetch User by Email (not authed)
+// This route is for fetching a user by email. It does not require authentication.
+// Example use: http://localhost:5000/getUserByEmail?email=test@example.com
+app.get('/getUserByEmail', async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//--------------------------------------------------------------------------------------------------------------------
+
 // Test route
 app.get('/', (req, res) => {
     res.send('<h1>Testing index from the backend!</h1>');
@@ -65,7 +132,33 @@ app.get('/', (req, res) => {
 app.post('/signup', async (req, res) => {
     try {
         let { first_name, last_name, email, password } = req.body;
-        email = email.toLowerCase().trim();
+
+        first_name = first_name?.trim();
+        last_name = last_name?.trim();
+        email = email?.toLowerCase().trim();
+        password = password?.trim();
+
+        const errors = [];
+
+        if (!first_name || !/^[a-zA-Z]{2,30}$/.test(first_name)) {
+            errors.push("First name must be between 2 and 30 alphabetic characters.");
+        }
+        if (!last_name || !/^[a-zA-Z]{2,30}$/.test(last_name)) {
+            errors.push("Last name must be between 2 and 30 alphabetic characters.");
+        }
+        if (!email || !/^[^\s@]+@[^\s@]+$/.test(email)) {
+            errors.push("Invalid email format.");
+        }
+        if (!password || !/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/.test(password)) {
+            errors.push("Password must be at least 8 characters long and contain at least one number, one lowercase letter, and one uppercase letter.");
+        }
+
+        // Return validation errors if any
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+
 
         console.log(`Incoming request to /signup: Email: ${email}`);
         // Check if email is already in database.
@@ -120,6 +213,72 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/user/goals', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ goals: user.goals });
+    } catch (error) {
+        console.error('Error fetching user goals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/user/deletegoal', authenticateToken, async (req, res) => {
+    try {
+        const { goalId } = req.body; // Assuming goalId is sent in the request body
+
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.goals = user.goals.filter(goal => goal._id.toString() !== goalId); // Remove the goal by ID
+        await user.save();
+
+        res.status(200).json({ message: 'Goal deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/user/newgoal', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, target, current, endDate } = req.body;
+
+        if (!name || typeof type !== 'boolean' || !target || current === undefined || !endDate) {
+            return res.status(400).json({ message: 'Missing or invalid goal fields' });
+        }
+
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newGoal = {
+            name,
+            type,
+            target,
+            current,
+            endDate: new Date(endDate)
+        };
+
+        user.goals.push(newGoal);
+        await user.save();
+
+        res.status(201).json({ message: 'Goal added successfully', goal: newGoal });
+    } catch (error) {
+        console.error('Error adding goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // Start the server
 app.listen(port, () => {

@@ -34,10 +34,12 @@ const ExerciseSchema = new mongoose.Schema({
 
 // Goal Schema
 const GoalSchema = new mongoose.Schema({
-    name: String,
-    type: Boolean, // true = Food, false = Sport
     target: Number,
-    current: Number,
+    progress: Number,
+    progressLabel: String,
+    remainingLabel: String,
+    unit: String,
+    type: Boolean, // true = Food, false = Sport
     endDate: Date
 });
 

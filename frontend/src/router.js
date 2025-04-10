@@ -1,15 +1,35 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Landing from './components/Landing.vue';
-import Login from './components/Login.vue';
-import Signup from './components/Signup.vue';
-import Home from './components/Home.vue';
+import Landing from './pages/service/Landing.vue';
+import Login from './pages/service/Login.vue';
+import Signup from './pages/service/Signup.vue';
+import ForgotPassword from './pages/service/ForgotPassword.vue';
+import NewPassword  from './pages/service/NewPassword.vue';
+
+
+import Home from './pages/app/Home.vue';
+import Goals from './pages/app/goals/Goals.vue';
+import Groups from './pages/app/Groups.vue';
+import Exercise from './pages/app/Exercise.vue';
+import Diet from './pages/app/Diet.vue';
+
 
 
 const routes = [
-  { path: '/', component: Landing },
-  { path: '/login', component: Login },
-  { path: '/signup', component: Signup },
-  { path: '/home', component: Home }
+  { path: "/", component: Landing },
+  { path: "/login", component: Login },
+  { path: "/signup", component: Signup },
+  { path: '/forgotpassword', component: ForgotPassword },
+  { path: '/newpassword', component: NewPassword },
+  {
+    path: "/home",
+    component: Home,
+    children: [
+      { path: "goals", component: Goals, meta: {title: 'My Goals'}},
+      { path: "groups", component: Groups, meta: {title: 'My Groups'} },
+      { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
+      { path: "diet", component: Diet, meta: {title: 'My Diet'}},
+    ],
+  },
 ];
 
 const router = createRouter({
