@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Landing from './models/service/Landing.vue';
-import Login from './models/service/Login.vue';
-import Signup from './models/service/Signup.vue';
+import Landing from './pages/service/Landing.vue';
+import Login from './pages/service/Login.vue';
+import Signup from './pages/service/Signup.vue';
 
-import Home from './models/app/Home.vue';
-import Goals from './models/app/goals/Goals.vue';
-import Groups from './models/app/Groups.vue';
-import Exercise from './models/app/Exercise.vue';
-import Diet from './models/app/Diet.vue';
+import Home from './pages/app/Home.vue';
+import Goals from './pages/app/goals/Goals.vue';
+import Groups from './pages/app/Groups.vue';
+import Exercise from './pages/app/Exercise.vue';
+import Diet from './pages/app/Diet.vue';
 
 
 
