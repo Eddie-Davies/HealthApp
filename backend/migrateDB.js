@@ -12,7 +12,7 @@ const {
     GroupModel
 } = require('./database');
 
-// To run migration, CD into Backend adn then run:
+// To run migration, CD into Backend and then run:
 // node migrateDB.js
 
 // Comment out completed migrations, add new migrate functions below:
@@ -57,4 +57,28 @@ async function runMigration2() {
     }
   }
 
-  runMigration2();
+  // runMigration2();
+
+  async function runMigration3() {
+    try {
+      console.log('✅ Connected to MongoDB (via database.js)');
+  
+      const users = await UserModel.find({});
+      for (const user of users) {
+        const recoveryCode = generateCode();
+        await UserModel.updateOne({ _id: user._id }, {
+          $set: {
+        recoveryCode: recoveryCode
+          }
+        });
+      }
+  
+      console.log('✅ Migration complete');
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ Migration failed:', err);
+      process.exit(1);
+    }
+  }
+
+// runMigration3();

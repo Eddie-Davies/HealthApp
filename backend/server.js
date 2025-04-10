@@ -4,9 +4,23 @@ const { UserModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
+const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
+const EMAIL_PASSWORD = process.env.EMAIL_NODEMAILER_PASSWORD
+
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: EMAIL_ADDRESS,
+        pass: EMAIL_PASSWORD,
+    },
+});
 
 
 const app = express();
@@ -17,6 +31,10 @@ app.use(cors({ // This is needed because frontend and backend are on different u
 }))
 app.use(express.json());
 
+function generateCode(){
+    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit recovery code
+    return recoveryCode;
+  }
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -31,6 +49,72 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+app.post('/forgotPassword', async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.body.email });
+        // console.log("User found:", user);
+
+        let recoveryCode = generateCode();
+        await UserModel.updateOne({ email: req.body.email }, { recoveryCode: recoveryCode });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        try {
+            const email = user.email;
+            await transporter.sendMail({
+                from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`, // sender address
+                to: email, // list of receivers
+                subject: "RESET PASSWORD", // Subject line
+                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`, // plain text body
+
+            });
+        } catch (error) {
+            console.error("An error occurred while sending alert emails:", error);
+            res.status(500).send("An error occurred while sending alert emails");
+        }
+
+        res.status(200).json({ message: 'Recovery code sent to email'});
+
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/newPassword', async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.body.email });
+        reqCode = req.body.code;
+        reqnewpassword = req.body.newpassword;
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        recoveryCode = user.recoveryCode;
+
+        console.log(reqCode, " ", recoveryCode);
+
+        if (reqCode == recoveryCode) {
+            newPassword = await bcrypt.hash(reqnewpassword, 10);
+            await UserModel.updateOne({ email: req.body.email }, { password_hash: newPassword });
+            console.log("Password updated successfully.");
+            let recoveryCode = null;
+            await UserModel.updateOne({ email: req.body.email }, { recoveryCode: recoveryCode });
+            console.log("Recovery code updated successfully.");
+            res.status(200).json({ message: 'Password updated successfully' });
+        } else if (reqCode != recoveryCode) {
+            return res.status(401).json({ message: 'Invalid recovery code' });
+        }
+        else {
+            return res.status(401).json({ message: 'Unknown Error' });
+        }
+
+
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
