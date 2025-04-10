@@ -1,7 +1,8 @@
 <template>
-  <div class="mt-20 md:px-3 pb-16">
+  <div class="mt-20 pb-16">
     <!-- Grid container for the goal cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center mx-48">
+     <div class="flex justify-center">
+      <div class="grid max-[345px]:grid-cols-1 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
       <GoalCard v-for="goal in goals" :key="goal.date" 
         :target="goal.target"
         :progress="goal.progress"
@@ -11,8 +12,8 @@
         :type="goal.type"
         :date="goal.date"
       />
+      </div>
     </div>
-   
     <div class="mt-16 mb-16 flex flex-wrap justify-center">
       <GoalNew></GoalNew>
     </div>
