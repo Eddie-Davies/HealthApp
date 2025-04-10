@@ -4,13 +4,19 @@
     <div v-if="user">
       <Avatar :initials="getIntials()" />
       <PageHeader :title="$route.meta.title" />
+      <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
+        <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
+      </div>
       <router-view></router-view>
       <Navbar />
     </div>
 
     <!-- Loading state while data is being fetched -->
-    <div v-else-if="loading" class="flex h-screen">
-      <p class="m-auto text-lg">Fetching user data...</p>
+    <div v-else-if="loading" class="flex items-center justify-center h-screen">
+      <div class="text-center">
+        <p class="text-lg">Fetching user data...</p>
+        <progress class="progress w-56"></progress>
+      </div>
     </div>
 
     <!-- Fallback when there's no user and loading is complete -->
