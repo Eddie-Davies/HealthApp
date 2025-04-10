@@ -11,15 +11,21 @@
         :date="goal.date" 
       />
     </div>
+    
+    <div class="mt-10 flex flex-wrap justify-center">
+      <GoalNew></GoalNew>
+    </div>
   </div>
+
 </template>
 
 <script>
 import GoalCard from './GoalCard.vue';
+import GoalNew from './GoalNew.vue'
 
 export default {
   name: 'Goals',
-  components: { GoalCard },
+  components: { GoalCard, GoalNew },
   data() {
     return {
       // example to be used with mongodb later
