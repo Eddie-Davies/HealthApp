@@ -6,7 +6,7 @@ import Signup from './pages/service/Signup.vue';
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
-import Exercise from './pages/app/Exercise.vue';
+import Exercise from './pages/app/exercise/Exercise.vue';
 import Diet from './pages/app/Diet.vue';
 
 
