@@ -58,7 +58,6 @@
                   title="Must be more than 8 characters, including number, lowercase letter, uppercase letter" />
               </label>
               <div v-if="errors.password" class="validator-hint">{{ errors.password }}</div>
-              <div><a class="link link-hover">Forgot password?</a></div>
               <button class="btn btn-neutral mt-4 w-full">Sign up</button>
               <div><a @click="$router.push('/login')" class="link link-hover">Already have an account?</a></div>
             </fieldset>
@@ -73,6 +72,17 @@
         </svg>
         <span>{{ errorMessage }}</span>
       </div>
+
+      <ul v-if="errors.length" role="alert" class="alert alert-warning mt-4">
+        <li v-for="(err, index) in errors" :key="index" class="flex items-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ err }}</span>
+        </li>
+      </ul>
+
     </div>
   </div>
 </template>
@@ -138,32 +148,35 @@ export default {
     },
 
     async handleSubmit() {
+      this.errorMessage = "";
+      this.errors = [];
+      
       if (!this.first_name || !this.last_name || !this.email || !this.password) {
         this.errorMessage = "All fields are required.";
         return;
       }
-
+    
       try {
-        // POST DATA TO BACKEND
-        const response = await axios.post('signup', {
+        const response = await axios.post('/signup', {
           first_name: this.first_name,
           last_name: this.last_name,
           email: this.email,
           password: this.password,
         });
 
-        console.log(response)
-        console.log("Details have been submitted!")
+        console.log(response);
+        console.log("Details have been submitted!");
         this.$router.push('/login');
+
       } catch (error) {
         console.error("Signup failed:", error.response?.data || error.message);
-        this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+
+        if (error.response?.status === 400 && error.response?.data?.errors) {
+          this.errors = error.response.data.errors;
+        } else {
+          this.errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+        }
       }
-
-
-
-
-      
     }
   }
 }
