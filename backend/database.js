@@ -39,7 +39,7 @@ const GoalSchema = new mongoose.Schema({
     progressLabel: String,
     remainingLabel: String,
     unit: String,
-    type: Boolean, // true = Food, false = Sport
+    sport: Boolean, // false = food or other
     endDate: Date
 });
 

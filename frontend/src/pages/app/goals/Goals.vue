@@ -3,19 +3,28 @@
     <!-- Grid container for the goal cards -->
     <div class="flex justify-center">
       <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-        <GoalCard
-          v-for="goal in goals"
-          :key="goal.date"
-          :target="goal.target"
+        <GoalCard v-for="goal in goals" v-bind="goal" 
+          :key="goal.id" 
+          :target="goal.target" 
           :progress="goal.progress"
-          :progressLabel="goal.progressLabel"
-          :remainingLabel="goal.remainingLabel"
-          :unit="goal.unit"
+          :progressLabel="goal.progressLabel" 
+          :remainingLabel="goal.remainingLabel" 
+          :unit="goal.unit" 
           :type="goal.type"
-          :date="goal.date"
-        />
+          :date="goal.date" 
+          @edit="openEditor(goal)" />
       </div>
     </div>
+
+    <!-- Edit Goal -->
+    <GoalEdit
+      v-if="editingGoal"
+      :goal="editingGoal"
+      @save="saveGoal"
+      @delete="deleteGoal"
+      @cancel="editingGoal = null"
+    />
+
 
     <!-- Add new goal section -->
     <div class="mt-16 mb-16 flex flex-wrap justify-center">
@@ -40,65 +49,110 @@
 <script>
 import GoalCard from './GoalCard.vue';
 import GoalNew from './GoalNew.vue';
+import GoalEdit from './GoalEdit.vue';
 
 export default {
   name: 'Goals',
   components: {
     GoalCard,
     GoalNew,
+    GoalEdit
   },
   data() {
     return {
       // Example to be used with MongoDB later
+      //
       goals: [
         {
+          id: () => Math.random().toString(36).substr(2, 9),
           target: 4000,
           progress: 1300,
           progressLabel: 'Eaten',
           remainingLabel: 'Remaining',
           unit: 'kcal',
-          type: true,
+          sport: false,
           date: '2025-06-18',
         },
         {
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
-          remainingLabel: 'Remaining',
-          unit: 'kcal',
-          type: true,
-          date: '2025-06-18',
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 2500,
+          progress: 2000,
+          progressLabel: 'Consumed',
+          remainingLabel: 'Left',
+          unit: 'ml',
+          sport: false,
+          date: '2025-06-17',
         },
         {
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
-          remainingLabel: 'Remaining',
-          unit: 'kcal',
-          type: true,
-          date: '2026-06-18',
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 10000,
+          progress: 7400,
+          progressLabel: 'Steps Taken',
+          remainingLabel: 'To Go',
+          unit: 'steps',
+          sport: true,
+          date: '2025-06-16',
         },
         {
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 8,
+          progress: 5,
+          progressLabel: 'Hours Slept',
           remainingLabel: 'Remaining',
-          unit: 'kcal',
-          type: true,
-          date: '2025-06-18',
+          unit: 'hrs',
+          sport: false,
+          date: '2025-06-15',
         },
         {
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
-          remainingLabel: 'Remaining',
-          unit: 'kcal',
-          type: true,
-          date: '2025-06-18',
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 300,
+          progress: 100,
+          progressLabel: 'Pages Read',
+          remainingLabel: 'Left',
+          unit: 'pages',
+          sport: false,
+          date: '2025-06-14',
         },
-        // Additional goals can be added here
+        {
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 3,
+          progress: 1,
+          progressLabel: 'Workouts Done',
+          remainingLabel: 'To Go',
+          unit: 'sessions',
+          sport: true,
+          date: '2025-06-13',
+        },
+        {
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 2000,
+          progress: 1800,
+          progressLabel: 'Words Written',
+          remainingLabel: 'Remaining',
+          unit: 'words',
+          sport: false,
+          date: '2025-06-12',
+        }
       ],
+      editingGoal: null
     };
+    
   },
+  methods: {
+  openEditor(goal) {
+    this.editingGoal = { ...goal };
+  },
+  saveGoal(updatedGoal) {
+    const index = this.goals.findIndex(g => g.id === updatedGoal.id);
+    if (index !== -1) {
+      this.goals.splice(index, 1, { ...updatedGoal });
+    }
+    this.editingGoal = null;
+  },
+  deleteGoal(goalToDelete) {
+    this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
+    this.editingGoal = null;
+  }
+}
 };
 </script>
