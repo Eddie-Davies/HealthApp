@@ -61,7 +61,7 @@ export default {
   data() {
     return {
       // Example to be used with MongoDB later
-      //
+      // id is temporary, mongo db provides it own. 
       goals: [
         {
           id: () => Math.random().toString(36).substr(2, 9),
