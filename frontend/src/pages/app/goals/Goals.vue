@@ -28,7 +28,7 @@
 
     <!-- Add new goal section -->
     <div class="mt-16 mb-16 flex flex-wrap justify-center">
-      <GoalNew />
+      <GoalNew @new-goal="createNewGoal()" />
     </div>
   </div>
 </template>
@@ -152,6 +152,19 @@ export default {
   deleteGoal(goalToDelete) {
     this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
     this.editingGoal = null;
+  },
+  createNewGoal() {
+    const newGoal = {
+      id: Math.random().toString(36).substr(2, 9),
+      target: 2000,
+      progress: 0,
+      progressLabel: 'Progress',
+      remainingLabel: 'Remaining',
+      unit: 'units',
+      sport: false,
+      date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
+    };
+    this.goals.push(newGoal);
   }
 }
 };
