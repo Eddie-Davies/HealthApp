@@ -156,7 +156,7 @@ export default {
   createNewGoal() {
     const newGoal = {
       id: Math.random().toString(36).substr(2, 9),
-      target: 2000,
+      target: 10,
       progress: 0,
       progressLabel: 'Progress',
       remainingLabel: 'Remaining',
@@ -165,6 +165,7 @@ export default {
       date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
     };
     this.goals.push(newGoal);
+    this.editingGoal = {...newGoal}
   }
 }
 };
