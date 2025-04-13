@@ -2,7 +2,7 @@
     <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
         <div class="bg-base-200 p-6 rounded-xl w-80">
             <h2 class="text-lg font-semibold mb-4 text-center">Edit Goal</h2>
-            <div class="min-h-60">
+            <div class="min-h-65">
             <div v-if="page === 1">
                 <!-- Page 1: Main Info -->
                 <label class="block text-sm mb-2">Target</label>
