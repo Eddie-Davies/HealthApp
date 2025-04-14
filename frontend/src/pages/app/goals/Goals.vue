@@ -2,17 +2,15 @@
   <swiper
     ref="swiperRef"
     loop
-    
     :pagination="{
-      dynamicBullets: true,
+      dynamicBullets: false,
       clickable: true,
     }"
     :keyboard="{
       enabled: true,
     }"
     :modules="modules"
-    class="mySwiper"
-  >
+    class="mySwiper mb-30">
     <swiper-slide>
       <div class="mt-20 pb-16">
         <div class="flex justify-center">
