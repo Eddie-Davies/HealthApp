@@ -1,71 +1,71 @@
 <template>
   <swiper
     ref="swiperRef"
-    loop={true}
+    loop
     autoHeight
     :pagination="{
       dynamicBullets: true,
       clickable: true,
-      
     }"
     :keyboard="{
-      enabled: true
+      enabled: true,
     }"
     :modules="modules"
     class="mySwiper"
   >
     <swiper-slide>
       <div class="mt-20 pb-16">
-        <!-- Grid container for the goal cards -->
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-            <GoalCard v-for="goal in goals" v-bind="goal" 
-              :key="goal.id" 
-              :target="goal.target" 
+            <GoalCard v-for="goal in goals" v-bind="goal"
+              :key="goal.id"
+              :target="goal.target"
               :progress="goal.progress"
-              :progressLabel="goal.progressLabel" 
-              :remainingLabel="goal.remainingLabel" 
-              :unit="goal.unit" 
+              :progressLabel="goal.progressLabel"
+              :remainingLabel="goal.remainingLabel"
+              :unit="goal.unit"
               :type="goal.type"
-              :date="goal.date" 
+              :date="goal.date"
               @edit="openEditor(goal)" />
           </div>
         </div>
       </div>
-  </swiper-slide>
-
-  <swiper-slide>
-    <div class="mt-20 pb-16">
-    <!-- Grid container for the goal cards -->
-    <div class="flex justify-center">
-      <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-        <GoalCard v-for="goal in groupGoals['Family']" v-bind="goal" 
-          :key="goal.id" 
-          :target="goal.target" 
-          :progress="goal.progress"
-          :progressLabel="goal.progressLabel" 
-          :remainingLabel="goal.remainingLabel" 
-          :unit="goal.unit" 
-          :type="goal.type"
-          :date="goal.date" 
-          @edit="openEditor(goal)" />
-      </div>
-    </div>
+        <div class="mt-10 mb-30 flex flex-wrap justify-center">
+    <GoalNew @new-goal="createNewGoal()" />
   </div>
-  </swiper-slide>
-</swiper>
-<div class="mt-10 mb-30 flex flex-wrap justify-center">
-      <GoalNew @new-goal="createNewGoal()" />
-    </div>
+    </swiper-slide>
 
-<GoalEdit
-      v-if="editingGoal"
-      :goal="editingGoal"
-      :isNew="isNewGoal"
-      @save="saveGoal"
-      @delete="deleteGoal"
-      @cancel="editingGoal = null"
-    />
+    <swiper-slide class="h-10">
+      <div class="mt-20 pb-16">
+        <div class="flex justify-center">
+          <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+            <GoalCard v-for="goal in groupGoals['Family']" v-bind="goal"
+              :key="goal.id"
+              :target="goal.target"
+              :progress="goal.progress"
+              :progressLabel="goal.progressLabel"
+              :remainingLabel="goal.remainingLabel"
+              :unit="goal.unit"
+              :type="goal.type"
+              :date="goal.date"
+              @edit="openEditor(goal)" />
+          </div>
+        </div>
+      </div>
+      <div class="mt-10 mb-30 flex flex-wrap justify-center">
+    <GoalNew @new-goal="createNewGoal()" />
+  </div>
+    </swiper-slide>
+  </swiper>
+
+  <GoalEdit
+    v-if="editingGoal"
+    :goal="editingGoal"
+    :isNew="isNewGoal"
+    @save="saveGoal"
+    @delete="deleteGoal"
+    @cancel="editingGoal = null"
+  />
 </template>
 
 <style>
@@ -188,7 +188,7 @@ export default {
         }
       ],
       groupGoals: {
-        'Family': [{ 
+        'Family': [{
           id: () => Math.random().toString(36).substr(2, 9),
           target: 4000,
           progress: 1300,
@@ -198,66 +198,67 @@ export default {
           sport: false,
           date: '2025-06-18',
         }],
-        
+
         'School Mates': [
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 10000,
-          progress: 7400,
-          progressLabel: 'Steps Taken',
-          remainingLabel: 'To Go',
-          unit: 'steps',
-          sport: true,
-          date: '2025-06-16',
-        }
-      ]
+          {
+            id: () => Math.random().toString(36).substr(2, 9),
+            target: 10000,
+            progress: 7400,
+            progressLabel: 'Steps Taken',
+            remainingLabel: 'To Go',
+            unit: 'steps',
+            sport: true,
+            date: '2025-06-16',
+          }
+        ]
       },
       editingGoal: null,
       isNewGoal: false
     };
-    
+
   },
   methods: {
-  openEditor(goal, isNew=false) {
-    this.editingGoal = { ...goal };
-    this.isNewGoal = isNew;
-  },
-  saveGoal(updatedGoal) {
-    const index = this.goals.findIndex(g => g.id === updatedGoal.id);
-    if (index !== -1) {
-      this.goals.splice(index, 1, { ...updatedGoal });
-    } else {
-      this.goals.push({ ...updatedGoal });
+    openEditor(goal, isNew = false) {
+      this.editingGoal = { ...goal };
+      this.isNewGoal = isNew;
+    },
+    saveGoal(updatedGoal) {
+      const index = this.goals.findIndex(g => g.id === updatedGoal.id);
+      if (index !== -1) {
+        this.goals.splice(index, 1, { ...updatedGoal });
+      } else {
+        this.goals.push({ ...updatedGoal });
+      }
+      this.editingGoal = null;
+      this.updateSwiperHeight();
+    },
+    deleteGoal(goalToDelete) {
+      this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
+      this.editingGoal = null;
+      this.updateSwiperHeight();
+    },
+    createNewGoal() {
+      const newGoal = {
+        id: Math.random().toString(36).substr(2, 9),
+        target: 10,
+        progress: 0,
+        progressLabel: 'Progress',
+        remainingLabel: 'Remaining',
+        unit: 'units',
+        sport: false,
+        date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
+      };
+      this.openEditor(newGoal, true);
+    },
+    updateSwiperHeight() {
+      nextTick(() => {
+        if (this.swiperRef?.swiper) {
+          swiperRef.value.swiper.update(true);
+          swiperRef.value.swiper.updateSize();
+          this.swiperRef.swiper.updateAutoHeight();
+        }
+      });
     }
-    this.editingGoal = null;
-    nextTick(() => {
-      if (swiperRef.value?.swiper) {
-        swiperRef.value.swiper.updateAutoHeight();
-      }
-    });
-  },
-  deleteGoal(goalToDelete) {
-    this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
-    this.editingGoal = null;
-    nextTick(() => {
-      if (swiperRef.value?.swiper) {
-        swiperRef.value.swiper.updateAutoHeight();
-      }
-    });
-  },
-  createNewGoal() {
-    const newGoal = {
-      id: Math.random().toString(36).substr(2, 9),
-      target: 10,
-      progress: 0,
-      progressLabel: 'Progress',
-      remainingLabel: 'Remaining',
-      unit: 'units',
-      sport: false,
-      date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
-    };
-    this.openEditor(newGoal, true);
   }
-}
 };
 </script>
