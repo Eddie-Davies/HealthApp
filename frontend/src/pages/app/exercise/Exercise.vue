@@ -30,6 +30,7 @@ export default {
     return {
       exercises: [
         { title: '3km Run', activity: 'Run', distance: '3km', time: '18m 43s' }
+        
       ]
     }
   }
