@@ -83,8 +83,6 @@
 </style>
 
 <script>
-import { ref, nextTick, watch } from 'vue';
-
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/css/pagination';
 import 'swiper/css';
@@ -104,11 +102,8 @@ export default {
     GoalEdit,
   },
   setup() {
-    const swiperRef = ref(null);
-
     return {
       modules: [Pagination, Keyboard],
-      swiperRef
     }
   },
   data() {
@@ -216,7 +211,6 @@ export default {
       editingGoal: null,
       isNewGoal: false
     };
-
   },
   methods: {
     openEditor(goal, isNew = false) {
@@ -231,12 +225,10 @@ export default {
         this.goals.push({ ...updatedGoal });
       }
       this.editingGoal = null;
-      this.updateSwiperHeight();
     },
     deleteGoal(goalToDelete) {
       this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
       this.editingGoal = null;
-      this.updateSwiperHeight();
     },
     createNewGoal() {
       const newGoal = {
@@ -251,15 +243,6 @@ export default {
       };
       this.openEditor(newGoal, true);
     },
-    updateSwiperHeight() {
-      nextTick(() => {
-        if (this.swiperRef?.swiper) {
-          swiperRef.value.swiper.update(true);
-          swiperRef.value.swiper.updateSize();
-          this.swiperRef.swiper.updateAutoHeight();
-        }
-      });
-    }
   }
 };
 </script>
