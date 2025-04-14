@@ -1,4 +1,5 @@
 <template>
+  <Swiper :slides-per-view="1" class="w-full z-1">
   <div class="mt-20 pb-16">
     <!-- Grid container for the goal cards -->
     <div class="flex justify-center">
@@ -32,6 +33,7 @@
       <GoalNew @new-goal="createNewGoal()" />
     </div>
   </div>
+  </Swiper>
 </template>
 
 <style>
@@ -48,6 +50,9 @@
 </style>
 
 <script>
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css';
+
 import GoalCard from './GoalCard.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
@@ -55,14 +60,17 @@ import GoalEdit from './GoalEdit.vue';
 export default {
   name: 'Goals',
   components: {
+    Swiper,
+    SwiperSlide,
     GoalCard,
     GoalNew,
-    GoalEdit
+    GoalEdit,
   },
   data() {
     return {
       // Example to be used with MongoDB later
       // id is temporary, mongo db provides it own. 
+      groups: ['Family', 'School Mates'],
       goals: [
         {
           id: () => Math.random().toString(36).substr(2, 9),
@@ -135,6 +143,31 @@ export default {
           date: '2025-06-12',
         }
       ],
+      groupGoals: {
+        'Family': [{ 
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 4000,
+          progress: 1300,
+          progressLabel: 'Eaten',
+          remainingLabel: 'Remaining',
+          unit: 'kcal',
+          sport: false,
+          date: '2025-06-18',
+        }],
+        
+        'School Mates': [
+        {
+          id: () => Math.random().toString(36).substr(2, 9),
+          target: 10000,
+          progress: 7400,
+          progressLabel: 'Steps Taken',
+          remainingLabel: 'To Go',
+          unit: 'steps',
+          sport: true,
+          date: '2025-06-16',
+        }
+      ]
+      },
       editingGoal: null,
       isNewGoal: false
     };
