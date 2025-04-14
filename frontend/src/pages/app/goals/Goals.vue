@@ -1,10 +1,45 @@
 <template>
-  <Swiper :slides-per-view="1" class="w-full z-1">
-  <div class="mt-20 pb-16">
+  <swiper
+    ref="swiperRef"
+    loop={true}
+    autoHeight
+    :pagination="{
+      dynamicBullets: true,
+      clickable: true,
+      
+    }"
+    :keyboard="{
+      enabled: true
+    }"
+    :modules="modules"
+    class="mySwiper"
+  >
+    <swiper-slide>
+      <div class="mt-20 pb-16">
+        <!-- Grid container for the goal cards -->
+        <div class="flex justify-center">
+          <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+            <GoalCard v-for="goal in goals" v-bind="goal" 
+              :key="goal.id" 
+              :target="goal.target" 
+              :progress="goal.progress"
+              :progressLabel="goal.progressLabel" 
+              :remainingLabel="goal.remainingLabel" 
+              :unit="goal.unit" 
+              :type="goal.type"
+              :date="goal.date" 
+              @edit="openEditor(goal)" />
+          </div>
+        </div>
+      </div>
+  </swiper-slide>
+
+  <swiper-slide>
+    <div class="mt-20 pb-16">
     <!-- Grid container for the goal cards -->
     <div class="flex justify-center">
       <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-        <GoalCard v-for="goal in goals" v-bind="goal" 
+        <GoalCard v-for="goal in groupGoals['Family']" v-bind="goal" 
           :key="goal.id" 
           :target="goal.target" 
           :progress="goal.progress"
@@ -16,9 +51,14 @@
           @edit="openEditor(goal)" />
       </div>
     </div>
+  </div>
+  </swiper-slide>
+</swiper>
+<div class="mt-10 mb-30 flex flex-wrap justify-center">
+      <GoalNew @new-goal="createNewGoal()" />
+    </div>
 
-    <!-- Edit Goal -->
-    <GoalEdit
+<GoalEdit
       v-if="editingGoal"
       :goal="editingGoal"
       :isNew="isNewGoal"
@@ -26,14 +66,6 @@
       @delete="deleteGoal"
       @cancel="editingGoal = null"
     />
-
-
-    <!-- Add new goal section -->
-    <div class="mt-16 mb-16 flex flex-wrap justify-center">
-      <GoalNew @new-goal="createNewGoal()" />
-    </div>
-  </div>
-  </Swiper>
 </template>
 
 <style>
@@ -50,8 +82,12 @@
 </style>
 
 <script>
+import { ref, nextTick, watch } from 'vue';
+
 import { Swiper, SwiperSlide } from 'swiper/vue';
+import 'swiper/css/pagination';
 import 'swiper/css';
+import { Pagination, Keyboard } from 'swiper/modules';
 
 import GoalCard from './GoalCard.vue';
 import GoalNew from './GoalNew.vue';
@@ -65,6 +101,14 @@ export default {
     GoalCard,
     GoalNew,
     GoalEdit,
+  },
+  setup() {
+    const swiperRef = ref(null);
+
+    return {
+      modules: [Pagination, Keyboard],
+      swiperRef
+    }
   },
   data() {
     return {
@@ -186,10 +230,20 @@ export default {
       this.goals.push({ ...updatedGoal });
     }
     this.editingGoal = null;
+    nextTick(() => {
+      if (swiperRef.value?.swiper) {
+        swiperRef.value.swiper.updateAutoHeight();
+      }
+    });
   },
   deleteGoal(goalToDelete) {
     this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
     this.editingGoal = null;
+    nextTick(() => {
+      if (swiperRef.value?.swiper) {
+        swiperRef.value.swiper.updateAutoHeight();
+      }
+    });
   },
   createNewGoal() {
     const newGoal = {
