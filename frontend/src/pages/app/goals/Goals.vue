@@ -77,6 +77,9 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+.swiper-slide {
+  min-height: 100vh; /* This fixes it so you can swipe from anywhere on the page. */
+}
 </style>
 
 <script>
