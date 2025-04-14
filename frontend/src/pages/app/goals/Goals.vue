@@ -20,6 +20,7 @@
     <GoalEdit
       v-if="editingGoal"
       :goal="editingGoal"
+      :isNew="isNewGoal"
       @save="saveGoal"
       @delete="deleteGoal"
       @cancel="editingGoal = null"
@@ -134,18 +135,22 @@ export default {
           date: '2025-06-12',
         }
       ],
-      editingGoal: null
+      editingGoal: null,
+      isNewGoal: false
     };
     
   },
   methods: {
-  openEditor(goal) {
+  openEditor(goal, isNew=false) {
     this.editingGoal = { ...goal };
+    this.isNewGoal = isNew;
   },
   saveGoal(updatedGoal) {
     const index = this.goals.findIndex(g => g.id === updatedGoal.id);
     if (index !== -1) {
       this.goals.splice(index, 1, { ...updatedGoal });
+    } else {
+      this.goals.push({ ...updatedGoal });
     }
     this.editingGoal = null;
   },
@@ -164,8 +169,7 @@ export default {
       sport: false,
       date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
     };
-    this.goals.push(newGoal);
-    this.editingGoal = {...newGoal}
+    this.openEditor(newGoal, true);
   }
 }
 };
