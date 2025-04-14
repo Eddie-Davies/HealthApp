@@ -12,7 +12,7 @@
     :modules="modules"
     class="mySwiper mb-30">
     <swiper-slide>
-      <div class="mt-20 pb-16">
+      <div class="mt-20 pb-5">
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
             <GoalCard v-for="goal in goals" v-bind="goal"
@@ -28,13 +28,13 @@
           </div>
         </div>
       </div>
-        <div class="mt-10 mb-30 flex flex-wrap justify-center">
+        <div class="mt-10 mb-17 flex flex-wrap justify-center">
     <GoalNew @new-goal="createNewGoal()" />
   </div>
     </swiper-slide>
 
     <swiper-slide>
-      <div class="mt-20 pb-16">
+      <div class="mt-20 pb-5">
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
             <GoalCard v-for="goal in groupGoals['Family']" v-bind="goal"
@@ -50,7 +50,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-10 mb-30 flex flex-wrap justify-center">
+      <div class="mt-10 mb-0 flex flex-wrap justify-center">
     <GoalNew @new-goal="createNewGoal()" />
   </div>
     </swiper-slide>
