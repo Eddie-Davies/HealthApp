@@ -2,7 +2,7 @@
   <swiper
     ref="swiperRef"
     loop
-    autoHeight
+    
     :pagination="{
       dynamicBullets: true,
       clickable: true,
@@ -35,7 +35,7 @@
   </div>
     </swiper-slide>
 
-    <swiper-slide class="h-10">
+    <swiper-slide>
       <div class="mt-20 pb-16">
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
