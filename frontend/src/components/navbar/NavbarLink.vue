@@ -21,7 +21,7 @@ export default {
     },
     setup(props) {
         const route = useRoute();
-        const isActive = computed(() => route.path === props.to);
+        const isActive = computed(() => route.path.startsWith(props.to));
         return { isActive };
     }
 };

@@ -20,13 +20,17 @@ const routes = [
     path: "/home",
     component: Home,
     children: [
-      { path: "goals", component: Goals, meta: {title: 'My Goals'}},
-      { path: "groups", component: Groups, meta: {title: 'My Groups'} },
-      { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
-      { path: "exerciseStart", component: ExerciseStart, meta: {title: 'My New Exercise'}},
-      { path: "diet", component: Diet, meta: {title: 'My Diet'}},
+      { path: "goals", component: Goals, meta: { title: "My Goals" } },
+      
+      { path: "groups", component: Groups, meta: { title: "My Groups" } },
+
+      { path: "exercise", component: Exercise, meta: { title: "My Exercise" } },
+      { path: "exercise/track", component: ExerciseStart, meta: { title: "Track Exercise" } },
+
+      { path: "diet", component: Diet, meta: { title: "My Diet" } },
     ],
   },
+  
 ];
 
 const router = createRouter({

@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center py-4"> 
-    <router-link to="/home/exercise/ExerciseStart" class="btn btn-neutral">
+    <router-link to="/home/exercise/track" class="btn btn-neutral">
       Start Exercise
     </router-link>
   </div>
