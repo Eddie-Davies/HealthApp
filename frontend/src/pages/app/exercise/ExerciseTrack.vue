@@ -1,5 +1,5 @@
 <template>
-    <p>Hello from ExerciseStart</p>
+    <p>Hello from ExerciseTrack</p>
 </template>
 
 
@@ -9,7 +9,7 @@
     import ExerciseNew from './ExerciseNew.vue'
 
     export default {
-        name: 'ExerciseStart',
+        name: 'ExerciseTrack',
         components: { ExerciseCard, ExerciseNew },
     };
 </script>

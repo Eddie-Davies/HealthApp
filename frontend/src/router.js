@@ -7,7 +7,7 @@ import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
-import ExerciseStart from './pages/app/exercise/ExerciseStart.vue';
+import ExerciseStart from './pages/app/exercise/ExerciseTrack.vue';
 import Diet from './pages/app/Diet.vue';
 
 
