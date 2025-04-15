@@ -7,6 +7,7 @@ import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
+import ExerciseStart from './pages/app/exercise/ExerciseStart.vue';
 import Diet from './pages/app/Diet.vue';
 
 
@@ -22,6 +23,7 @@ const routes = [
       { path: "goals", component: Goals, meta: {title: 'My Goals'}},
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
+      { path: "exerciseStart", component: ExerciseStart, meta: {title: 'My New Exercise'}},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
     ],
   },

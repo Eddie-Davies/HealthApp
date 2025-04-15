@@ -1,11 +1,14 @@
 <template>
   <div class="flex items-center justify-center py-4"> 
-    <button class="btn btn-neutral">Start Exercise</button>
+    <router-link to="/home/exercise/ExerciseStart" class="btn btn-neutral">
+      Start Exercise
+    </router-link>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'ExerciseNew',
-};
+
+  export default {
+    name: 'ExerciseNew',
+  };
 </script>
