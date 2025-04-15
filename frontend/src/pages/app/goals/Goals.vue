@@ -5,6 +5,7 @@
     :pagination="{
       dynamicBullets: false,
       clickable: true,
+      bulletActiveClass: '!bg-secondary !opacity-80'
     }"
     :keyboard="{
       enabled: true,
@@ -12,6 +13,7 @@
     :modules="modules"
     class="mySwiper mb-30">
     <swiper-slide>
+      <PageHeader :title="$route.meta.title" />
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
@@ -34,6 +36,7 @@
     </swiper-slide>
 
     <swiper-slide>
+      <PageHeader title="Family Goals" />
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
           <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
@@ -80,6 +83,9 @@
 .swiper-slide {
   min-height: 100vh; /* This fixes it so you can swipe from anywhere on the page. */
 }
+.swiper-pagination-bullet-active {
+     background-color: bg-base-200 !important;
+}
 </style>
 
 <script>
@@ -89,6 +95,7 @@ import 'swiper/css';
 import { Pagination, Keyboard } from 'swiper/modules';
 
 import GoalCard from './GoalCard.vue';
+import PageHeader from '../../../components/header/PageHeader.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 
@@ -100,6 +107,7 @@ export default {
     GoalCard,
     GoalNew,
     GoalEdit,
+    PageHeader
   },
   setup() {
     return {
