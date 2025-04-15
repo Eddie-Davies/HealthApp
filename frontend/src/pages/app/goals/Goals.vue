@@ -35,28 +35,28 @@
   </div>
     </swiper-slide>
 
-    <swiper-slide>
-      <PageHeader title="Family Goals" />
-      <div class="mt-20 pb-5">
-        <div class="flex justify-center">
-          <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-            <GoalCard v-for="goal in groupGoals['Family']" v-bind="goal"
-              :key="goal.id"
-              :target="goal.target"
-              :progress="goal.progress"
-              :progressLabel="goal.progressLabel"
-              :remainingLabel="goal.remainingLabel"
-              :unit="goal.unit"
-              :type="goal.type"
-              :date="goal.date"
-              @edit="openEditor(goal)" />
-          </div>
+  <swiper-slide v-for="group in groups" :key="group">
+    <PageHeader :title="`${group} Goals`" />
+    <div class="mt-20 pb-5">
+      <div class="flex justify-center">
+        <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+          <GoalCard v-for="goal in groupGoals[group]" v-bind="goal"
+            :key="goal.id"
+            :target="goal.target"
+            :progress="goal.progress"
+            :progressLabel="goal.progressLabel"
+            :remainingLabel="goal.remainingLabel"
+            :unit="goal.unit"
+            :type="goal.type"
+            :date="goal.date"
+            @edit="openEditor(goal, false, group)" />
         </div>
       </div>
-      <div class="mt-10 mb-0 flex flex-wrap justify-center">
-    <GoalNew @new-goal="createNewGoal()" />
-  </div>
-    </swiper-slide>
+    </div>
+    <div class="mt-10 mb-0 flex flex-wrap justify-center">
+      <GoalNew :group="group" @new-goal="createNewGoal" />
+    </div>
+  </swiper-slide>
   </swiper>
 
   <GoalEdit
@@ -221,36 +221,58 @@ export default {
     };
   },
   methods: {
-    openEditor(goal, isNew = false) {
-      this.editingGoal = { ...goal };
+    openEditor(goal, isNew = false, groupName = null) {
+      this.editingGoal = { ...goal, group: groupName }; // store group info (defaults to null = indicating no group)
       this.isNewGoal = isNew;
     },
+
     saveGoal(updatedGoal) {
-      const index = this.goals.findIndex(g => g.id === updatedGoal.id);
-      if (index !== -1) {
-        this.goals.splice(index, 1, { ...updatedGoal });
+      const group = updatedGoal.group;
+      
+      let targetArray;
+      if (group) {
+        targetArray = this.groupGoals[group];
       } else {
-        this.goals.push({ ...updatedGoal });
+        targetArray = this.goals;
+      }
+      
+      const index = targetArray.findIndex(g => g.id === updatedGoal.id); // select the correct goal to change
+      // Either add a new entry if not found, or update existing one.
+      if (index !== -1) {
+        targetArray[index] = { ...updatedGoal };
+      } else {
+        targetArray.push({ ...updatedGoal });
       }
       this.editingGoal = null;
     },
+
+    
     deleteGoal(goalToDelete) {
-      this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
+      const group = goalToDelete.group;
+
+      if (group) {
+        if (this.groupGoals[group]) {
+          this.groupGoals[group] = this.groupGoals[group].filter(g => g.id !== goalToDelete.id);
+        }
+      } else {
+        this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
+      }
       this.editingGoal = null;
     },
-    createNewGoal() {
-      const newGoal = {
-        id: Math.random().toString(36).substr(2, 9),
-        target: 10,
-        progress: 0,
-        progressLabel: 'Progress',
-        remainingLabel: 'Remaining',
-        unit: 'units',
-        sport: false,
-        date: new Date().toISOString().slice(0, 10), // today's date in YYYY-MM-DD
-      };
-      this.openEditor(newGoal, true);
-    },
+
+    createNewGoal(groupName = null) {
+    const newGoal = {
+      id: Math.random().toString(36).substr(2, 9),
+      target: 10,
+      progress: 0,
+      progressLabel: 'Progress',
+      remainingLabel: 'Remaining',
+      unit: 'units',
+      sport: false,
+      date: new Date().toISOString().slice(0, 10),
+    };
+    this.openEditor(newGoal, true, groupName);
   }
+}
 };
 </script>
