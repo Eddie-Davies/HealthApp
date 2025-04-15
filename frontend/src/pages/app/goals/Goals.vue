@@ -11,8 +11,9 @@
       enabled: true,
     }"
     :modules="modules"
-    class="mySwiper mb-30">
+    class="mySwiper">
     <swiper-slide>
+      <div class="flex-grow flex flex-col">
       <PageHeader :title="$route.meta.title" />
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
@@ -35,12 +36,15 @@
           </div>
         </div>
       </div>
-        <div class="mt-10 mb-17 flex flex-wrap justify-center">
-    <GoalNew @new-goal="createNewGoal()" />
-  </div>
+        <div class="mt-10 mb-50 flex flex-wrap justify-center">
+          <GoalNew @new-goal="createNewGoal()" />
+        </div>
+      </div>
     </swiper-slide>
+    
 
   <swiper-slide v-for="group in groups" :key="group">
+    <div class="flex-grow flex flex-col">
     <PageHeader :title="`${group} Goals`" />
     <div class="mt-20 pb-5">
       <div class="flex justify-center">
@@ -66,7 +70,9 @@
     <div class="mt-10 mb-0 flex flex-wrap justify-center">
       <GoalNew :group="group" @new-goal="createNewGoal" />
     </div>
+  </div>
   </swiper-slide>
+  
   </swiper>
 
   <GoalEdit
@@ -90,13 +96,27 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* prevent weird scroll issues */
+}
+
+.swiper {
+  height: 100vh !important;
+}
+
 .swiper-slide {
-  min-height: 100vh; /* This fixes it so you can swipe from anywhere on the page. */
+  height: 100vh !important;
+  overflow-y: auto; /* allow scrolling when content is taller */
+  display: flex;
+  flex-direction: column;
 }
 .swiper-pagination-bullet-active {
      background-color: bg-base-200 !important;
 }
 </style>
+
 
 <script>
 import { Swiper, SwiperSlide } from 'swiper/vue';
