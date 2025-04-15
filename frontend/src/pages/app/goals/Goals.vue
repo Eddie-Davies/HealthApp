@@ -16,7 +16,7 @@
       <PageHeader :title="$route.meta.title" />
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
-          <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+          <div v-if="goals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
             <GoalCard v-for="goal in goals" v-bind="goal"
               :key="goal.id"
               :target="goal.target"
@@ -27,6 +27,11 @@
               :type="goal.type"
               :date="goal.date"
               @edit="openEditor(goal)" />
+          </div>
+          <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
+            <div class="tooltip" data-tip="Click the button below :)">
+              <button class="btn">Add some new goals to start tracking!</button>
+            </div>
           </div>
         </div>
       </div>
@@ -39,7 +44,7 @@
     <PageHeader :title="`${group} Goals`" />
     <div class="mt-20 pb-5">
       <div class="flex justify-center">
-        <div class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+        <div v-if="groupGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
           <GoalCard v-for="goal in groupGoals[group]" v-bind="goal"
             :key="goal.id"
             :target="goal.target"
@@ -51,7 +56,12 @@
             :date="goal.date"
             @edit="openEditor(goal, false, group)" />
         </div>
-      </div>
+        <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
+            <div class="tooltip" data-tip="Click the button below :)">
+              <button class="btn">Add some new goals to start tracking!</button>
+            </div>
+          </div>
+        </div>
     </div>
     <div class="mt-10 mb-0 flex flex-wrap justify-center">
       <GoalNew :group="group" @new-goal="createNewGoal" />
