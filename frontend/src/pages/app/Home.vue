@@ -51,13 +51,11 @@
 import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
 import Avatar from '../../components/avatar/Avatar.vue';
-import PageHeader from '../../components/header/PageHeader.vue'
 
 export default {
   name: 'Home',
   components: {
     Avatar,
-    PageHeader,
     Navbar
   },
 
