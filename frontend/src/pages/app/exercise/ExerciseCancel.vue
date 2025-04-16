@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex flex-col justify-end items-center">
+    <div class=" flex flex-col justify-end items-center">
       <div class="flex flex-col items-center py-95">
         <router-link to="/home/exercise">
           <button class="btn btn-error  w-18 h-18 rounded-full flex items-center justify-center">

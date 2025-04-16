@@ -1,6 +1,6 @@
 <template>
-    <div class="min-h-screen flex flex-col pb-40">
-      <div class="mt-6 w-full flex justify-center ">
+    <div class="flex flex-col items-center">
+      <div class="mt-6 w-full flex justify-center">
         <input
           v-model="newTitle"
           class="input input-ghost px-10 text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none"
@@ -8,12 +8,12 @@
         />
       </div>
   
-      <div class="flex flex-col justify-end items-center flex-grow">
-        <div class="relative flex items-center justify-center py-4 w-full">
+      <div class="w-full flex items-center justify-center py-4">
+        <div class="relative flex items-center justify-center w-full">
           <div class="absolute left-1/2 transform -translate-x-full pr-16">
             <ExercisePlay />
           </div>
-
+  
           <ExerciseCancel />
   
           <div class="absolute left-1/2 transform translate-x-full pl-1">
@@ -23,6 +23,7 @@
       </div>
     </div>
   </template>
+  
   
   <script>
   import ExerciseCancel from './ExerciseCancel.vue';
