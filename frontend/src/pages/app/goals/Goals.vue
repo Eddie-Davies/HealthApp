@@ -18,8 +18,8 @@
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
           <div v-if="goals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-            <GoalCard v-for="goal in goals" v-bind="goal"
-              :key="goal.id"
+            <GoalCard v-for="goal in goals"
+              :key="goal._id"
               :target="goal.target"
               :progress="goal.progress"
               :progressLabel="goal.progressLabel"
@@ -119,6 +119,7 @@ html, body, #app {
 
 
 <script>
+import axios from 'axios';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/css/pagination';
 import 'swiper/css';
@@ -148,115 +149,32 @@ export default {
     return {
       // Example to be used with MongoDB later
       // id is temporary, mongo db provides it own. 
-      groups: ['Family', 'School Mates'],
-      goals: [
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
-          remainingLabel: 'Remaining',
-          unit: 'kcal',
-          sport: false,
-          date: '2025-06-18',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 2500,
-          progress: 2000,
-          progressLabel: 'Consumed',
-          remainingLabel: 'Left',
-          unit: 'ml',
-          sport: false,
-          date: '2025-06-17',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 10000,
-          progress: 7400,
-          progressLabel: 'Steps Taken',
-          remainingLabel: 'To Go',
-          unit: 'steps',
-          sport: true,
-          date: '2025-06-16',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 8,
-          progress: 5,
-          progressLabel: 'Hours Slept',
-          remainingLabel: 'Remaining',
-          unit: 'hrs',
-          sport: false,
-          date: '2025-06-15',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 300,
-          progress: 100,
-          progressLabel: 'Pages Read',
-          remainingLabel: 'Left',
-          unit: 'pages',
-          sport: false,
-          date: '2025-06-14',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 3,
-          progress: 1,
-          progressLabel: 'Workouts Done',
-          remainingLabel: 'To Go',
-          unit: 'sessions',
-          sport: true,
-          date: '2025-06-13',
-        },
-        {
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 2000,
-          progress: 1800,
-          progressLabel: 'Words Written',
-          remainingLabel: 'Remaining',
-          unit: 'words',
-          sport: false,
-          date: '2025-06-12',
-        }
-      ],
-      groupGoals: {
-        'Family': [{
-          id: () => Math.random().toString(36).substr(2, 9),
-          target: 4000,
-          progress: 1300,
-          progressLabel: 'Eaten',
-          remainingLabel: 'Remaining',
-          unit: 'kcal',
-          sport: false,
-          date: '2025-06-18',
-        }],
-
-        'School Mates': [
-          {
-            id: () => Math.random().toString(36).substr(2, 9),
-            target: 10000,
-            progress: 7400,
-            progressLabel: 'Steps Taken',
-            remainingLabel: 'To Go',
-            unit: 'steps',
-            sport: true,
-            date: '2025-06-16',
-          }
-        ]
-      },
+      groups: [],
+      goals: [],
+      groupGoals: {},
       editingGoal: null,
-      isNewGoal: false
+      isNewGoal: false,
+      user: null,
     };
   },
+
+  async mounted() {
+    try {
+      const res = await axios.get('/user/goals');
+      console.log('User goals:', res.data.goals);
+      this.goals = res.data.goals;
+    } catch (err) {
+      console.error('Error fetching goals:', err.response?.data);
+    }
+  },
+
   methods: {
     openEditor(goal, isNew = false, groupName = null) {
       this.editingGoal = { ...goal, group: groupName }; // store group info (defaults to null = indicating no group)
       this.isNewGoal = isNew;
     },
 
-    saveGoal(updatedGoal) {
+    async saveGoal(updatedGoal) {
       const group = updatedGoal.group;
       
       let targetArray;
@@ -265,29 +183,72 @@ export default {
       } else {
         targetArray = this.goals;
       }
-      
-      const index = targetArray.findIndex(g => g.id === updatedGoal.id); // select the correct goal to change
-      // Either add a new entry if not found, or update existing one.
-      if (index !== -1) {
-        targetArray[index] = { ...updatedGoal };
-      } else {
-        targetArray.push({ ...updatedGoal });
+
+      const isExisting = !!updatedGoal._id;
+
+      try {
+        let savedGoal;
+
+        if (isExisting) {
+          // Update existing goal in database
+          const res = await axios.put(`/user/updateGoal/${updatedGoal._id}`, updatedGoal);
+          savedGoal = res.data.goal;
+        } else {
+          // Create new goal in database
+          const res = await axios.post('/user/newGoal', updatedGoal);
+          savedGoal = res.data.goal;
+          updatedGoal._id = savedGoal._id
+          console.log('Full response:', res);
+          console.log('Goal data:', res.data);  // Ensure that the response contains the goal data with _id
+          console.log('Goal from response:', res.data.goal);  // Goal object
+
+          // Push to local array since it's new
+          targetArray.push(updatedGoal);
+        }
+
+        // Update or replace locally
+        const index = targetArray.findIndex(g => g._id === savedGoal._id);
+        if (index !== -1) {
+          targetArray[index] = { ...savedGoal };
+        }
+
+        // Update the main array if no group
+        if (!group) {
+          this.goals = [...targetArray];
+        } else {
+          this.groupGoals[group] = [...targetArray];
+        }
+
+        this.editingGoal = null;
+
+      } catch (err) {
+        console.error('Error saving goal:', err.response?.data || err.message);
       }
-      this.editingGoal = null;
     },
 
-    
-    deleteGoal(goalToDelete) {
-      const group = goalToDelete.group;
 
-      if (group) {
-        if (this.groupGoals[group]) {
-          this.groupGoals[group] = this.groupGoals[group].filter(g => g.id !== goalToDelete.id);
+    
+    async deleteGoal(goalToDelete) {
+      try {
+        // Send delete request to the backend API
+        await axios.delete(`/user/goals/${goalToDelete._id}`); // Use _id here, not id
+
+        const group = goalToDelete.group;
+
+        // Update local state to reflect the deletion
+        if (group) {
+          if (this.groupGoals[group]) {
+            this.groupGoals[group] = this.groupGoals[group].filter(g => g._id !== goalToDelete._id); // Use _id
+          }
+        } else {
+          this.goals = this.goals.filter(g => g._id !== goalToDelete._id); // Use _id
         }
-      } else {
-        this.goals = this.goals.filter(g => g.id !== goalToDelete.id);
+
+        // Clear the editingGoal to exit editing mode after deletion
+        this.editingGoal = null;
+      } catch (err) {
+        console.error('Error deleting goal:', err.response?.data || err);
       }
-      this.editingGoal = null;
     },
 
     createNewGoal(groupName = null) {

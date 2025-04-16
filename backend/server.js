@@ -312,31 +312,42 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
     }
 });
 
-app.delete('/user/deletegoal', authenticateToken, async (req, res) => {
+app.delete('/user/goals/:id', authenticateToken, async (req, res) => {
     try {
-        const { goalId } = req.body; // Assuming goalId is sent in the request body
-
-        const user = await UserModel.findOne({ email: req.user.email });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        user.goals = user.goals.filter(goal => goal._id.toString() !== goalId); // Remove the goal by ID
-        await user.save();
-
-        res.status(200).json({ message: 'Goal deleted successfully' });
+      const goalId = req.params.id;
+      console.log(goalId)
+  
+      const user = await UserModel.findOne({ email: req.user.email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const originalLength = user.goals.length;
+  
+      // Remove the goal with matching _id
+      user.goals = user.goals.filter(goal => goal._id.toString() !== goalId);
+  
+      if (user.goals.length === originalLength) {
+        return res.status(404).json({ message: 'Goal not found' });
+      }
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Goal deleted successfully' });
     } catch (error) {
         console.error('Error deleting goal:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-});
+  });
+  
 
-app.get('/user/newgoal', authenticateToken, async (req, res) => {
+app.post('/user/newgoal', authenticateToken, async (req, res) => {
     try {
-        const { name, type, target, current, endDate } = req.body;
+        
+        const { target, progress, progressLabel, remainingLabel, unit, sport, date, groups } = req.body;
 
-        if (!name || typeof type !== 'boolean' || !target || current === undefined || !endDate) {
+        if (typeof sport !== 'boolean' || !target || progress === undefined || !date) {
             return res.status(400).json({ message: 'Missing or invalid goal fields' });
         }
 
@@ -347,22 +358,50 @@ app.get('/user/newgoal', authenticateToken, async (req, res) => {
         }
 
         const newGoal = {
-            name,
-            type,
-            target,
-            current,
-            endDate: new Date(endDate)
+            target, progress, progressLabel, remainingLabel, unit, sport, date, groups
         };
 
         user.goals.push(newGoal);
         await user.save();
+        const savedGoal = user.goals[user.goals.length - 1];  // The new goal should be the last one added
 
-        res.status(201).json({ message: 'Goal added successfully', goal: newGoal });
+        res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });  // Return the saved goal including _id
     } catch (error) {
         console.error('Error adding goal:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+app.put('/user/updateGoal/:id', authenticateToken, async (req, res) => {
+    try {
+      const goalId = req.params.id;
+      const updatedGoal = req.body;
+  
+      const user = await UserModel.findOne({ email: req.user.email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Find the goal by id
+      const goalIndex = user.goals.findIndex(goal => goal._id.toString() === goalId);
+  
+      if (goalIndex === -1) {
+        return res.status(404).json({ message: 'Goal not found' });
+      }
+  
+      // Update goal fields
+      user.goals[goalIndex] = { ...user.goals[goalIndex]._doc, ...updatedGoal };
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Goal updated successfully', goal: user.goals[goalIndex] });
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
 
 // Start the server
 app.listen(port, () => {
