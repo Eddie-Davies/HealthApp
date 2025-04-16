@@ -167,14 +167,23 @@ export default {
       console.error('Error fetching goals:', err.response?.data);
     }
     try {
-      const res2 = await axios.get('/group/goals');
-      console.log('Group goals:', res2.data.goals); // not res2.data.groupGoals
-      this.groupGoals = res2.data.goals;
-      console.log('Stored groupGoals:', this.groupGoals);
+  const res2 = await axios.get('/group/goals');
+  console.log('Group goals:', res2.data.goals);
 
-    }catch (err) {
-      console.error('Error fetching goals:', err.response?.data);
-    }
+  this.groups = res2.data.goals.map(g => g.name); // ['family', ...]
+  const mappedGoals = {};
+
+  for (const group of res2.data.goals) {
+    // Wrap single goal in array if needed
+    mappedGoals[group.name] = Array.isArray(group.goals) ? group.goals : [];
+
+
+  }
+
+  this.groupGoals = mappedGoals;
+} catch (err) {
+  console.error('Error fetching group goals:', err.response?.data);
+}
   },
 
   methods: {
