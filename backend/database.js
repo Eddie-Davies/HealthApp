@@ -69,7 +69,7 @@ const GroupSchema = new mongoose.Schema({
         unique: true
     },
     membersByID: [mongoose.Schema.Types.ObjectId], // Reference to User IDs
-    goal: [GoalSchema]
+    goals: [GoalSchema]
 });
 
 // Models

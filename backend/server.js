@@ -329,8 +329,8 @@ app.get('/group/goals', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
           }
           
-          const allGoals = group.map(g => g.goal);
-          res.json({ goal: allGoals });
+          const allGoals = group.map(g => g.goals);
+          res.json({ goals: allGoals });
           
     } catch (error) {
         console.error('Error fetching user goals:', error);

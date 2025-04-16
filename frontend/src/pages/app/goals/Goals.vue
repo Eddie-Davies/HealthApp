@@ -168,8 +168,8 @@ export default {
     }
     try {
       const res2 = await axios.get('/group/goals');
-      console.log('Group goals:', res2.data.goal); // not res2.data.groupGoals
-      this.groupGoals = res2.data.goal;
+      console.log('Group goals:', res2.data.goals); // not res2.data.groupGoals
+      this.groupGoals = res2.data.goals;
       console.log('Stored groupGoals:', this.groupGoals);
 
     }catch (err) {
