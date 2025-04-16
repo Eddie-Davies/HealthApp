@@ -7,9 +7,20 @@
           placeholder="Afternoon Run"
         />
       </div>
+
+    <div class="mt-25 w-full max-w-md">
+
+        <ExerciseTrackCard
+            v-for="(exercise, index) in exercises"
+            :key="index"
+            :title="exercise.title"
+            :value="exercise.value"
+            :unit="exercise.unit"
+        />
+    </div>
   
       <div class="w-full flex items-center justify-center py-4">
-        <div class="relative flex items-center justify-center w-full">
+        <div class="relative flex items-center justify-center w-full pt-20">
           <div class="absolute left-1/2 transform -translate-x-full pr-16">
             <ExercisePlay />
           </div>
@@ -43,6 +54,15 @@
       ExercisePause,
       ExerciseTrackCard,
     },
+
+    data() {
+    return {
+      exercises: [
+        { title: 'Distance', value: '2', unit: 'km' }
+        
+      ]
+    }
+    }
   };
   </script>
   

@@ -4,18 +4,14 @@
       <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
       
       <!-- Activity Details -->
-      <div class="flex justify-between mt-2">
-        <div>
-          <p class="text-neutral-400">Activity</p>
-          <h2 class="font-medium text-neutral">{{ activity }}</h2>
+      <div class="flex text-center mt-3">
+        <div class="pr-20">
+          <p class="text-neutral-400">Value</p>
+          <h2 class="font-medium text-neutral">{{ value }}</h2>
         </div>
-        <div>
-          <p class="text-neutral-400">Distance</p>
-          <h2 class="font-medium text-neutral">{{ distance }}</h2>
-        </div>
-        <div>
-          <p class="text-neutral-400">Time</p>
-          <h2 class="font-medium text-neutral">{{ time }}</h2>
+        <div class="pl">
+          <p class="text-neutral-400">Unit</p>
+          <h2 class="font-medium text-neutral">{{ unit }}</h2>
         </div>
       </div>
   
@@ -40,23 +36,19 @@
   
   <script>
   export default {
-    name: 'ExerciseCard',
+    name: 'ExerciseTrackCard',
     props: {
       title: {
         type: String,
-        default: 'My Exercise'
+        default: 'Distance'
       },
-      activity: {
+      value: {
         type: String,
-        default: 'Run'
+        default: '0'
       },
-      distance: {
+      unit: {
         type: String,
-        default: '0 km'
-      },
-      time: {
-        type: String,
-        default: '0m 0s'
+        default: 'km'
       }
     }
   }

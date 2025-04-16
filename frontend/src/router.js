@@ -9,6 +9,7 @@ import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
 import ExerciseStart from './pages/app/exercise/ExerciseTrack.vue';
 import Diet from './pages/app/Diet.vue';
+import ExerciseTrackCard from './pages/app/exercise/ExerciseTrackCard.vue';
 
 
 
