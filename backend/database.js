@@ -40,8 +40,10 @@ const GoalSchema = new mongoose.Schema({
     remainingLabel: String,
     unit: String,
     sport: Boolean, // false = food or other
-    endDate: Date
-});
+    date: { type: Date, default: Date.now },
+    groups: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null }
+  });
+  
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -56,7 +58,8 @@ const UserSchema = new mongoose.Schema({
     recoveryCode: String,
     meal: [MealSchema],
     exercise: [ExerciseSchema],
-    goals: [GoalSchema]
+    goals: [GoalSchema],
+    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
 
 // Group Schema
