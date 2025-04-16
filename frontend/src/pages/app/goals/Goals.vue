@@ -67,7 +67,7 @@
           </div>
         </div>
     </div>
-    <div class="mt-10 mb-0 flex flex-wrap justify-center">
+    <div class="mt-10 mb-50 flex flex-wrap justify-center">
       <GoalNew :group="group" @new-goal="createNewGoal" />
     </div>
   </div>
