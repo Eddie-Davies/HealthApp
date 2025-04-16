@@ -1,6 +1,6 @@
 // Import Express and userModel from database.js
 const express = require('express');
-const { UserModel } = require('./database');
+const { UserModel, GroupModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
@@ -306,6 +306,32 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
         }
 
         res.json({ goals: user.goals });
+        console.log
+    } catch (error) {
+        console.error('Error fetching user goals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.get('/group/goals', authenticateToken, async (req, res) => {
+    // console.log(req)
+    const uUID = req.user.id
+    console.log(uUID)
+
+
+    try {
+        
+        const group = await GroupModel.find({
+            'membersByID.oid': uUID,
+        });
+
+        if (!group || group.length === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+          }
+          
+          const allGoals = group.map(g => g.goal);
+          res.json({ goal: allGoals });
+          
     } catch (error) {
         console.error('Error fetching user goals:', error);
         res.status(500).json({ message: 'Internal Server Error' });

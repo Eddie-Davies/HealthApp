@@ -166,6 +166,15 @@ export default {
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
     }
+    try {
+      const res2 = await axios.get('/group/goals');
+      console.log('Group goals:', res2.data.goal); // not res2.data.groupGoals
+      this.groupGoals = res2.data.goal;
+      console.log('Stored groupGoals:', this.groupGoals);
+
+    }catch (err) {
+      console.error('Error fetching goals:', err.response?.data);
+    }
   },
 
   methods: {
