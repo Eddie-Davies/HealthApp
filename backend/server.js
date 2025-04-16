@@ -347,8 +347,16 @@ app.post('/user/newgoal', authenticateToken, async (req, res) => {
         
         const { target, progress, progressLabel, remainingLabel, unit, sport, date, groups } = req.body;
 
-        if (typeof sport !== 'boolean' || !target || progress === undefined || !date) {
-            return res.status(400).json({ message: 'Missing or invalid goal fields' });
+        if (
+            typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
+            typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
+            typeof unit !== 'string' || unit.trim() === '' ||
+            typeof sport !== 'boolean' ||
+            !date
+        ) {
+            return res.status(400).json({
+                message: 'Invalid goal input: target must be an integer > 0, progress must be an integer between 0 and target, and unit must be non-empty.'
+            });
         }
 
         const user = await UserModel.findOne({ email: req.user.email });
