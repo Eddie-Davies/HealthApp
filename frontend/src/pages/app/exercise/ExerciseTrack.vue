@@ -1,9 +1,9 @@
 <template>
     <div class="min-h-screen flex flex-col pb-40">
-      <div class="mt-6 w-full flex justify-center">
+      <div class="mt-6 w-full flex justify-center ">
         <input
           v-model="newTitle"
-          class="input input-ghost text-black text-4xl font-semibold text-center focus:outline-none focus:ring-0 border-none shadow-none"
+          class="input input-ghost px-10 text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none"
           placeholder="Afternoon Run"
         />
       </div>
