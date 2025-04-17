@@ -159,6 +159,7 @@ export default {
   },
 
   async mounted() {
+    // Get User Goals when Mounted
     try {
       const res = await axios.get('/user/goals');
       console.log('User goals:', res.data.goals);
@@ -166,27 +167,29 @@ export default {
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
     }
+    
+    // Get GROUP Goals when Mounted
     try {
-  const res2 = await axios.get('/group/goals');
-  console.log('Group goals:', res2.data.goals);
+      const res = await axios.get('/group/goals');
+      console.log('Group goals:', res.data.goals);
 
-  this.groups = res2.data.goals.map(g => g.name); // ['family', ...]
-  const mappedGoals = {};
+      this.groups = res.data.goals.map(g => g.name); // Create an array of group names: eg... ['family', 'work', 'fitness']
+      const mappedGoals = {};
 
-  for (const group of res2.data.goals) {
-    // Wrap single goal in array if needed
-    mappedGoals[group.name] = Array.isArray(group.goals) ? group.goals : [];
+      for (const group of res.data.goals) {
+        mappedGoals[group.name] = group.goals || [];
+      }
 
-
-  }
-
-  this.groupGoals = mappedGoals;
-} catch (err) {
-  console.error('Error fetching group goals:', err.response?.data);
-}
+      this.groupGoals = mappedGoals; // Set the template group goals up
+    } catch (err) {
+      console.error('Error fetching group goals:', err.response?.data);
+    }
   },
 
   methods: {
+    toTitleCase(str) {
+      return str.replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+    },
     openEditor(goal, isNew = false, groupName = null) {
       this.editingGoal = { ...goal, group: groupName }; // store group info (defaults to null = indicating no group)
       this.isNewGoal = isNew;
