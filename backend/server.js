@@ -1,6 +1,8 @@
 // Import Express and userModel from database.js
 const express = require('express');
-const { UserModel, GroupModel } = require('./database');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+const { UserModel, GoalModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
@@ -119,7 +121,7 @@ app.post('/newPassword', async (req, res) => {
 app.get('/user', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
-        console.log("User found:", user);
+        // console.log("User found:", user);
 
         if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -313,57 +315,48 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/group/goals', authenticateToken, async (req, res) => {
-    // console.log(req)
-    const userId = req.user.id
-    console.log(userId)
+// app.get('/group/goals', authenticateToken, async (req, res) => {
+//     // console.log(req)
+//     const userId = req.user.id
+//     console.log(userId)
 
 
-    try {
+//     try {
         
-        const groups = await GroupModel.find({ 'membersByID.oid': userId });
+//         const groups = await GroupModel.find({ 'membersByID.oid': userId });
 
-        const goalsByGroup = groups.map(g => ({
-        name: g.name,
-        goals: Array.isArray(g.goals) ? g.goals : [],
-        }));
+//         const goalsByGroup = groups.map(g => ({
+//         name: g.name,
+//         goals: Array.isArray(g.goals) ? g.goals : [],
+//         }));
 
-        res.json({ goals: goalsByGroup });
+//         res.json({ goals: goalsByGroup });
 
           
           
-    } catch (error) {
-        console.error('Error fetching user goals:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+//     } catch (error) {
+//         console.error('Error fetching user goals:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 
-app.delete('/user/goals/:id', authenticateToken, async (req, res) => {
+// DELETE GOAL BY ID
+app.delete('/goals/:id', authenticateToken, async (req, res) => {
+    console.log('using backend route')
     try {
+      const userId = req.user.id;
       const goalId = req.params.id;
-      console.log(goalId)
+      console.log(goalId, userId)
   
-      const user = await UserModel.findOne({ email: req.user.email });
+      await UserModel.updateOne(
+        { _id: userId },
+        { $pull: { goals: { _id: new ObjectId(goalId) } } }
+      );
   
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      const originalLength = user.goals.length;
-  
-      // Remove the goal with matching _id
-      user.goals = user.goals.filter(goal => goal._id.toString() !== goalId);
-  
-      if (user.goals.length === originalLength) {
-        return res.status(404).json({ message: 'Goal not found' });
-      }
-  
-      await user.save();
-  
-      res.status(200).json({ message: 'Goal deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting goal:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      res.status(200).json({ message: "Goal deleted" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete goal" });
     }
   });
   

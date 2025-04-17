@@ -17,8 +17,8 @@
       <PageHeader :title="$route.meta.title" />
       <div class="mt-20 pb-5">
         <div class="flex justify-center">
-          <div v-if="goals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-            <GoalCard v-for="goal in goals"
+          <div v-if="personalGoals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+            <GoalCard v-for="goal in personalGoals"
               :key="goal._id"
               :target="goal.target"
               :progress="goal.progress"
@@ -43,13 +43,13 @@
     </swiper-slide>
     
 
-  <swiper-slide v-for="group in groups" :key="group">
+  <swiper-slide v-for="group in Object.keys(groupedGoals)" :key="group">
     <div class="flex-grow flex flex-col">
     <PageHeader :title="`${group} Goals`" />
     <div class="mt-20 pb-5">
       <div class="flex justify-center">
-        <div v-if="groupGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-          <GoalCard v-for="goal in groupGoals[group]" v-bind="goal"
+        <div v-if="groupedGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+          <GoalCard v-for="goal in groupedGoals[group]" v-bind="goal"
             :key="goal.id"
             :target="goal.target"
             :progress="goal.progress"
@@ -149,15 +149,34 @@ export default {
     return {
       // Example to be used with MongoDB later
       // id is temporary, mongo db provides it own. 
-      groups: [],
       goals: [],
-      groupGoals: {},
       editingGoal: null,
       isNewGoal: false,
       user: null,
     };
   },
 
+  // CONVERT THE GOALS PULLED INTO PERSONAL GOALS AND GROUP GOALS
+  computed: {
+    groupedGoals() {
+      const result = {};
+
+      this.goals.forEach(goal => {
+        if (goal.group) {
+          if (!result[goal.group]) result[goal.group] = [];
+          result[goal.group].push(goal);
+        }
+      });
+
+      return result;
+    },
+
+
+    // Optionally if you want "My Goals" to mean 'groupless' ones
+    personalGoals() {
+      return this.goals.filter(goal => !goal.group);
+    }
+  },
   async mounted() {
     // Get User Goals when Mounted
     try {
@@ -166,23 +185,6 @@ export default {
       this.goals = res.data.goals;
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
-    }
-    
-    // Get GROUP Goals when Mounted
-    try {
-      const res = await axios.get('/group/goals');
-      console.log('Group goals:', res.data.goals);
-
-      this.groups = res.data.goals.map(g => g.name); // Create an array of group names: eg... ['family', 'work', 'fitness']
-      const mappedGoals = {};
-
-      for (const group of res.data.goals) {
-        mappedGoals[group.name] = group.goals || [];
-      }
-
-      this.groupGoals = mappedGoals; // Set the template group goals up
-    } catch (err) {
-      console.error('Error fetching group goals:', err.response?.data);
     }
   },
 
@@ -251,21 +253,15 @@ export default {
     
     async deleteGoal(goalToDelete) {
       try {
-        // Send delete request to the backend API
-        await axios.delete(`/user/goals/${goalToDelete._id}`); // Use _id here, not id
+        // Send delete request to backend
+        console.log("Deleting goal:", goalToDelete);
+        console.log("Goal ID:", goalToDelete._id);
+        await axios.delete(`/goals/${goalToDelete._id}`);
 
-        const group = goalToDelete.group;
+        // Update local state: remove from the main goals array
+        this.goals = this.goals.filter(g => g._id !== goalToDelete._id);
 
-        // Update local state to reflect the deletion
-        if (group) {
-          if (this.groupGoals[group]) {
-            this.groupGoals[group] = this.groupGoals[group].filter(g => g._id !== goalToDelete._id); // Use _id
-          }
-        } else {
-          this.goals = this.goals.filter(g => g._id !== goalToDelete._id); // Use _id
-        }
-
-        // Clear the editingGoal to exit editing mode after deletion
+        // Exit editing mode
         this.editingGoal = null;
       } catch (err) {
         console.error('Error deleting goal:', err.response?.data || err);
