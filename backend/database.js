@@ -41,7 +41,8 @@ const GoalSchema = new mongoose.Schema({
     unit: String,
     sport: Boolean, // false = food or other
     date: { type: Date, default: Date.now },
-    groups: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null }
+    group: String,
+    sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null }
   });
   
 
@@ -72,6 +73,18 @@ const GroupSchema = new mongoose.Schema({
     goals: [GoalSchema]
 });
 
+const GroupGoalSchema = new mongoose.Schema({
+    target: Number,
+    progressLabel: String,
+    remainingLabel: String,
+    description: String, // for when you receive an email. We will force users to describe the goal they share.
+    unit: String,
+    sport: Boolean, // false = food or other
+    date: { type: Date, default: Date.now },
+    group: String,
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+})
+
 // Models
 const FoodModel = mongoose.model("Food", FoodSchema);
 const MealModel = mongoose.model("Meal", MealSchema);
@@ -79,6 +92,8 @@ const ExerciseModel = mongoose.model("Exercise", ExerciseSchema);
 const GoalModel = mongoose.model("Goal", GoalSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const GroupModel = mongoose.model("Group", GroupSchema);
+const GroupGoal = mongoose.model("GroupGoal", GroupGoalSchema);
+
 
 module.exports = {
     FoodModel,
@@ -86,5 +101,6 @@ module.exports = {
     ExerciseModel,
     GoalModel,
     UserModel,
-    GroupModel
+    GroupModel,
+    GroupGoal
 };
