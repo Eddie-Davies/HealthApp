@@ -361,11 +361,11 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
   });
   
 
-app.post('/user/newgoal', authenticateToken, async (req, res) => {
+  app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        
-        const { target, progress, progressLabel, remainingLabel, unit, sport, date, groups } = req.body;
+        const { target, progress, progressLabel, remainingLabel, unit, sport, date, group } = req.body;
 
+        // Validate input
         if (
             typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
             typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
@@ -378,56 +378,62 @@ app.post('/user/newgoal', authenticateToken, async (req, res) => {
             });
         }
 
+        // Find the user
         const user = await UserModel.findOne({ email: req.user.email });
-
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newGoal = {
-            target, progress, progressLabel, remainingLabel, unit, sport, date, groups
-        };
-
+        // Create the new goal and save it to the user's goals
+        const newGoal = { target, progress, progressLabel, remainingLabel, unit, sport, date, group };
         user.goals.push(newGoal);
         await user.save();
-        const savedGoal = user.goals[user.goals.length - 1];  // The new goal should be the last one added
 
-        res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });  // Return the saved goal including _id
+        // Respond with the saved goal
+        const savedGoal = user.goals[user.goals.length - 1];  // The newly added goal
+        res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });
+
     } catch (error) {
         console.error('Error adding goal:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-app.put('/user/updateGoal/:id', authenticateToken, async (req, res) => {
+
+
+app.put('/goals/update/:id', authenticateToken, async (req, res) => {
     try {
-      const goalId = req.params.id;
-      const updatedGoal = req.body;
+      const goalId = req.params.id;  // Extract the goalId from the route parameters
+      const updatedGoal = req.body;  // Extract the updated goal data from the request body
   
+      // Find the user by the email in the token
       const user = await UserModel.findOne({ email: req.user.email });
   
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      // Find the goal by id
+      // Find the goal in the user's goals by id
       const goalIndex = user.goals.findIndex(goal => goal._id.toString() === goalId);
   
       if (goalIndex === -1) {
         return res.status(404).json({ message: 'Goal not found' });
       }
   
-      // Update goal fields
+      // Update goal fields with the updated data
       user.goals[goalIndex] = { ...user.goals[goalIndex]._doc, ...updatedGoal };
   
+      // Save the updated user object with the updated goal
       await user.save();
   
+      // Respond with success and the updated goal
       res.status(200).json({ message: 'Goal updated successfully', goal: user.goals[goalIndex] });
     } catch (error) {
       console.error('Error updating goal:', error);
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
+  
   
 
 // Start the server

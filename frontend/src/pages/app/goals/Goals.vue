@@ -68,7 +68,7 @@
         </div>
     </div>
     <div class="mt-10 mb-50 flex flex-wrap justify-center">
-      <GoalNew :group="group" @new-goal="createNewGoal" />
+      <GoalNew :group="group" @new-goal="createNewGoal(group)" />
     </div>
   </div>
   </swiper-slide>
@@ -198,48 +198,35 @@ export default {
     },
 
     async saveGoal(updatedGoal) {
-      const group = updatedGoal.group;
-      
-      let targetArray;
-      if (group) {
-        targetArray = this.groupGoals[group];
-      } else {
-        targetArray = this.goals;
-      }
-
-      const isExisting = !!updatedGoal._id;
+      const alreadyExists = !!updatedGoal._id;
 
       try {
         let savedGoal;
 
-        if (isExisting) {
+        if (alreadyExists) {
           // Update existing goal in database
-          const res = await axios.put(`/user/updateGoal/${updatedGoal._id}`, updatedGoal);
+          const res = await axios.put(`/goals/update/${updatedGoal._id}`, updatedGoal);
+          console.log("I'm here 1");
           savedGoal = res.data.goal;
         } else {
           // Create new goal in database
-          const res = await axios.post('/user/newGoal', updatedGoal);
+          const res = await axios.post('/goals/new', updatedGoal);
           savedGoal = res.data.goal;
-          updatedGoal._id = savedGoal._id
+          console.log("I'm here 2");
+
+          updatedGoal._id = savedGoal._id;
           console.log('Full response:', res);
           console.log('Goal data:', res.data);  // Ensure that the response contains the goal data with _id
           console.log('Goal from response:', res.data.goal);  // Goal object
 
-          // Push to local array since it's new
-          targetArray.push(updatedGoal);
+          // Push to local goals array since it's new
+          this.goals.push(updatedGoal);
         }
 
         // Update or replace locally
-        const index = targetArray.findIndex(g => g._id === savedGoal._id);
+        const index = this.goals.findIndex(g => g._id === savedGoal._id);
         if (index !== -1) {
-          targetArray[index] = { ...savedGoal };
-        }
-
-        // Update the main array if no group
-        if (!group) {
-          this.goals = [...targetArray];
-        } else {
-          this.groupGoals[group] = [...targetArray];
+          this.goals[index] = { ...savedGoal };  // Replace the goal in the local array
         }
 
         this.editingGoal = null;
@@ -277,6 +264,7 @@ export default {
       remainingLabel: 'Remaining',
       unit: 'units',
       sport: false,
+      group: 'Family',
       date: new Date().toISOString().slice(0, 10),
     };
     this.openEditor(newGoal, true, groupName);
