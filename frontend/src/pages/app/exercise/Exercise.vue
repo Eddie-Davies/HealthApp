@@ -1,9 +1,15 @@
 <template>
   <div class="mt-20 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise Button -->
-    <ExerciseNew />
+    <ExerciseNew v-if="!showTrack" @start="showTrack = true" />
+
+    <!-- Workout in progress -->
+    <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
+
+
+
     <!-- Previous Exercises -->
-    <div class="mt-16 w-full max-w-md">
+    <div v-if="!showTrack" class="mt-16 w-full max-w-md">
       <h2 class="text-xl font-semibold mb-4">Previous Exercise</h2>
 
       <ExerciseCard
@@ -15,24 +21,34 @@
         :time="exercise.time"
       />
     </div>
-
   </div>
 </template>
+
 
 <script>
 import ExerciseCard from './ExerciseCard.vue'
 import ExerciseNew from './ExerciseNew.vue'
+import ExerciseTrack from './ExerciseTrack.vue'
 
 export default {
   name: 'Exercise',
-  components: { ExerciseCard, ExerciseNew },
+  components: { ExerciseCard, ExerciseNew, ExerciseTrack },
   data() {
     return {
       exercises: [
         { title: '3km Run', activity: 'Run', distance: '3km', time: '18m 43s' }
-        
-      ]
+      ],
+      showTrack: false,
     }
+  },
+  methods: {
+  handleWorkoutFinished(workout) {
+    this.exercises.unshift(workout);
+    this.showTrack = false;
   }
 }
+
+
+}
+
 </script>

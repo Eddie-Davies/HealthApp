@@ -39,6 +39,8 @@
   </template>
   
   <script>
+
+  
   export default {
     name: 'ExerciseCard',
     props: {

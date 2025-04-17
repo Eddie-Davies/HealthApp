@@ -7,17 +7,31 @@
       <div class="flex text-center mt-3">
         <div class="pr-20">
           <p class="text-neutral-400">Value</p>
-          <h2 class="font-medium text-neutral">{{ value }}</h2>
+          <div v-if="isEditing">
+            <input
+              v-model="editedValue"
+              class="input input-sm"
+              type="text"
+            />
+          </div>
+          <h2 v-else class="font-medium text-neutral">{{ editedValue }}</h2>
         </div>
-        <div class="pl">
+        <div>
           <p class="text-neutral-400">Unit</p>
-          <h2 class="font-medium text-neutral">{{ unit }}</h2>
+          <div v-if="isEditing">
+            <input
+              v-model="editedUnit"
+              class="input input-sm"
+              type="text"
+            />
+          </div>
+          <h2 v-else class="font-medium text-neutral">{{ editedUnit }}</h2>
         </div>
       </div>
   
       <!-- Edit Icon -->
       <div class="flex justify-end mt-3">
-        <button class="text-neutral hover:text-accent">
+        <button @click="toggleEdit" class="text-neutral hover:text-accent">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-6 w-6"
@@ -50,7 +64,19 @@
         type: String,
         default: 'km'
       }
+    },
+    data() {
+      return {
+        isEditing: false,
+        editedValue: this.value,
+        editedUnit: this.unit
+      };
+    },
+    methods: {
+      toggleEdit() {
+        this.isEditing = !this.isEditing;
+      }
     }
-  }
+  };
   </script>
   
