@@ -10,7 +10,7 @@ import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/Exercise.vue';
-import Diet from './pages/app/Diet.vue';
+import Diet from './pages/app/diet/Diet.vue';
 
 
 
