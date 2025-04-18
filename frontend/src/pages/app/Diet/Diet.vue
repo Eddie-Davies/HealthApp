@@ -4,6 +4,7 @@
     <div class="tooltip" data-tip="Click the button below :)">
         <button class="btn">Log New Meal</button>
     </div>
+    
 </div>
 </template>
 
