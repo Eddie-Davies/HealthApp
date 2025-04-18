@@ -42,7 +42,7 @@ const GoalSchema = new mongoose.Schema({
     sport: Boolean, // false = food or other
     date: { type: Date, default: Date.now },
     group: {type: String, default: null},
-    sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', default: null }
+    sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
   });
   
 

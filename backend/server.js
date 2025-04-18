@@ -482,7 +482,56 @@ app.put('/goals/update/:id', authenticateToken, async (req, res) => {
     }
   });
   
-  
+app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
+    try {
+        const { groupId, goalId } = req.params;
+        const userEmail = req.user.email;
+
+        // Find the group
+        const group = await GroupModel.findById(groupId);
+        if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Find the group goal
+        const groupGoal = group.goals.id(goalId);
+        if (!groupGoal) {
+        return res.status(404).json({ message: 'Group goal not found' });
+        }
+
+        // Find the user
+        const user = await UserModel.findOne({ email: userEmail });
+        if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+        }
+        console.log(groupGoal);
+        // Create a copy of the group goal as a local goal
+        const copiedGoalObj = groupGoal.toObject();
+        console.log
+        const copiedGoal = {
+          sourceGroupId: copiedGoalObj._id, // Assign before spread
+          ...copiedGoalObj,
+          group: group.name,
+          progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
+          remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
+          progress: 0
+        };
+        
+        delete copiedGoal.description;
+        delete copiedGoal._id; // Let MongoDB assign a new _id
+
+        user.goals.push(copiedGoal);
+        await user.save();
+
+        const newGoal = user.goals[user.goals.length - 1];
+
+        res.status(200).json({ message: 'Group goal accepted and added to user goals', goal: newGoal });
+    } catch (err) {
+        console.error('Error accepting group goal:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 // Start the server
 app.listen(port, () => {
