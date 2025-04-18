@@ -8,11 +8,15 @@
         <div class="flex justify-between mt-2">
             <div>
                 <p class="text-neutral-400">Food</p>
-                <h2 class="font-medium text-neutral">{{ food }}</h2>
+                <ul class="text-neutral text-sm">
+                    <li v-for="(item, index) in food" :key="index">{{ item }}</li>
+                </ul>
             </div>
             <div>
                 <p class="text-neutral-400">Drinks</p>
-                <h2 class="font-medium text-neutral">{{ drinks }}</h2>
+                <ul class="text-neutral text-sm">
+                    <li v-for="(item, index) in drinks" :key="index">{{ item }}</li>
+                </ul>
             </div>
             <div>
                 <p class="text-neutral-400">Calories</p>
@@ -44,12 +48,12 @@ export default {
             default: 'Meal Name'
         },
         food: {
-            type: String,
-            default: 'Food'
+            type: Array,
+            default: () => []
         },
         drinks: {
-            type: String,
-            default: 'Drink'
+            type: Array,
+            default: () => []
         },
         calories: {
             type: String,

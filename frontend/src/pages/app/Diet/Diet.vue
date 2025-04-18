@@ -33,7 +33,7 @@ export default {
     data() {
     return {
       meals: [
-        { name: 'Big Dinner', food: 'Chips', drinks: 'Water', calories: '300kcal' }
+        { name: 'Big Dinner', food: ['Chips', 'Burrito'], drinks: ['Water', 'Orange juice'], calories: '300kcal' }
       ]
     }
   }
