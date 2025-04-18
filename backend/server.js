@@ -299,7 +299,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/user/goals', authenticateToken, async (req, res) => {
+app.get('/goals', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
 
@@ -308,7 +308,6 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
         }
 
         res.json({ goals: user.goals });
-        console.log
     } catch (error) {
         console.error('Error fetching user goals:', error);
         res.status(500).json({ message: 'Internal Server Error' });

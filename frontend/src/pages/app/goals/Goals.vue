@@ -180,7 +180,7 @@ export default {
   async mounted() {
     // Get User Goals when Mounted
     try {
-      const res = await axios.get('/user/goals');
+      const res = await axios.get('/goals');
       console.log('User goals:', res.data.goals);
       this.goals = res.data.goals;
     } catch (err) {
