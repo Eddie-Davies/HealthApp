@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
-const { UserModel, GoalModel } = require('./database');
+const { UserModel, GroupModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
@@ -298,6 +298,72 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+app.post('/groups/new', authenticateToken, async (req, res) => {
+    try {
+        const { name, membersByID } = req.body;
+        console.log(name)
+        if (!name || typeof name !== 'string') {
+            return res.status(400).json({ message: 'Group name is required and must be a string.' });
+        }
+
+        const existingGroup = await GroupModel.findOne({ name });
+
+        if (existingGroup) {
+            return res.status(409).json({ message: 'Group name already exists.' });
+        }
+
+        const newGroup = new GroupModel({
+            name,
+            membersByID
+        });
+
+        await newGroup.save();
+
+        res.status(201).json({ message: 'Group created successfully', group: newGroup });
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { description, target, unit, sport, date, createdBy } = req.body;
+
+        // Basic validation
+        if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
+            return res.status(400).json({ message: 'Missing required goal fields.' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        const newGoal = {
+            description,
+            target,
+            unit,
+            sport,
+            date,
+            createdBy
+        };
+
+        group.goals.push(newGoal);
+        await group.save();
+
+        const addedGoal = group.goals[group.goals.length - 1];
+
+        res.status(201).json({ message: 'Group goal added successfully', goal: addedGoal });
+    } catch (error) {
+        console.error('Error adding group goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 app.get('/goals', authenticateToken, async (req, res) => {
     try {
