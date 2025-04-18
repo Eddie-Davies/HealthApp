@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
+  <div @click="$emit('edit') "class="card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
     <!-- Top: Eaten + Remaining -->
     <div class="flex justify-between w-full">
       <div>

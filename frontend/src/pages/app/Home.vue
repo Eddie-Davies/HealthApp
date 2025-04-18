@@ -3,7 +3,6 @@
     <!-- Main content when user data is available -->
     <div v-if="user">
       <Avatar :initials="getIntials()" />
-      <PageHeader :title="$route.meta.title" />
       <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
         <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
       </div>
@@ -52,13 +51,11 @@
 import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
 import Avatar from '../../components/avatar/Avatar.vue';
-import PageHeader from '../../components/header/PageHeader.vue'
 
 export default {
   name: 'Home',
   components: {
     Avatar,
-    PageHeader,
     Navbar
   },
 
