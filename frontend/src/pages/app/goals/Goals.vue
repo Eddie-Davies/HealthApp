@@ -1,6 +1,5 @@
 <template>
   <swiper
-    ref="swiperRef"
     loop
     :pagination="{
       dynamicBullets: false,
@@ -120,15 +119,16 @@ html, body, #app {
 
 <script>
 import axios from 'axios';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import 'swiper/css/pagination';
-import 'swiper/css';
-import { Pagination, Keyboard } from 'swiper/modules';
 
 import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
+
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Pagination, Keyboard } from 'swiper/modules';
+import 'swiper/css/pagination';
+import 'swiper/css';
 
 export default {
   name: 'Goals',
@@ -206,18 +206,12 @@ export default {
         if (alreadyExists) {
           // Update existing goal in database
           const res = await axios.put(`/goals/update/${updatedGoal._id}`, updatedGoal);
-          console.log("I'm here 1");
           savedGoal = res.data.goal;
         } else {
           // Create new goal in database
           const res = await axios.post('/goals/new', updatedGoal);
           savedGoal = res.data.goal;
-          console.log("I'm here 2");
-
           updatedGoal._id = savedGoal._id;
-          console.log('Full response:', res);
-          console.log('Goal data:', res.data);  // Ensure that the response contains the goal data with _id
-          console.log('Goal from response:', res.data.goal);  // Goal object
 
           // Push to local goals array since it's new
           this.goals.push(updatedGoal);
@@ -257,7 +251,6 @@ export default {
 
     createNewGoal(groupName = null) {
     const newGoal = {
-      id: Math.random().toString(36).substr(2, 9),
       target: 10,
       progress: 0,
       progressLabel: 'Progress',
@@ -265,7 +258,7 @@ export default {
       unit: 'units',
       sport: false,
       group: 'Family',
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date()
     };
     this.openEditor(newGoal, true, groupName);
   }

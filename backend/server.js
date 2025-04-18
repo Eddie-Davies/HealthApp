@@ -315,38 +315,11 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
     }
 });
 
-// app.get('/group/goals', authenticateToken, async (req, res) => {
-//     // console.log(req)
-//     const userId = req.user.id
-//     console.log(userId)
-
-
-//     try {
-        
-//         const groups = await GroupModel.find({ 'membersByID.oid': userId });
-
-//         const goalsByGroup = groups.map(g => ({
-//         name: g.name,
-//         goals: Array.isArray(g.goals) ? g.goals : [],
-//         }));
-
-//         res.json({ goals: goalsByGroup });
-
-          
-          
-//     } catch (error) {
-//         console.error('Error fetching user goals:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
 // DELETE GOAL BY ID
 app.delete('/goals/:id', authenticateToken, async (req, res) => {
-    console.log('using backend route')
     try {
       const userId = req.user.id;
       const goalId = req.params.id;
-      console.log(goalId, userId)
   
       await UserModel.updateOne(
         { _id: userId },
@@ -360,7 +333,7 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
     }
   });
   
-
+// ADD NEW GOAL
   app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
         const { target, progress, progressLabel, remainingLabel, unit, sport, date, group } = req.body;
@@ -400,7 +373,7 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 });
 
 
-
+// UPDATE GOAL BY ID
 app.put('/goals/update/:id', authenticateToken, async (req, res) => {
     try {
       const goalId = req.params.id;  // Extract the goalId from the route parameters
