@@ -62,28 +62,28 @@ const UserSchema = new mongoose.Schema({
     goals: [GoalSchema],
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
-
-// Group Schema
-const GroupSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        unique: true
-    },
-    membersByID: [mongoose.Schema.Types.ObjectId], // Reference to User IDs
-    goals: [GoalSchema]
-});
-
 const GroupGoalSchema = new mongoose.Schema({
     target: Number,
-    progressLabel: String,
-    remainingLabel: String,
+    progressLabel: {type: String, default: null},
+    remainingLabel: {type: String, default: null},
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
     sport: Boolean, // false = food or other
     date: { type: Date, default: Date.now },
-    group: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 })
+
+// Group Schema
+const GroupSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      unique: true
+    },
+    membersByID: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    goals: [GroupGoalSchema]
+  });
+
+
 
 // Models
 const FoodModel = mongoose.model("Food", FoodSchema);
