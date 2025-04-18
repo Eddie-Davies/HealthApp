@@ -330,7 +330,7 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
-        const { description, target, unit, sport, date, createdBy } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, sport, date, createdBy } = req.body;
 
         // Basic validation
         if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
@@ -351,6 +351,16 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             date,
             createdBy
         };
+
+        // Conditionally include optional labels
+        if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
+            newGoal.progressLabel = progressLabel;
+        }
+    
+        if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
+            newGoal.remainingLabel = remainingLabel;
+        }
+    
 
         group.goals.push(newGoal);
         await group.save();

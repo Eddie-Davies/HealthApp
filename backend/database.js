@@ -64,8 +64,8 @@ const UserSchema = new mongoose.Schema({
 });
 const GroupGoalSchema = new mongoose.Schema({
     target: Number,
-    progressLabel: {type: String, default: null},
-    remainingLabel: {type: String, default: null},
+    progressLabel: String,
+    remainingLabel: String,
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
     sport: Boolean, // false = food or other
