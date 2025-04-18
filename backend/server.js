@@ -327,6 +327,7 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
     }
 });
 
+// CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
@@ -374,7 +375,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     }
 });
 
-
+// GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
@@ -481,7 +482,7 @@ app.put('/goals/update/:id', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   });
-  
+//   ACCEPT GOAL: Copies GroupGoal to a users list of Goals
 app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
     try {
         const { groupId, goalId } = req.params;
