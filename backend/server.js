@@ -491,27 +491,26 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         // Find the group
         const group = await GroupModel.findById(groupId);
         if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
+            return res.status(404).json({ message: 'Group not found' });
         }
 
         // Find the group goal
         const groupGoal = group.goals.id(goalId);
         if (!groupGoal) {
-        return res.status(404).json({ message: 'Group goal not found' });
+            return res.status(404).json({ message: 'Group goal not found' });
         }
 
         // Find the user
         const user = await UserModel.findOne({ email: userEmail });
         if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
         console.log(groupGoal);
         // Create a copy of the group goal as a local goal
         const copiedGoalObj = groupGoal.toObject();
-        console.log
         const copiedGoal = {
-          sourceGroupId: copiedGoalObj._id, // Assign before spread
-          ...copiedGoalObj,
+            ...copiedGoalObj,
+          sourceGroupId: groupId,
           group: group.name,
           progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
           remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
