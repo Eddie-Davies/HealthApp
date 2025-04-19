@@ -4,6 +4,7 @@ import Login from './pages/service/Login.vue';
 import Signup from './pages/service/Signup.vue';
 import ForgotPassword from './pages/service/ForgotPassword.vue';
 import NewPassword  from './pages/service/NewPassword.vue';
+import EditMeal from './pages/app/diet/EditMeal.vue'
 
 
 import Home from './pages/app/Home.vue';
@@ -28,6 +29,8 @@ const routes = [
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
+      { path: '/home/diet/new', component: EditMeal },
+      { path: '/home/diet/:id', component: EditMeal},
     ],
   },
 ];

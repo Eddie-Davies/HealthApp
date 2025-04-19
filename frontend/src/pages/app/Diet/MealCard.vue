@@ -1,6 +1,5 @@
-<!-- ExcersiceCard.vue -->
 <template>
-    <div class="card bg-base-300 rounded-box p-4 flex flex-col">
+    <div class="card bg-base-300 rounded-box p-4 flex flex-col mt-8">
         <!-- Top: Title -->
         <h1 class="text-lg font-semibold text-neutral/80">{{ name }}</h1>
 
@@ -26,7 +25,7 @@
 
         <!-- Edit Icon -->
         <div class="flex justify-end mt-3">
-            <button class="text-neutral hover:text-accent">
+            <button class="text-neutral hover:text-accent" @click="goToEditPage">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -41,6 +40,13 @@
 
 <script>
 export default {
+
+    methods: {
+        goToEditPage() {
+            this.$router.push(`/home/diet/${this.id}`)
+        }
+    },
+    
     name: 'DietCard',
     props: {
         name: {

@@ -1,11 +1,11 @@
 <template>
 <PageHeader :title="$route.meta.title" />
 <div class="mt-20 px-4 pb-16 flex flex-col items-center">
-    <DietNew /> 
+    <NewMeal /> 
 
     <div class="mt-16 w-full max-w-md">
       <h2 class="text-xl font-semibold mb-4">Previous Meals</h2>
-      <DietCard
+      <MealCard
         v-for="(meal, index) in meals"
         :key="index"
         :name="meal.name"
@@ -20,20 +20,21 @@
 
 <script>
 import PageHeader from '../../../components/header/PageHeader.vue';
-import DietCard from './DietCard.vue';
-import DietNew from './DietNew.vue';
+import MealCard from './MealCard.vue';
+import NewMeal from './NewMeal.vue';
 
 export default {
     name: 'Diet',
     components: {
         PageHeader,
-        DietCard,
-        DietNew
+        MealCard,
+        NewMeal
     },
     data() {
     return {
       meals: [
-        { name: 'Big Dinner', food: ['Chips', 'Burrito'], drinks: ['Water', 'Orange juice'], calories: '300kcal' }
+        { name: 'Big Dinner', food: ['Chips', 'Burrito'], drinks: ['Water', 'Orange juice'], calories: '300kcal' },
+        { name: 'Big Dinner', food: ['Chips', 'Burrito'], drinks: ['Water', 'Orange juice'], calories: '300kcal' },
       ]
     }
   }

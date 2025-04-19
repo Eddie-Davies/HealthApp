@@ -533,6 +533,17 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
     }
 });
 
+// Save meals
+app.post('/api/meals', async (req, res) => {
+    const { name, food, drinks, calories } = req.body;
+    try {
+      const meal = await Meal.create({ name, food, drinks, calories });
+      res.status(201).json(meal);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to create meal' });
+    }
+  });
+  
 
 // Start the server
 app.listen(port, () => {
