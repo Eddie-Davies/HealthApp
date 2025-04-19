@@ -42,12 +42,12 @@
     </swiper-slide>
     
 
-  <swiper-slide v-for="group in Object.keys(groupedGoals)" :key="group">
+  <swiper-slide v-for="group in groups" :key="group">
     <div class="flex-grow flex flex-col">
     <PageHeader :title="`${group} Goals`" />
     <div class="mt-20 pb-5">
       <div class="flex justify-center">
-        <div v-if="groupedGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+        <div v-if="groupedGoals[group] && groupedGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
           <GoalCard v-for="goal in groupedGoals[group]" v-bind="goal"
             :key="goal.id"
             :target="goal.target"
@@ -150,6 +150,7 @@ export default {
       // Example to be used with MongoDB later
       // id is temporary, mongo db provides it own. 
       goals: [],
+      groups: [],
       editingGoal: null,
       isNewGoal: false,
       user: null,
@@ -160,10 +161,15 @@ export default {
   computed: {
     groupedGoals() {
       const result = {};
+      
+      // Initialize all user groups with empty arrays
+      this.groups.forEach(group => {
+        result[group] = [];
+      });
 
+      // Populate with actual goals
       this.goals.forEach(goal => {
-        if (goal.group) {
-          if (!result[goal.group]) result[goal.group] = [];
+        if (goal.group && this.groups.includes(goal.group)) {
           result[goal.group].push(goal);
         }
       });
@@ -171,12 +177,11 @@ export default {
       return result;
     },
 
-
-    // Optionally if you want "My Goals" to mean 'groupless' ones
     personalGoals() {
       return this.goals.filter(goal => !goal.group);
     }
   },
+
   async mounted() {
     // Get User Goals when Mounted
     try {
@@ -185,6 +190,14 @@ export default {
       this.goals = res.data.goals;
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
+    }
+    // Then get User Groups
+    try {
+      const res = await axios.get('/groups')
+      this.groups = res.data.groups.map(group => group.name);
+      console.log(this.groups)
+    } catch(err) {
+      console.error('Error fetching groups:', err)
     }
   },
 
