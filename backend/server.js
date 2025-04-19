@@ -299,6 +299,21 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/groups', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      console.log(user.groups)
+      res.json({ groups: user.groups }); // Each group will include _id and name
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
         const { name, membersByID } = req.body;
