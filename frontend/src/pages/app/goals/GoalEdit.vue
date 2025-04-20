@@ -40,7 +40,7 @@
             </div>
 
             <!-- Footer group goal warning (only on edit) -->
-            <p v-if="!isNew && goal.group" class="text-s text-center text-warning mt-4 py-5">
+            <p v-if="!isNew && goal.group" class="text-sm text-center text-warning mt-4 py-5">
             ⚠️ Changes to this goal won’t update for other group members.
             </p>
             <div class="flex justify-between mt-4">

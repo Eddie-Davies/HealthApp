@@ -45,6 +45,8 @@
     </swiper-slide>
   </swiper>
 
+  <GoalGroupAlert v-if="showAlert" @continue="continueToGoalEditor()" @cancel="showAlert = false" />
+
   <GoalEdit
     v-if="editingGoal"
     :goal="editingGoal"
@@ -94,6 +96,7 @@ import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
+import GoalGroupAlert from './GoalGroupAlert.vue';
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination, Keyboard } from 'swiper/modules';
@@ -108,6 +111,7 @@ export default {
     GoalCard,
     GoalNew,
     GoalEdit,
+    GoalGroupAlert,
     PageHeader
   },
   setup() {
@@ -121,6 +125,7 @@ export default {
       groups: [],
       editingGoal: null,
       isNewGoal: false,
+      showAlert: false,
       user: null,
     };
   },
@@ -183,9 +188,25 @@ export default {
       return str.replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },
 
+    continueToGoalEditor() {
+      this.editingGoal = { ...this.pendingGoal };
+      this.pendingGoal = null;
+      this.showAlert = false;
+    },
+
     openEditor(goal, isNew = false, groupName = null) {
       this.editingGoal = { ...goal, group: groupName }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
       this.isNewGoal = isNew;
+
+      // If it's a new group goal, show the group alert
+      if (isNew && groupName) {
+          this.pendingGoal = { ...goal, group: groupName };
+          this.showAlert = true;
+          this.editingGoal = null; // Don't show editor yet
+      } else {
+          this.editingGoal = { ...goal, group: groupName };
+          this.showPreMenu = false;
+      }
     },
 
     async saveGoal(updatedGoal) {
@@ -244,6 +265,8 @@ export default {
         group: null,
         date: new Date()
       };
+      if (groupName){this.showAlert = true;}
+      
       this.openEditor(newGoal, true, groupName);
     }
   }
