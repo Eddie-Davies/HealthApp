@@ -16,12 +16,16 @@
 
     <div class="mt-3 w-full max-w-md">
         <ExerciseTrackCard
-            v-for="(exercise, index) in exercises"
-            :key="index"
-            :title="exercise.title"
-            :value="exercise.value"
-            :unit="exercise.unit"
+        v-for="(exercise, index) in exercises"
+        :key="index"
+        :title="exercise.title"
+        :value="exercise.value"
+        :unit="exercise.unit"
+        @updateValue="updateValue"
+        @updateUnit="updateUnit"
         />
+
+
     </div>
   
     <div class="w-full flex items-center justify-center py-4">
@@ -30,8 +34,8 @@
           <ExercisePlay @play="startTimer"/>
         </div>
 
-        <!-- Pass 'finishWorkout' method to ExerciseCancel -->
-        <ExerciseCancel @cancelWorkout="finishWorkout" />
+
+        <ExerciseFinish @finishWorkout="finishWorkout" />
   
         <div class="absolute left-1/2 transform translate-x-full pl-1">
           <ExercisePause @pause="pauseTimer"/>
@@ -42,7 +46,7 @@
 </template>
 
 <script>
-import ExerciseCancel from './ExerciseCancel.vue';
+import ExerciseFinish from './ExerciseFinish.vue';
 import ExerciseCard from './ExerciseCard.vue';
 import ExerciseNew from './ExerciseNew.vue';
 import ExercisePause from './ExercisePause.vue';
@@ -54,7 +58,7 @@ export default {
   components: {
     ExerciseCard,
     ExerciseNew,
-    ExerciseCancel,
+    ExerciseFinish,
     ExercisePlay,
     ExercisePause,
     ExerciseTrackCard,
@@ -73,45 +77,54 @@ export default {
   },
 
   methods: {
-    startTimer() {
-      if (!this.isRunning) {
-        this.isRunning = true;
-        this.timerInterval = setInterval(() => {
-          this.timer++;
-        }, 1000);
-      }
-    },
-    pauseTimer() {
-      if (this.isRunning) {
-        this.isRunning = false;
-        clearInterval(this.timerInterval);
-        this.timerInterval = null;
-      }
-    },
-    formatTime(seconds) {
-      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-      const secs = (seconds % 60).toString().padStart(2, '0');
-      return `${mins}:${secs}`;
-    },
-    finishWorkout() {
-      this.pauseTimer();
+  startTimer() {
+    if (!this.isRunning) {
+      this.isRunning = true;
+      this.timerInterval = setInterval(() => {
+        this.timer++;
+      }, 1000);
+    }
+  },
+  pauseTimer() {
+    if (this.isRunning) {
+      this.isRunning = false;
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  },
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  },
+  updateValue({ title, value }) {
+    const ex = this.exercises.find((e) => e.title === title);
+    if (ex) ex.value = value;
+  },
+  updateUnit({ title, unit }) {
+    const ex = this.exercises.find((e) => e.title === title);
+    if (ex) ex.unit = unit;
+  },
+  finishWorkout() {
+    this.pauseTimer(); // stop the timer
 
-      const completedWorkout = {
-        title: this.newTitle || 'Untitled Workout',
-        activity: 'Run',
-        distance:
+    const completedWorkout = {
+      title: this.newTitle || 'Untitled Workout',
+      activity: 'Run',
+      distance:
         this.exercises.find((e) => e.title === 'Distance')?.value +
         ' ' +
         (this.exercises.find((e) => e.title === 'Distance')?.unit || ''),
-        time: this.formatTime(this.timer),
-      };
+      time: this.formatTime(this.timer),
+    };
 
-      // Emit the workout data to the parent (Exercise.vue)
-      this.$emit('workoutFinished', completedWorkout);
+    console.log('Workout finished:', completedWorkout);
 
-      // Navigate back to Exercise page
-      this.$router.push({ name: 'Exercise' });
-    }
+    // Emit to parent
+    this.$emit('workoutFinished', completedWorkout);
   }
+  
+}
+
 };
 </script>

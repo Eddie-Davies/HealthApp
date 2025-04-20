@@ -1,17 +1,16 @@
 <template>
-  <div class="mt-20 px-4 pb-16 flex flex-col items-center">
-    <!-- Start Exercise Button -->
+  <div>
+    <!-- Start Exercise -->
     <ExerciseNew v-if="!showTrack" @start="showTrack = true" />
 
     <!-- Workout in progress -->
-    <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
+    <ExerciseTrack
+      v-if="showTrack"
+      @workoutFinished="handleWorkoutFinished"
+    />
 
-
-
-    <!-- Previous Exercises -->
-    <div v-if="!showTrack" class="mt-16 w-full max-w-md">
-      <h2 class="text-xl font-semibold mb-4">Previous Exercise</h2>
-
+    <div class="">
+      <div v-if="!showTrack">
       <ExerciseCard
         v-for="(exercise, index) in exercises"
         :key="index"
@@ -21,34 +20,32 @@
         :time="exercise.time"
       />
     </div>
+    </div>
   </div>
 </template>
 
 
 <script>
-import ExerciseCard from './ExerciseCard.vue'
-import ExerciseNew from './ExerciseNew.vue'
-import ExerciseTrack from './ExerciseTrack.vue'
+import ExerciseTrack from './ExerciseTrack.vue';
+import ExerciseCard from './ExerciseCard.vue';
+import ExerciseNew from './ExerciseNew.vue';
 
 export default {
-  name: 'Exercise',
-  components: { ExerciseCard, ExerciseNew, ExerciseTrack },
+  components: { ExerciseTrack, ExerciseCard, ExerciseNew },
   data() {
     return {
-      exercises: [
-        { title: '3km Run', activity: 'Run', distance: '3km', time: '18m 43s' }
-      ],
       showTrack: false,
-    }
+      exercises: []
+    };
   },
   methods: {
-  handleWorkoutFinished(workout) {
-    this.exercises.unshift(workout);
+    handleWorkoutFinished(workout) {
+    if (workout) {
+      console.log('Received workout in parent:', workout);
+      this.exercises.unshift(workout);
+    }
     this.showTrack = false;
   }
 }
-
-
-}
-
+};
 </script>

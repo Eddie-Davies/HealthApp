@@ -76,7 +76,16 @@
       toggleEdit() {
         this.isEditing = !this.isEditing;
       }
+    },
+
+    watch: {
+    editedValue(val) {
+      this.$emit('updateValue', { title: this.title, value: val });
+    },
+    editedUnit(val) {
+      this.$emit('updateUnit', { title: this.title, unit: val });
     }
+  }
   };
   </script>
   
