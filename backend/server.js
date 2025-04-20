@@ -33,10 +33,10 @@ app.use(cors({ // This is needed because frontend and backend are on different u
 }))
 app.use(express.json());
 
-function generateCode(){
+function generateCode() {
     recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit recovery code
     return recoveryCode;
-  }
+}
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -76,7 +76,7 @@ app.post('/forgotPassword', async (req, res) => {
             res.status(500).send("An error occurred while sending alert emails");
         }
 
-        res.status(200).json({ message: 'Recovery code sent to email'});
+        res.status(200).json({ message: 'Recovery code sent to email' });
 
     } catch (error) {
         console.error("Database error:", error);
@@ -257,7 +257,7 @@ app.post('/signup', async (req, res) => {
         // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        user = {first_name, last_name, email, password_hash: hashedPassword} // password: hashedpassword keeps the correct label.
+        user = { first_name, last_name, email, password_hash: hashedPassword } // password: hashedpassword keeps the correct label.
         const newUser = await UserModel.create(user);
 
         console.log(`User (${email}) added to database.`);
@@ -357,11 +357,11 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
             newGoal.progressLabel = progressLabel;
         }
-    
+
         if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
             newGoal.remainingLabel = remainingLabel;
         }
-    
+
 
         group.goals.push(newGoal);
         await group.save();
@@ -394,23 +394,23 @@ app.get('/goals', authenticateToken, async (req, res) => {
 // DELETE GOAL BY ID
 app.delete('/goals/:id', authenticateToken, async (req, res) => {
     try {
-      const userId = req.user.id;
-      const goalId = req.params.id;
-  
-      await UserModel.updateOne(
-        { _id: userId },
-        { $pull: { goals: { _id: new ObjectId(goalId) } } }
-      );
-  
-      res.status(200).json({ message: "Goal deleted" });
+        const userId = req.user.id;
+        const goalId = req.params.id;
+
+        await UserModel.updateOne(
+            { _id: userId },
+            { $pull: { goals: { _id: new ObjectId(goalId) } } }
+        );
+
+        res.status(200).json({ message: "Goal deleted" });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to delete goal" });
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete goal" });
     }
-  });
-  
+});
+
 // ADD NEW GOAL
-  app.post('/goals/new', authenticateToken, async (req, res) => {
+app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
         const { target, progress, progressLabel, remainingLabel, unit, sport, date, group } = req.body;
 
@@ -452,36 +452,36 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // UPDATE GOAL BY ID
 app.put('/goals/update/:id', authenticateToken, async (req, res) => {
     try {
-      const goalId = req.params.id;  // Extract the goalId from the route parameters
-      const updatedGoal = req.body;  // Extract the updated goal data from the request body
-  
-      // Find the user by the email in the token
-      const user = await UserModel.findOne({ email: req.user.email });
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Find the goal in the user's goals by id
-      const goalIndex = user.goals.findIndex(goal => goal._id.toString() === goalId);
-  
-      if (goalIndex === -1) {
-        return res.status(404).json({ message: 'Goal not found' });
-      }
-  
-      // Update goal fields with the updated data
-      user.goals[goalIndex] = { ...user.goals[goalIndex]._doc, ...updatedGoal };
-  
-      // Save the updated user object with the updated goal
-      await user.save();
-  
-      // Respond with success and the updated goal
-      res.status(200).json({ message: 'Goal updated successfully', goal: user.goals[goalIndex] });
+        const goalId = req.params.id;  // Extract the goalId from the route parameters
+        const updatedGoal = req.body;  // Extract the updated goal data from the request body
+
+        // Find the user by the email in the token
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the goal in the user's goals by id
+        const goalIndex = user.goals.findIndex(goal => goal._id.toString() === goalId);
+
+        if (goalIndex === -1) {
+            return res.status(404).json({ message: 'Goal not found' });
+        }
+
+        // Update goal fields with the updated data
+        user.goals[goalIndex] = { ...user.goals[goalIndex]._doc, ...updatedGoal };
+
+        // Save the updated user object with the updated goal
+        await user.save();
+
+        // Respond with success and the updated goal
+        res.status(200).json({ message: 'Goal updated successfully', goal: user.goals[goalIndex] });
     } catch (error) {
-      console.error('Error updating goal:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error updating goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-  });
+});
 //   ACCEPT GOAL: Copies GroupGoal to a users list of Goals
 app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
     try {
@@ -491,33 +491,33 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         // Find the group
         const group = await GroupModel.findById(groupId);
         if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
+            return res.status(404).json({ message: 'Group not found' });
         }
 
         // Find the group goal
         const groupGoal = group.goals.id(goalId);
         if (!groupGoal) {
-        return res.status(404).json({ message: 'Group goal not found' });
+            return res.status(404).json({ message: 'Group goal not found' });
         }
 
         // Find the user
         const user = await UserModel.findOne({ email: userEmail });
         if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
         console.log(groupGoal);
         // Create a copy of the group goal as a local goal
         const copiedGoalObj = groupGoal.toObject();
         console.log
         const copiedGoal = {
-          sourceGroupId: copiedGoalObj._id, // Assign before spread
-          ...copiedGoalObj,
-          group: group.name,
-          progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
-          remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
-          progress: 0
+            sourceGroupId: copiedGoalObj._id, // Assign before spread
+            ...copiedGoalObj,
+            group: group.name,
+            progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
+            remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
+            progress: 0
         };
-        
+
         delete copiedGoal.description;
         delete copiedGoal._id; // Let MongoDB assign a new _id
 
@@ -535,15 +535,48 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
 
 // Save meals
 app.post('/api/meals', async (req, res) => {
-    const { name, food, drinks, calories } = req.body;
+    const { mealID, name, food, drinks, calories } = req.body;
     try {
-      const meal = await Meal.create({ name, food, drinks, calories });
-      res.status(201).json(meal);
+        const meal = await Meal.create({ mealID, name, food, drinks, calories });
+        res.status(201).json(meal);
     } catch (err) {
-      res.status(500).json({ error: 'Failed to create meal' });
+        res.status(500).json({ error: 'Failed to create meal' });
     }
-  });
-  
+});
+
+// UPDATE MEAL BY ID
+app.put('/meals/update/:id', authenticateToken, async (req, res) => {
+    try {
+        const mealsId = req.params.id;  // Extract the mealsId from the route parameters
+        const updatedMeal = req.body;  // Extract the updated meal data from the request body
+
+        // Find the user by the email in the token
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the meal in the user's meals by id
+        const mealIndex = user.meals.findIndex(meal => meal._id.toString() === mealId);
+
+        if (mealIndex === -1) {
+            return res.status(404).json({ message: 'Meal not found' });
+        }
+
+        // Update meal fields with the updated data
+        user.meals[mealIndex] = { ...user.meals[mealIndex]._doc, ...updatedMeal };
+
+        // Save the updated user object with the updated meal
+        await user.save();
+
+        // Respond with success and the updated meal
+        res.status(200).json({ message: 'Meal updated successfully', meal: user.meals[mealIndex] });
+    } catch (error) {
+        console.error('Error updating meal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // Start the server
 app.listen(port, () => {
