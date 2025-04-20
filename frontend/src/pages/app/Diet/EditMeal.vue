@@ -7,11 +7,11 @@
         </div>
         <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
             <h3>Food</h3>
-            <div v-for="(food, index) in food" :key="index" class="food-item">
+            <div v-for="(food, index) in foodItems" :key="index" class="food-item">
                 <span>{{ food.name }}</span>
                 <span>{{ food.calories }} kcal</span>
             </div>
-            <button class="btn btn-md" @click="addFood">Add Food</button>
+            <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
         </div>
 
         <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
@@ -20,83 +20,68 @@
                 <span>{{ drink.name }}</span>
                 <span>{{ drink.calories }} kcal</span>
             </div>
-            <button class="btn btn-md" @click="addDrink">Add Drink</button>
+            <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
         </div>
 
         <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
     </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+<script>
+export default {
+  name: 'EditMeal',
 
-const route = useRoute();
-const mealId = route.params.id;
-const isNew = mealId === undefined;
+  data() {
+    return {
+      mealName: '',
+      totalCalories: 0,
+      foodItems: [],
+      drinks: [],
+      mealId: this.$route.params.id,
+    };
+  },
 
-const mealName = ref('');
-const totalCalories = ref(0);
-const drinks = ref([]);
-
-
-// Dummy fetch on mount
-onMounted(() => {
-    if (!isNew) {
-        // fetch meal from backend
-    } else {
-        mealName.value = '';
-        totalCalories.value = 0;
-        drinks.value = [];
+  computed: {
+    isNew() {
+      return this.mealId === undefined;
     }
-    // TODO: Replace with API call to get meal by ID
-    mealName.value = 'Dinner';
-    totalCalories.value = 500;
-    drinks.value = [{ name: 'Milkshake', calories: 500 }];
-});
+  },
 
-function addFood() {
-    // TODO: Logic to add food
-    alert('Add food clicked');
-}
-
-function addDrink() {
-    // TODO: Logic to add drink
-    alert('Add drink clicked');
-}
-
-function saveMeal() {
-    if (isNew) {
-        // POST /api/meals/ (create new)
+  mounted() {
+    if (!this.isNew) {
+      // TODO: Fetch meal data from backend by ID
+      this.mealName = 'Dinner';
+      this.totalCalories = 500;
+      this.drinks = [{ name: 'Milkshake', calories: 500 }];
     } else {
-        // PUT /api/meals/:id (update existing)
+      this.mealName = '';
+      this.totalCalories = 0;
+      this.drinks = [];
     }
-    // TODO: Save changes via API
-    alert(`Saving meal ${mealId}`);
-}
+  },
+
+  methods: {
+    goToSelect(type) {
+      this.$router.push(`/home/diet/${this.mealId}/select/${type}`);
+    },
+
+    addFood() {
+      alert('Add food clicked');
+    },
+
+    addDrink() {
+      alert('Add drink clicked');
+    },
+
+    saveMeal() {
+      if (this.isNew) {
+        // POST /api/meals/
+      } else {
+        // PUT /api/meals/:id
+      }
+
+      alert(`Saving meal ${this.mealId}`);
+    }
+  }
+};
 </script>
-
-<style scoped>
-.edit-meal {
-    padding: 20px;
-}
-
-.section {
-    margin-top: 20px;
-}
-
-.drink-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-}
-
-.save-button {
-    margin-top: 30px;
-    background-color: dodgerblue;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-}
-</style>
