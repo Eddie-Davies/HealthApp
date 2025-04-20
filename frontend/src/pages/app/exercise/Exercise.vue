@@ -1,15 +1,17 @@
 <template>
   <div>
     <!-- Start Exercise -->
-    <ExerciseNew v-if="!showTrack" @start="showTrack = true" />
-
+     <div class="mt-10">
+      <ExerciseNew v-if="!showTrack" @start="showTrack = true" />
+     </div>
     <!-- Workout in progress -->
     <ExerciseTrack
       v-if="showTrack"
       @workoutFinished="handleWorkoutFinished"
     />
 
-    <div class="">
+    <div class="mt-16 w-full max-w-md">
+      <h2 class="text-xl font-semibold mb-4">Previous Exercise</h2>
       <div v-if="!showTrack">
       <ExerciseCard
         v-for="(exercise, index) in exercises"
