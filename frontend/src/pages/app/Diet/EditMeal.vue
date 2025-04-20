@@ -5,7 +5,7 @@
         <div class="mt-8">
             Total Calories: {{ totalCalories }} kcal
         </div>
-        <div class="bg-base-200 p-6 rounded-xl w-80">
+        <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
             <h3>Food</h3>
             <div v-for="(food, index) in food" :key="index" class="food-item">
                 <span>{{ food.name }}</span>
@@ -23,7 +23,7 @@
             <button class="btn btn-md" @click="addDrink">Add Drink</button>
         </div>
 
-        <button class="btn" @click="saveMeal">Save Meal</button>
+        <button class="btn mt-8" @click="saveMeal">Save Meal</button>
     </div>
 </template>
 
