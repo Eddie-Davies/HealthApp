@@ -1,8 +1,10 @@
 <template>
-  <div>
+  <div class="mt-10 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise -->
-     <div class="mt-10">
+     <div v-if="!showTrack">
       <ExerciseNew v-if="!showTrack" @start="showTrack = true" />
+      <h2 class="mt-10 text-2xl font-semibold mb-4">Previous Exercise</h2>
+      
      </div>
     <!-- Workout in progress -->
     <ExerciseTrack
@@ -10,8 +12,7 @@
       @workoutFinished="handleWorkoutFinished"
     />
 
-    <div class="mt-16 w-full max-w-md">
-      <h2 class="text-xl font-semibold mb-4">Previous Exercise</h2>
+    <div class="mt-10 w-full max-w-md">
       <div v-if="!showTrack">
       <ExerciseCard
         v-for="(exercise, index) in exercises"
@@ -22,6 +23,10 @@
         :time="exercise.time"
       />
     </div>
+    </div>
+
+    <div v-if="showTrack">
+        
     </div>
   </div>
 </template>
