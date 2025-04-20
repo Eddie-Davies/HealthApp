@@ -23,7 +23,7 @@
             <button class="btn btn-md" @click="addDrink">Add Drink</button>
         </div>
 
-        <button class="btn mt-8" @click="saveMeal">Save Meal</button>
+        <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
     </div>
 </template>
 
