@@ -1,26 +1,29 @@
 <template>
-    <div class="edit-meal">
-        <h2>Edit Meal: {{ mealName }}</h2>
+    <div class="flex flex-col items-center justify-center">
+        <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Edit Meal'" class="input input-ghost text-xl font-semibold" />
 
-        <div class="calories">
+        <div class="mt-8">
             Total Calories: {{ totalCalories }} kcal
         </div>
-
-        <div class="section">
+        <div class="bg-base-200 p-6 rounded-xl w-80">
             <h3>Food</h3>
-            <button @click="addFood">Add Food</button>
+            <div v-for="(food, index) in food" :key="index" class="food-item">
+                <span>{{ food.name }}</span>
+                <span>{{ food.calories }} kcal</span>
+            </div>
+            <button class="btn btn-md" @click="addFood">Add Food</button>
         </div>
 
-        <div class="section">
+        <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
             <h3>Drinks</h3>
             <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
                 <span>{{ drink.name }}</span>
                 <span>{{ drink.calories }} kcal</span>
             </div>
-            <button @click="addDrink">Add Drink</button>
+            <button class="btn btn-md" @click="addDrink">Add Drink</button>
         </div>
 
-        <button class="save-button" @click="saveMeal">Save Meal</button>
+        <button class="btn" @click="saveMeal">Save Meal</button>
     </div>
 </template>
 

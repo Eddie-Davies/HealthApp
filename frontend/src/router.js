@@ -4,8 +4,6 @@ import Login from './pages/service/Login.vue';
 import Signup from './pages/service/Signup.vue';
 import ForgotPassword from './pages/service/ForgotPassword.vue';
 import NewPassword  from './pages/service/NewPassword.vue';
-import EditMeal from './pages/app/diet/EditMeal.vue'
-
 
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
@@ -13,7 +11,7 @@ import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/Exercise.vue';
 import Diet from './pages/app/diet/Diet.vue';
 
-
+import EditMeal from './pages/app/diet/EditMeal.vue'
 
 const routes = [
   { path: "/", component: Landing },
