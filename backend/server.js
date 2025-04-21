@@ -573,7 +573,7 @@ app.get('/meals/:id', authenticateToken, async (req, res) => {
 });
 
 // SAVE MEALS
-app.post('/api/meals', async (req, res) => {
+app.post('/meals', async (req, res) => {
     const { mealID, name, food, drinks, calories } = req.body;
     try {
         const meal = await Meal.create({ mealID, name, food, drinks, calories });
