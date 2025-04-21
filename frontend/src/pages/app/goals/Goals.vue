@@ -45,14 +45,18 @@
     </swiper-slide>
   </swiper>
 
-  <GoalGroupAlert v-if="showAlert" @continue="continueToGoalEditor()" @cancel="showAlert = false" />
+  <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
+
+
+
+
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
   <GoalEdit
     v-if="editingGoal"
     :goal="editingGoal"
     :isNew="isNewGoal"
-    @save="saveGoal"
+    @save="confirmSaveGoal"
     @confirm-delete="confirmDeleteGoal"
     @cancel="editingGoal = null"
   />
@@ -205,16 +209,6 @@ export default {
     openEditor(goal, isNew = false, groupName = null) {
       this.editingGoal = { ...goal, group: groupName }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
       this.isNewGoal = isNew;
-
-      // If it's a new group goal, show the group alert
-      if (isNew && groupName) {
-          this.pendingGoal = { ...goal, group: groupName };
-          this.showAlert = true;
-          this.editingGoal = null; // Don't show editor yet
-      } else {
-          this.editingGoal = { ...goal, group: groupName };
-          this.showAlert = false;
-      }
     },
 // GOAL SAVING
     async saveGoal(updatedGoal) {
@@ -244,6 +238,28 @@ export default {
       } catch (err) {
         console.error('Error saving goal:', err.response?.data || err.message);
       }
+    },
+    confirmSaveGoal(goal) {
+      this.editingGoal = null;
+
+      if (goal.group){ 
+        this.pendingGoal = goal;
+        this.showAlert = true;
+      } else {
+        this.showAlert = false;
+        this.saveGoal(goal)
+      }
+    },
+    confirmSaveApproved() {
+      this.saveGoal(this.pendingGoal);
+      this.pendingGoal = null;
+      this.showAlert = false;
+    },
+
+    cancelSave() {
+      this.editingGoal = this.pendingGoal
+      this.pendingGoal = null;
+      this.showAlert = false;
     },
 
     // GOAL DELETION
@@ -300,7 +316,6 @@ export default {
         group: null,
         date: new Date()
       };
-      if (groupName){this.showAlert = true;}
       
       this.openEditor(newGoal, true, groupName);
     }
