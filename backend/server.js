@@ -533,7 +533,46 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
     }
 });
 
-// Save meals
+// GET ALL USER MEALS
+app.get('/meals', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ meals: user.meals || [] });
+    } catch (error) {
+        console.error('Error fetching meals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// GET MEAL BY ID
+app.get('/meals/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const mealId = req.params.id;
+        const meal = user.meals.find(m => m._id.toString() === mealId);
+
+        if (!meal) {
+            return res.status(404).json({ message: 'Meal not found' });
+        }
+
+        res.status(200).json({ meal });
+    } catch (error) {
+        console.error('Error fetching meal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// SAVE MEALS
 app.post('/api/meals', async (req, res) => {
     const { mealID, name, food, drinks, calories } = req.body;
     try {
@@ -547,7 +586,7 @@ app.post('/api/meals', async (req, res) => {
 // UPDATE MEAL BY ID
 app.put('/meals/update/:id', authenticateToken, async (req, res) => {
     try {
-        const mealsId = req.params.id;  // Extract the mealsId from the route parameters
+        const mealId = req.params.id;  // Extract the mealsId from the route parameters
         const updatedMeal = req.body;  // Extract the updated meal data from the request body
 
         // Find the user by the email in the token
@@ -575,6 +614,26 @@ app.put('/meals/update/:id', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Error updating meal:', error);
         res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// DELETE MEAL BY ID
+app.delete('/meals/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const mealId = req.params.id;
+
+        await UserModel.updateOne(
+            { _id: user._id },
+            { $pull: { meals: { _id: new ObjectId(mealId) } } }
+        );
+
+        res.status(200).json({ message: 'Meal deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete meal' });
     }
 });
 
