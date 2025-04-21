@@ -40,11 +40,14 @@
             </div>
 
             <!-- Footer group goal warning (only on edit) -->
-            <p v-if="!isNew && goal.group" class="text-sm text-center text-warning mt-4 py-5">
-            ⚠️ Changes to this goal won’t update for other group members.
-            </p>
-            <div class="flex justify-between mt-4">
-                <button v-if="!isNew" class="btn btn-error" @click="$emit('delete', editableGoal)">Delete</button>
+            <div v-if="!isNew && goal.group" class="text-center mt-4 py-5">
+                <div class="text-sm text-warning inline">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                <span>Changes to this goal won't update for other group members.</span>
+            </div></div>
+            
+            <div class="flex justify-between mt-4" @click.self="$emit('cancel')">
+                <button v-if="!isNew" class="btn btn-error" @click="$emit('confirm-delete', editableGoal)">Delete</button>
                 <div v-else class="invisible btn btn-error">Placeholder</div>
                 <div class="space-x-2">
                     <button class="btn btn-ghost" @click="$emit('cancel')">Cancel</button>

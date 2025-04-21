@@ -46,15 +46,17 @@
   </swiper>
 
   <GoalGroupAlert v-if="showAlert" @continue="continueToGoalEditor()" @cancel="showAlert = false" />
+  <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
   <GoalEdit
     v-if="editingGoal"
     :goal="editingGoal"
     :isNew="isNewGoal"
     @save="saveGoal"
-    @delete="deleteGoal"
+    @confirm-delete="confirmDeleteGoal"
     @cancel="editingGoal = null"
   />
+
 </template>
 
 <style>
@@ -97,6 +99,8 @@ import PageHeader from '../../../components/header/PageHeader.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 import GoalGroupAlert from './GoalGroupAlert.vue';
+import GoalDeleteAlert from './GoalDeleteAlert.vue';
+
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination, Keyboard } from 'swiper/modules';
@@ -112,6 +116,7 @@ export default {
     GoalNew,
     GoalEdit,
     GoalGroupAlert,
+    GoalDeleteAlert,
     PageHeader
   },
   setup() {
@@ -121,12 +126,15 @@ export default {
   },
   data() {
     return {
+      user: null,
       goals: [],
       groups: [],
       editingGoal: null,
+      pendingGoal: null,
+      goalPendingDelete: null,
       isNewGoal: false,
+      confirmingDelete: false,
       showAlert: false,
-      user: null,
     };
   },
   computed: {
@@ -205,10 +213,10 @@ export default {
           this.editingGoal = null; // Don't show editor yet
       } else {
           this.editingGoal = { ...goal, group: groupName };
-          this.showPreMenu = false;
+          this.showAlert = false;
       }
     },
-
+// GOAL SAVING
     async saveGoal(updatedGoal) {
       const alreadyExists = !!updatedGoal._id;
       try {
@@ -238,6 +246,32 @@ export default {
       }
     },
 
+    // GOAL DELETION
+    confirmDeleteGoal(goal) {
+      this.editingGoal = null;
+
+      if (goal.group) {
+        // Show group goal warning 
+        this.goalPendingDelete = goal;
+        this.confirmingDelete = true;
+      } else {
+        // Personal goal – skip deletion warning
+        this.deleteGoal(goal);
+      }
+    },
+
+    confirmDeleteApproved() {
+      this.deleteGoal(this.goalPendingDelete);
+      this.goalPendingDelete = null;
+      this.confirmingDelete = false;
+    },
+
+    cancelDelete() {
+      this.editingGoal = this.goalPendingDelete
+      this.goalPendingDelete = null;
+      this.confirmingDelete = false;
+    },
+
     async deleteGoal(goalToDelete) {
       try {
         // Pass goal id to backend for deletion.
@@ -253,6 +287,7 @@ export default {
       }
     },
 
+    // GOAL CREATION
     createNewGoal(groupName = null) {
       // Default new goal
       const newGoal = {
