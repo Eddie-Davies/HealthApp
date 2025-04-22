@@ -46,17 +46,14 @@
   </swiper>
 
   <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
-
-
-
-
+  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription"></GoalDescriptionAlert>
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
   <GoalEdit
     v-if="editingGoal"
     :goal="editingGoal"
     :isNew="isNewGoal"
-    @save="confirmSaveGoal"
+    @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal"
     @cancel="editingGoal = null"
   />
@@ -104,6 +101,7 @@ import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
+import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
 
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -121,6 +119,7 @@ export default {
     GoalEdit,
     GoalGroupAlert,
     GoalDeleteAlert,
+    GoalDescriptionAlert,
     PageHeader
   },
   setup() {
@@ -139,6 +138,7 @@ export default {
       isNewGoal: false,
       confirmingDelete: false,
       showAlert: false,
+      showDescriptionBox: false
     };
   },
   computed: {
@@ -239,11 +239,37 @@ export default {
         console.error('Error saving goal:', err.response?.data || err.message);
       }
     },
+    descriptionPrompt(goal){
+      console.log(goal)
+      if (goal.group){      
+        this.pendingGoal = goal
+        this.editingGoal = null;
+        console.log(this.pendingGoal)
+        this.showDescriptionBox = true;}
+      else {
+        this.confirmSaveGoal(goal)
+      }
+
+    },
+
+    cancelDescription() {
+      this.editingGoal = this.pendingGoal
+      this.pendingGoal = null;
+      this.showDescriptionBox = false;
+    },
+
+    confirmDescriptionApproved(){
+      this.showDescriptionBox = false;
+      this.confirmSaveGoal(this.pendingGoal)
+
+    },
+
     confirmSaveGoal(goal) {
       this.editingGoal = null;
 
       if (goal.group){ 
         this.pendingGoal = goal;
+        this.showDescriptionBox = false
         this.showAlert = true;
       } else {
         this.showAlert = false;

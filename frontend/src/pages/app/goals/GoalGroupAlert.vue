@@ -9,7 +9,7 @@
           This goal will be shared with your group members via email.<br><br>Individual progress won't be shared.
         </p>
         <button class="btn btn-warning w-full" @click="$emit('continue')">I'm sure!</button>
-        <button class="btn btn-soft w-full" @click="$emit('cancel')">Cancel</button>
+        <button class="btn btn-soft w-full" @click="$emit('cancel')">Go back</button>
       </div>
     </div>
   </template>
