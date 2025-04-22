@@ -25,7 +25,6 @@ const routes = [
       { path: "groups", component: Groups, meta: { title: "My Groups" } },
 
       { path: "exercise", name: 'Exercise', component: Exercise, meta: { title: "My Exercise" } },
-      { path: "exercise/track", name: 'ExerciseTrack', component: ExerciseTrack },
 
 
       { path: "diet", component: Diet, meta: { title: "My Diet" } },

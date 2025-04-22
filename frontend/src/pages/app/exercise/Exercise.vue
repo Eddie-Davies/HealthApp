@@ -4,7 +4,7 @@
     <div v-if="!showTrack">
       <ExerciseNew v-if="!showTrack" @start="startExercise" />
       
-      <!-- Exercise Summary with Count -->
+      <!-- Exercise Summary -->
       <div class="mt-10 flex justify-between items-center w-full max-w-md">
         <h2 class="text-2xl font-semibold">Previous Exercise</h2>
       </div>
@@ -24,7 +24,7 @@
           :key="index"
           :title="exercise.title"
           :activity="exercise.activity"
-          :distance="exercise.distance"
+          :value="exercise.value"
           :time="exercise.time"
           @delete="deleteExercise(index)"
         />

@@ -17,8 +17,8 @@
           <h2 class="font-medium text-neutral">{{ activity }}</h2>
         </div>
         <div>
-          <p class="text-neutral-400">Distance</p>
-          <h2 class="font-medium text-neutral">{{ distance }}</h2>
+          <p class="text-neutral-400">Value</p>
+          <h2 class="font-medium text-neutral">{{ value }}</h2>
         </div>
         <div>
           <p class="text-neutral-400">Time</p>
@@ -46,7 +46,7 @@
         type: String,
         default: 'Run'
       },
-      distance: {
+      value: {
         type: String,
         default: '0 km'
       },
