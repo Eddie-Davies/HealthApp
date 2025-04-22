@@ -241,7 +241,7 @@ export default {
     },
     descriptionPrompt(goal){
       console.log(goal)
-      if (goal.group){      
+      if (goal.group && this.isNewGoal){      
         this.pendingGoal = goal
         this.editingGoal = null;
         console.log(this.pendingGoal)
@@ -267,7 +267,7 @@ export default {
     confirmSaveGoal(goal) {
       this.editingGoal = null;
 
-      if (goal.group){ 
+      if (goal.group && this.isNewGoal){ 
         this.pendingGoal = goal;
         this.showDescriptionBox = false
         this.showAlert = true;
