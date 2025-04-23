@@ -346,15 +346,19 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
-        const { description, target, progressLabel, remainingLabel, unit, sport, date, createdBy } = req.body;
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: 'Invalid group ID format.' });
+        }
 
+        const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
+        const user = await UserModel.findOne({ email: req.user.email });
+        const createdBy = user._id
         // Basic validation
         if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
             return res.status(400).json({ message: 'Missing required goal fields.' });
         }
 
         const group = await GroupModel.findById(groupId);
-
         if (!group) {
             return res.status(404).json({ message: 'Group not found.' });
         }

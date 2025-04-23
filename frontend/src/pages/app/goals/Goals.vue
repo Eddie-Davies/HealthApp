@@ -232,19 +232,22 @@ export default {
           const res = await axios.post('/goals/new', updatedGoal);
           savedGoal = res.data.goal;
           updatedGoal._id = savedGoal._id;
-          
-          // console.log(group_id)
-          // const groupGoal = {...updatedGoal}
-          // groupGoal.description =this.description
-          // delete groupGoal.progress
-          // const groupName = groupGoal.group
-          // const group_id = groupName
-          // // Add a new group goal:
-          // const res2 = await axios.post(`/groups/${group_id}/new-goal`, groupGoal)
 
-
-
-
+          if (updatedGoal.group){
+            // If a new group goal, also update the Group Goal Database.
+            try {
+              const groupGoal = {
+                ...updatedGoal,
+                description: this.description
+              };
+              delete groupGoal.progress // Progress isn't synced for group goals.
+              const groupId = groupGoal.group
+              const res = await axios.post(`/groups/${groupId}/new-goal`, groupGoal)
+              console.log('Posted new group goal:', res.data)
+            } catch (err){
+              console.error('Error posting group goal:', err.response?.data || err);
+            }
+          }
           // Push to local goals array since it's new
           this.goals.push(updatedGoal);
         }
