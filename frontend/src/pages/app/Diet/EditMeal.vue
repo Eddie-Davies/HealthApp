@@ -57,37 +57,53 @@ export default {
   },
 
   async mounted() {
+    const tempMeal = JSON.parse(localStorage.getItem('tempMeal'));
+
+    if (tempMeal) {
+      this.mealName = tempMeal.name || '';
+      this.foodItems = tempMeal.foodItems || [];
+      this.drinks = tempMeal.drinks || [];
+    }
+
     if (!this.isNew) {
       try {
         const res = await axios.get(`/meals/${this.mealId}`);
         const meal = res.data.meal;
-        this.mealName = meal.name;
-        this.foodItems = meal.food || [];
-        this.drinks = meal.drinks || [];
+        this.mealName ||= meal.name;
+        this.foodItems ||= meal.food || [];
+        this.drinks ||= meal.drinks || [];
       } catch (err) {
         console.error('Failed to fetch meal by ID:', err.response?.data || err);
       }
     }
 
-    // Append newly selected item if present in query
     const { name, calories, type } = this.$route.query;
     if (name && calories && type) {
       const item = { name, calories: parseInt(calories) };
-
-      if (type === 'food') {
-        this.foodItems.push(item);
-      } else if (type === 'drink') {
-        this.drinks.push(item);
-      }
-
-      // Remove query to avoid re-adding item on refresh
+      if (type === 'food') this.foodItems.push(item);
+      else if (type === 'drink') this.drinks.push(item);
       this.$router.replace({ path: this.$route.path, query: {} });
     }
+
+    // Update localStorage with newly added item
+    localStorage.setItem('tempMeal', JSON.stringify({
+      name: this.mealName,
+      foodItems: this.foodItems,
+      drinks: this.drinks,
+    }));
   },
 
   methods: {
     goToSelect(type) {
-      this.$router.push(`/home/diet/${this.mealId || 'new'}/select/${type}`);
+      localStorage.setItem('tempMeal', JSON.stringify({
+        name: this.mealName,
+        foodItems: this.foodItems,
+        drinks: this.drinks,
+      }));
+
+      this.$router.push({
+        path: `/home/diet/${this.mealId || 'new'}/select/${type}`,
+      });
     },
 
     async saveMeal() {
