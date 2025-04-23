@@ -156,10 +156,11 @@ export default {
       
       // Add group slides
       this.groups.forEach(group => {
+        console.log(group._id)
         slides.push({
-          title: `${group} Goals`,
-          goals: this.groupedGoals[group] || [],
-          group: group
+          title: `${group.name} Goals`,
+          goals: this.groupedGoals[group._id] || [],
+          group: group._id
         });
       });
       
@@ -169,7 +170,7 @@ export default {
     groupedGoals() {
       const result = {};
       this.groups.forEach(group => {
-        result[group] = this.goals.filter(goal => goal.group === group);
+        result[group._id] = this.goals.filter(goal => String(goal.group) === String(group._id));
       });
       return result;
     },
@@ -187,14 +188,18 @@ export default {
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
     }
+    console.log('GOALS:', this.goals.map(g => ({ id: g._id, group: g.group })));
+
 
     // Get user Groups
     try {
       const res = await axios.get('/groups')
-      this.groups = res.data.groups.map(group => group.name); // get the name as it returns both name and group_id.
+      this.groups = res.data.groups;
+      console.log('Groups:',this.groups)
     } catch(err) {
       console.error('Error fetching groups:', err.response?.data)
     }
+    
   },
   methods: {
     toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
@@ -207,13 +212,14 @@ export default {
       this.showAlert = false;
     },
 
-    openEditor(goal, isNew = false, groupName = null) {
-      this.editingGoal = { ...goal, group: groupName }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
+    openEditor(goal, isNew = false, groupId = null) {
+      this.editingGoal = { ...goal, group: groupId }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
       this.isNewGoal = isNew;
     },
 // GOAL SAVING
     async saveGoal(updatedGoal) {
       console.log('Save Goal (description):', this.description)
+      console.log('Updated goal group', updatedGoal.group)
       const alreadyExists = !!updatedGoal._id;
       try {
         let savedGoal;
@@ -227,14 +233,14 @@ export default {
           savedGoal = res.data.goal;
           updatedGoal._id = savedGoal._id;
           
-          console.log(group_id)
-          const groupGoal = {...updatedGoal}
-          groupGoal.description =this.description
-          delete groupGoal.progress
-          const groupName = groupGoal.group
-          const group_id = groupName
-          // Add a new group goal:
-          const res2 = await axios.post(`/groups/${group_id}/new-goal`, groupGoal)
+          // console.log(group_id)
+          // const groupGoal = {...updatedGoal}
+          // groupGoal.description =this.description
+          // delete groupGoal.progress
+          // const groupName = groupGoal.group
+          // const group_id = groupName
+          // // Add a new group goal:
+          // const res2 = await axios.post(`/groups/${group_id}/new-goal`, groupGoal)
 
 
 
@@ -261,6 +267,8 @@ export default {
         console.log(this.pendingGoal)
         this.showDescriptionBox = true;}
       else {
+      console.log('Saving goal with group ID:', goal.group);
+
         this.confirmSaveGoal(goal)
       }
 
@@ -345,8 +353,8 @@ export default {
     },
 
     // GOAL CREATION
-    createNewGoal(groupName = null) {
-      // Default new goal
+    createNewGoal(groupId = null) {
+  
       const newGoal = {
         target: 10,
         progress: 0,
@@ -354,12 +362,11 @@ export default {
         remainingLabel: 'Remaining',
         unit: 'units',
         sport: false,
-        group: null,
+        group: groupId,
         date: new Date()
       };
-      
-      this.openEditor(newGoal, true, groupName);
+      this.openEditor(newGoal, true, groupId);
     }
-  }
-};
+      }
+    };
 </script>
