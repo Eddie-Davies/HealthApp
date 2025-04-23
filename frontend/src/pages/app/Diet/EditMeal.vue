@@ -1,40 +1,43 @@
 <template>
-    <div class="flex flex-col items-center justify-center">
-        <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Edit Meal'" class="input input-ghost text-xl font-semibold" />
+  <div class="flex flex-col items-center justify-center">
+    <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
+      class="input input-ghost text-xl font-semibold" />
 
-        <div class="mt-8">
-            Total Calories: {{ totalCalories }} kcal
-        </div>
-        <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
-            <h3>Food</h3>
-            <div v-for="(food, index) in foodItems" :key="index" class="food-item">
-                <span>{{ food.name }}</span>
-                <span>{{ food.calories }} kcal</span>
-            </div>
-            <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
-        </div>
-
-        <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
-            <h3>Drinks</h3>
-            <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
-                <span>{{ drink.name }}</span>
-                <span>{{ drink.calories }} kcal</span>
-            </div>
-            <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
-        </div>
-
-        <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
+    <div class="mt-8">
+      Total Calories: {{ totalCalories }} kcal
     </div>
+
+    <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
+      <h3>Food</h3>
+      <div v-for="(food, index) in foodItems" :key="index" class="food-item">
+        <span>{{ food.name }}</span>
+        <span>{{ food.calories }} kcal</span>
+      </div>
+      <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
+    </div>
+
+    <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
+      <h3>Drinks</h3>
+      <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
+        <span>{{ drink.name }}</span>
+        <span>{{ drink.calories }} kcal</span>
+      </div>
+      <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
+    </div>
+
+    <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
+  </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'EditMeal',
 
   data() {
     return {
       mealName: '',
-      totalCalories: 0,
       foodItems: [],
       drinks: [],
       mealId: this.$route.params.id,
@@ -43,44 +46,69 @@ export default {
 
   computed: {
     isNew() {
-      return this.mealId === undefined;
-    }
+      return this.mealId === undefined || this.mealId === 'new';
+    },
+
+    totalCalories() {
+      const foodCalories = this.foodItems.reduce((sum, item) => sum + (item.calories || 0), 0);
+      const drinkCalories = this.drinks.reduce((sum, item) => sum + (item.calories || 0), 0);
+      return foodCalories + drinkCalories;
+    },
   },
 
-  mounted() {
+  async mounted() {
     if (!this.isNew) {
-      // TODO: Fetch meal data from backend by ID
-      this.mealName = 'Dinner';
-      this.totalCalories = 500;
-      this.drinks = [{ name: 'Milkshake', calories: 500 }];
-    } else {
-      this.mealName = '';
-      this.totalCalories = 0;
-      this.drinks = [];
+      try {
+        const res = await axios.get(`/meals/${this.mealId}`);
+        const meal = res.data.meal;
+        this.mealName = meal.name;
+        this.foodItems = meal.food || [];
+        this.drinks = meal.drinks || [];
+      } catch (err) {
+        console.error('Failed to fetch meal by ID:', err.response?.data || err);
+      }
+    }
+
+    // Append newly selected item if present in query
+    const { name, calories, type } = this.$route.query;
+    if (name && calories && type) {
+      const item = { name, calories: parseInt(calories) };
+
+      if (type === 'food') {
+        this.foodItems.push(item);
+      } else if (type === 'drink') {
+        this.drinks.push(item);
+      }
+
+      // Remove query to avoid re-adding item on refresh
+      this.$router.replace({ path: this.$route.path, query: {} });
     }
   },
 
   methods: {
     goToSelect(type) {
-      this.$router.push(`/home/diet/${this.mealId}/select/${type}`);
+      this.$router.push(`/home/diet/${this.mealId || 'new'}/select/${type}`);
     },
 
-    addFood() {
-      alert('Add food clicked');
-    },
+    async saveMeal() {
+      const payload = {
+        name: this.mealName,
+        food: this.foodItems,
+        drinks: this.drinks,
+        calories: this.totalCalories,
+      };
 
-    addDrink() {
-      alert('Add drink clicked');
-    },
+      try {
+        if (this.isNew) {
+          await axios.post('/meals', payload);
+        } else {
+          await axios.put(`/meals/update/${this.mealId}`, payload);
+        }
 
-    saveMeal() {
-      if (this.isNew) {
-        // POST /api/meals/
-      } else {
-        // PUT /api/meals/:id
+        this.$router.push('/home/diet');
+      } catch (err) {
+        console.error('Error saving meal:', err.response?.data || err);
       }
-
-      alert(`Saving meal ${this.mealId}`);
     }
   }
 };

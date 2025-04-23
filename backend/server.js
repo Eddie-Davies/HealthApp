@@ -572,13 +572,23 @@ app.get('/meals/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// SAVE MEALS
-app.post('/meals', async (req, res) => {
-    const { mealID, name, food, drinks, calories } = req.body;
+// SAVE MEAL TO USER
+app.post('/meals', authenticateToken, async (req, res) => {
+    const { name, food, drinks, calories } = req.body;
     try {
-        const meal = await Meal.create({ mealID, name, food, drinks, calories });
-        res.status(201).json(meal);
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newMeal = { name, food, drinks, calories };
+        user.meals.push(newMeal);
+        await user.save();
+
+        const addedMeal = user.meals[user.meals.length - 1]; // get the last pushed meal (with _id)
+        res.status(201).json({ message: 'Meal saved successfully', meal: addedMeal });
     } catch (err) {
+        console.error('Error saving meal:', err);
         res.status(500).json({ error: 'Failed to create meal' });
     }
 });
