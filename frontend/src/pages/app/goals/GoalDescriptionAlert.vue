@@ -9,10 +9,10 @@
             <p>Enter a short description/name for your new goal.</p><br>
             <p>Others in your group will see this when offered to accept the goal.</p>
         </div>
-        <input type="text" placeholder="eg. eat an apple everyday for a week" class="input mt-10 mb-15" />
+        <input v-model="description" required type="text" placeholder="eg. eat an apple everyday for a week" class="input mt-10 mb-15" />
         <div class="w-full flex gap-3">
-            <button class="btn btn-soft flex-1" style="flex: 1;" @click="$emit('cancel')">Back</button>
-            <button class="btn btn-success flex-[2]" style="flex: 2;" @click="$emit('continue')">Save</button>
+            <button class="btn btn-ghost flex-1" style="flex: 1;" @click="$emit('cancel')">Back</button>
+            <button :disabled="!description" class="btn btn-success flex-[2]" style="flex: 2;" @click="saveDesc">Save</button>
         </div>
       </div>
     </div>
@@ -22,6 +22,18 @@
 
 <script>
 export default {
-    name: 'GoalDescriptionAlert'
+  // props; pendingDesc... Description = pendingDesc if not null OR ''
+    name: 'GoalDescriptionAlert',
+    data() {
+      return {
+        description: ''
+      };
+    },
+    methods: {
+      saveDesc(){
+        console.log(this.description)
+        this.$emit('continue', this.description)
+      }
+    }
 }
 </script>

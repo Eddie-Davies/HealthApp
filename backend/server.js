@@ -453,6 +453,10 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
         user.goals.push(newGoal);
         await user.save();
 
+        if (group) {
+            // get the desc, use the add new group goal route. Maybe do this in the Goals.vue instead.
+        }
+
         // Respond with the saved goal
         const savedGoal = user.goals[user.goals.length - 1];  // The newly added goal
         res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });

@@ -138,7 +138,8 @@ export default {
       isNewGoal: false,
       confirmingDelete: false,
       showAlert: false,
-      showDescriptionBox: false
+      showDescriptionBox: false,
+      goalDescription: false
     };
   },
   computed: {
@@ -212,6 +213,7 @@ export default {
     },
 // GOAL SAVING
     async saveGoal(updatedGoal) {
+      console.log('Save Goal (description):', this.description)
       const alreadyExists = !!updatedGoal._id;
       try {
         let savedGoal;
@@ -225,6 +227,18 @@ export default {
           savedGoal = res.data.goal;
           updatedGoal._id = savedGoal._id;
           
+          console.log(group_id)
+          const groupGoal = {...updatedGoal}
+          groupGoal.description =this.description
+          delete groupGoal.progress
+          const groupName = groupGoal.group
+          const group_id = groupName
+          // Add a new group goal:
+          const res2 = await axios.post(`/groups/${group_id}/new-goal`, groupGoal)
+
+
+
+
           // Push to local goals array since it's new
           this.goals.push(updatedGoal);
         }
@@ -258,8 +272,9 @@ export default {
       this.showDescriptionBox = false;
     },
 
-    confirmDescriptionApproved(){
+    confirmDescriptionApproved(description){
       this.showDescriptionBox = false;
+      this.description = description
       this.confirmSaveGoal(this.pendingGoal)
 
     },
