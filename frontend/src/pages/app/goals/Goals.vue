@@ -71,11 +71,6 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-html, body, #app {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* prevent weird scroll issues */
-}
 
 .swiper {
   height: 100vh !important;
