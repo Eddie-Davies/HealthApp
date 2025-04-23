@@ -7,7 +7,7 @@ const mongoURI = process.env.MONGO_URI;
 mongoose.connect(mongoURI)
     .then(() => console.log('✅ Successfully Connected to MongoDB!'))
     .catch(err => console.log('❌ Error connecting to MongoDB:', err));
-    
+
 // Food Schema
 const FoodSchema = new mongoose.Schema({
     name: String,
@@ -17,9 +17,13 @@ const FoodSchema = new mongoose.Schema({
 
 // Meal Schema
 const MealSchema = new mongoose.Schema({
-    mealType: [String], // e.g., ["Dinner", "Breakfast"]
-    food: FoodSchema,
-    date: Date
+    mealName: [String],
+    food: [FoodSchema],
+    drinks: [FoodSchema],
+    date: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 // Exercise Schema
@@ -41,10 +45,10 @@ const GoalSchema = new mongoose.Schema({
     unit: String,
     sport: Boolean, // false = food or other
     date: { type: Date, default: Date.now },
-    group: {type: String, default: null},
+    group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
-  });
-  
+});
+
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -76,12 +80,12 @@ const GroupGoalSchema = new mongoose.Schema({
 // Group Schema
 const GroupSchema = new mongoose.Schema({
     name: {
-      type: String,
-      unique: true
+        type: String,
+        unique: true
     },
     membersByID: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     goals: [GroupGoalSchema]
-  });
+});
 
 
 

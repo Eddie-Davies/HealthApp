@@ -574,14 +574,14 @@ app.get('/meals/:id', authenticateToken, async (req, res) => {
 
 // SAVE MEAL TO USER
 app.post('/meals', authenticateToken, async (req, res) => {
-    const { name, food, drinks, calories } = req.body;
+    const { mealName, food, drinks, date} = req.body;
     try {
         const user = await UserModel.findOne({ email: req.user.email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newMeal = { name, food, drinks, calories };
+        const newMeal = { mealName, food, drinks, date};
         user.meals.push(newMeal);
         await user.save();
 
@@ -644,6 +644,56 @@ app.delete('/meals/:id', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to delete meal' });
+    }
+});
+
+// GET /food/foods - Get only food (isDrink: false)
+app.get('/foods', async (req, res) => {
+    try {
+        const foods = await Food.find({ isDrink: false });
+        res.json(foods);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching foods', error: err });
+    }
+});
+
+// GET /food/drinks - Get only drinks (isDrink: true)
+app.get('/drinks', async (req, res) => {
+    try {
+        const drinks = await Food.find({ isDrink: true });
+        res.json(drinks);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching drinks', error: err });
+    }
+});
+
+// POST /food - Add a new food or drink
+app.post('/food', async (req, res) => {
+    const { name, calories, isDrink } = req.body;
+
+    if (!name || calories === undefined || isDrink === undefined) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    try {
+        const newFood = new Food({ name, calories, isDrink });
+        await newFood.save();
+        res.status(201).json(newFood);
+    } catch (err) {
+        res.status(500).json({ message: 'Error saving food item', error: err });
+    }
+});
+
+// DELETE /food/:id - Delete a food item by ID
+app.delete('/food/:id', async (req, res) => {
+    try {
+        const deletedFood = await Food.findByIdAndDelete(req.params.id);
+        if (!deletedFood) {
+            return res.status(404).json({ message: 'Food item not found' });
+        }
+        res.json({ message: 'Food item deleted successfully', deletedFood });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting food item', error: err });
     }
 });
 

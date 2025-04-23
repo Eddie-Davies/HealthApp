@@ -29,14 +29,23 @@ export default {
       meals: []
     };
   },
-  async mounted() {
-    try {
-      const res = await axios.get('/meals');
-      console.log('User meals:', res.data.meals);
-      this.meals = res.data.meals;
-    } catch (err) {
-      console.error('Error fetching meals:', err.response?.data);
+  watch: {
+    $route() {
+      this.fetchMeals();
     }
+  },
+  methods: {
+    async fetchMeals() {
+      try {
+        const res = await axios.get('/meals');
+        this.meals = res.data.meals;
+      } catch (err) {
+        console.error('Error fetching meals:', err.response?.data);
+      }
+    }
+  },
+  async mounted() {
+    await this.fetchMeals();
   }
 };
 </script>

@@ -121,6 +121,7 @@ export default {
           await axios.put(`/meals/update/${this.mealId}`, payload);
         }
 
+        localStorage.removeItem('tempMeal');
         this.$router.push('/home/diet');
       } catch (err) {
         console.error('Error saving meal:', err.response?.data || err);
