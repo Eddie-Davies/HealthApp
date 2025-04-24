@@ -9,7 +9,7 @@
         <p class="text-neutral-400">Activity</p>
         <input
           v-model="editedActivity"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
           type="text"
           @blur="emitChanges"
         />
@@ -19,7 +19,7 @@
         <p class="text-neutral-400">Integer</p>
         <input
           v-model="editedInteger"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"
@@ -30,7 +30,7 @@
         <p class="text-neutral-400">Unit</p>
         <input
           v-model="editedUnit"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"

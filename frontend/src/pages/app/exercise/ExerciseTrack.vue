@@ -3,15 +3,19 @@
       <div class="w-full flex justify-center">
         <textarea
           v-model="newTitle"
-          class="mt-20 textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-100"
+          class="mt-20 textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-115"
           placeholder="Afternoon Run"
           rows="2"
         ></textarea>
       </div>
-      <div class="pr-80 text-2xl">
+      <div class="pr-90 text-xl">
         Elapsed
-        <div class="text-2xl text-center text-neutral">
+        <div class="text-xl text-center text-neutral">
           {{ formatTime(timer) }}
+            <div class="inline-grid *:[grid-area:1/1]">
+            <div class="status status-error animate-ping"></div>
+            <div class="status status-error"></div>
+            </div>
         </div>
       </div>
       <div class="mt-8 w-full max-w-md">
