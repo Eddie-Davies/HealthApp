@@ -4,21 +4,19 @@
     <!-- Start Exercise -->
     <div v-if="!showTrack">
       <ExerciseNew v-if="!showTrack" @start="startExercise" />
-      
       <!-- Exercise Summary -->
       <div class="mt-10 flex justify-between items-center w-full max-w-md">
         <h2 class="text-2xl font-semibold">Previous Exercise</h2>
       </div>
     </div>
-    
     <!-- Workout in progress -->
     <ExerciseTrack
       v-if="showTrack"
       @workoutFinished="handleWorkoutFinished"
     />
-    
     <div class="mt-10 w-full max-w-md">
       <div v-if="!showTrack">
+        
         <!-- Only show limited exercises or all based on showAll toggle -->
         <ExerciseCard
           v-for="(exercise, index) in displayedExercises"
@@ -27,13 +25,14 @@
           :activity="exercise.activity"
           :value="exercise.value"
           :time="exercise.time"
+          :activitiesDetails="exercise.activitiesDetails || []"
+          :isMultiActivity="Boolean(exercise.isMultiActivity)"
           @delete="deleteExercise(index)"
         />
-        
         <!-- Show more/less button -->
         <div v-if="exercises.length > 5" class="flex justify-center mt-6 mb-15">
-          <button 
-            @click="showAll = !showAll" 
+          <button
+            @click="showAll = !showAll"
             class="btn btn-outline btn-neutral"
           >
             {{ showAll ? 'Show Recent' : 'Show All' }}
@@ -76,14 +75,18 @@ export default {
     handleWorkoutFinished(workout) {
       if (workout) {
         console.log('Received workout in parent:', workout);
-        this.exercises.unshift(workout);
+        // Ensure workout has all required properties for ExerciseCard
+        const processedWorkout = {
+          ...workout,
+          isMultiActivity: Boolean(workout.isMultiActivity),
+          activitiesDetails: workout.activitiesDetails || []
+        };
+        this.exercises.unshift(processedWorkout);
       }
       this.showTrack = false;
     },
     deleteExercise(index) {
-      // Remove the exercise at the specified index
       this.exercises.splice(index, 1);
-      console.log('Exercise deleted, remaining:', this.exercises.length);
     }
   }
 };

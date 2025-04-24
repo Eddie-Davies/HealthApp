@@ -3,12 +3,12 @@
       <div class="w-full flex justify-center">
         <textarea
           v-model="newTitle"
-          class="mt-20 textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-115"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-115"
           placeholder="Afternoon Run"
-          rows="2"
+          rows="1"
         ></textarea>
       </div>
-      <div class="pr-90 text-xl">
+      <div class="pr-85 text-xl">
         Elapsed
         <div class="text-xl text-center text-neutral">
           {{ formatTime(timer) }}
@@ -21,7 +21,7 @@
       <div class="mt-8 w-full max-w-md">
         <ExerciseTrackCard
           v-for="(exercise, index) in exercises"
-          :key="index"
+          :key="exercise.id"
           :title="exercise.title"
           :activity="exercise.activity"
           :integer="exercise.integer"
@@ -39,7 +39,7 @@
             + Add Activity
         </button>
         </div>
-
+  
         <div class="w-full flex items-center justify-center py-4">
       <div class="relative flex items-center justify-center w-full pt-20">
         <div class="absolute left-1/2 transform -translate-x-full pr-16">
@@ -73,75 +73,101 @@
       ExerciseTrackCard,
     },
     data() {
-      return {
+    return {
         exercises: [
-          { title: 'New Activity', activity: 'Run', integer: '2', unit: 'km' }
+        { id: 1, title: 'New Activity 1', activity: 'Run', integer: '2', unit: 'km' }
         ],
-        timer: 0,
+        nextId: 2,
+        timer: 0,  // This will now track milliseconds
         timerInterval: null,
         isRunning: false,
         newTitle: ''
-      };
+    };
     },
     methods: {
-    addNewActivity() {
-      
-    },
-      startTimer() {
+    startTimer() {
         if (!this.isRunning) {
-          this.isRunning = true;
-          this.timerInterval = setInterval(() => {
-            this.timer++;
-          }, 1000);
+        this.isRunning = true;
+        // Update every 10ms instead of 1000ms
+        this.timerInterval = setInterval(() => {
+            this.timer += 10;  // Add 10ms each tick
+        }, 10);
         }
-      },
-      pauseTimer() {
+    },
+    pauseTimer() {
         if (this.isRunning) {
-          this.isRunning = false;
-          clearInterval(this.timerInterval);
-          this.timerInterval = null;
+        this.isRunning = false;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
         }
-      },
-      formatTime(seconds) {
-        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const secs = (seconds % 60).toString().padStart(2, '0');
-        return `${mins}:${secs}`;
-      },
-      updateInteger({ title, integer }) {
-        console.log('Updating integer for:', title, 'to:', integer);
-        const ex = this.exercises.find((e) => e.title === title);
-        if (ex) {
-          ex.integer = integer;
-          console.log('Updated exercises:', JSON.stringify(this.exercises));
-        }
-      },
-      updateUnit({ title, unit }) {
-        const ex = this.exercises.find((e) => e.title === title);
-        if (ex) ex.unit = unit;
-      },
-      updateActivity({ title, activity }) {
-        const ex = this.exercises.find((e) => e.title === title);
-        if (ex) ex.activity = activity;
-      },
-      finishWorkout() {
-        this.pauseTimer(); // stop the timer
-        
-        // Get the first exercise's data (or use defaults if there are no exercises)
-        const exercise = this.exercises[0] || { activity: '', integer: '0', unit: '' };
-        
-        console.log('Exercise at finish:', JSON.stringify(exercise));
-        
-        const completedWorkout = {
-          title: this.newTitle || 'Untitled Workout',
-          activity: exercise.activity,
-          value: `${exercise.integer} ${exercise.unit}`,
-          time: this.formatTime(this.timer),
-        };
-        
-        console.log('Workout finished:', completedWorkout);
-        // Emit to parent
-        this.$emit('workoutFinished', completedWorkout);
+    },
+    formatTime(milliseconds) {
+      // Calculate minutes, seconds and milliseconds
+      const mins = Math.floor(milliseconds / 60000).toString().padStart(2, '0');
+      const secs = Math.floor((milliseconds % 60000) / 1000).toString().padStart(2, '0');
+      const ms = Math.floor((milliseconds % 1000) / 10).toString().padStart(2, '0');
+      
+      return `${mins}:${secs}.${ms}`;
+    },
+    addNewActivity() {
+      const newActivity = {
+        id: this.nextId,
+        title: `New Activity ${this.nextId}`,
+        activity: 'Run',
+        integer: '0',
+        unit: 'km'
+      };
+      this.exercises.push(newActivity);
+      this.nextId++;
+    },
+    updateInteger({ title, integer }) {
+      console.log('Updating integer for:', title, 'to:', integer);
+      const ex = this.exercises.find((e) => e.title === title);
+      if (ex) {
+        ex.integer = integer;
+        console.log('Updated exercises:', JSON.stringify(this.exercises));
       }
-    }
+    },
+    updateUnit({ title, unit }) {
+      const ex = this.exercises.find((e) => e.title === title);
+      if (ex) ex.unit = unit;
+    },
+    updateActivity({ title, activity }) {
+      const ex = this.exercises.find((e) => e.title === title);
+      if (ex) ex.activity = activity;
+    },
+    finishWorkout() {
+  this.pauseTimer(); // stop the timer
+  
+  // Create a detailed activities array for multi-column display
+  const activitiesDetails = this.exercises.map(ex => ({
+    activity: ex.activity,
+    integer: ex.integer,
+    unit: ex.unit
+  }));
+  
+  // Use the first activity as the main activity for backward compatibility
+  const mainActivity = this.exercises[0].activity;
+  const mainValue = `${this.exercises[0].integer} ${this.exercises[0].unit}`;
+  
+  const completedWorkout = {
+    title: this.newTitle || 'Untitled Workout',
+    activity: mainActivity,
+    value: mainValue,
+    time: this.formatTime(this.timer),
+    // Add the detailed activities array for multi-column display
+    activitiesDetails: activitiesDetails,
+    // Flag to indicate this is a multi-activity workout - ensure this is set correctly
+    isMultiActivity: this.exercises.length > 1
+  };
+  
+  console.log('Workout finished:', completedWorkout);
+  console.log('Multi-activity flag:', completedWorkout.isMultiActivity);
+  console.log('Activities details:', JSON.stringify(activitiesDetails));
+  
+  this.$emit('workoutFinished', completedWorkout);
+}
+}
+
   };
   </script>

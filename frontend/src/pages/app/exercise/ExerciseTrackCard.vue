@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 flex flex-col">
+  <div class="card bg-base-300 rounded-box p-4 flex flex-col mb-4">
     <!-- Top: Title -->
     <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
     
