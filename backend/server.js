@@ -26,10 +26,11 @@ const transporter = nodemailer.createTransport({
 
 
 const app = express();
-const port = 5000;
+const port = 8000;
 
 app.use(cors({ // This is needed because frontend and backend are on different urls.
-    origin: 'http://localhost:3000'
+    origin: 'http://192.168.1.152:3000',
+    credentials: true,
 }))
 app.use(express.json());
 
@@ -557,6 +558,6 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
 
 
 // Start the server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
 });
