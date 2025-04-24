@@ -1,4 +1,5 @@
 <template>
+  <PageHeader :title="$route.meta.title" v-if="!showTrack"/>
   <div class="mt-10 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise -->
     <div v-if="!showTrack">
@@ -47,9 +48,10 @@
 import ExerciseTrack from './ExerciseTrack.vue';
 import ExerciseCard from './ExerciseCard.vue';
 import ExerciseNew from './ExerciseNew.vue';
+import PageHeader from '../../../components/header/PageHeader.vue';
 
 export default {
-  components: { ExerciseTrack, ExerciseCard, ExerciseNew },
+  components: { ExerciseTrack, ExerciseCard, ExerciseNew, PageHeader },
   data() {
     return {
       showTrack: false,
