@@ -1,6 +1,15 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://192.168.1.152:8000';
+const envIP = import.meta.env.VITE_IP;
+const allowedOrigin = envIP ? `http://${envIP}:8000` : 'http://localhost:8000';
+axios.defaults.baseURL = allowedOrigin;
+
+console.log('Axios baseURL:', axios.defaults.baseURL);
+if (!envIP) {
+    console.error('WARNING: Add IP Address to .env for mobile testing support.');
+}
+
+
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {

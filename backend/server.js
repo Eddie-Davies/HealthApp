@@ -7,7 +7,7 @@ const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
@@ -28,10 +28,17 @@ const transporter = nodemailer.createTransport({
 const app = express();
 const port = 8000;
 
-app.use(cors({ // This is needed because frontend and backend are on different urls.
-    origin: 'http://192.168.1.152:3000',
-    credentials: true,
-}))
+const envIP = process.env.VITE_IP;
+const allowedOrigin = envIP ? `http://${envIP}:3000` : null;
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        allowedOrigin
+    ].filter(Boolean), // removes null if allowed origin is missing
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 function generateCode(){
@@ -307,7 +314,6 @@ app.get('/groups', authenticateToken, async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-      console.log(user.groups)
       res.json({ groups: user.groups }); // Each group will include _id and name
     } catch (error) {
       console.error('Error fetching user groups:', error);
@@ -559,5 +565,15 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
 
 // Start the server
 app.listen(port, '0.0.0.0', () => {
-    console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
+    const prefix = `✨ Node.js server running at `;
+    const localURL = `http://localhost:${port}`;
+    const networkURL = envIP ? `http://${envIP}:3000` : null;
+
+    console.log(prefix + localURL+('     (For fast development on this device)'));
+
+    if (networkURL) {
+        console.log(' '.repeat(prefix.length -2)+'✅ ' + networkURL + ' (Other devices)');
+    } else {
+        console.error('\x1b[31m%s\x1b[0m',`⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+    }
 });
