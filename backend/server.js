@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
 
 
 const app = express();
-const port = 5000;
+const port = 8000;
 
 app.use(cors({ // This is needed because frontend and backend are on different urls.
     origin: 'http://localhost:3000'
