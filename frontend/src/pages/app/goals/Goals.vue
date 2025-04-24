@@ -9,6 +9,7 @@
     :keyboard="{
       enabled: true,
     }"
+    :touchEventsTarget="'container'"
     :modules="modules"
     class="mySwiper">
     
@@ -38,7 +39,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-10 mb-50 flex flex-wrap justify-center">
+        <div class="mt-10 mb-40 flex flex-wrap justify-center">
           <GoalNew :group="slide.group" @new-goal="createNewGoal(slide.group)" />
         </div>
       </div>
@@ -71,19 +72,27 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-.swiper {
-  height: 100vh !important;
+html, body {
+  -webkit-overflow-scrolling: touch;
 }
 
+/* DEBUG: */
+/* .swiper {
+ background-color: rgb(64, 114, 62);
+} */
+
 .swiper-slide {
-  height: 100vh !important;
-  overflow-y: auto; /* allow scrolling when content is taller */
+  /* overflow-y: visible; allow scrolling when content is taller */
   display: flex;
   flex-direction: column;
 }
 .swiper-pagination-bullet-active {
      background-color: bg-base-200 !important;
+}
+
+.swiper-pagination {
+  margin-top: 100px;
+  margin-bottom: 100px
 }
 </style>
 
