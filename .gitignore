@@ -34,3 +34,4 @@ dist/
 
 # extensions
 .timetracker
+.env
