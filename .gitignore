@@ -30,9 +30,7 @@ frontend/node_modules/
 dist/
 
 # .env
-.env
-/backend/.env
+
 
 # extensions
 .timetracker
-backend/.env-example
