@@ -31,25 +31,19 @@
           @updateUnit="updateUnit"
         />
       </div>
-      
-        <div class="w-full flex justify-center mt-4">
+
+    <div class="w-full flex justify-center mt-4">
         <button 
             @click="addNewActivity" 
             class="btn btn-primary" >
             + Add Activity
         </button>
-        </div>
+    </div>
   
-        <div class="w-full flex items-center justify-center py-4">
-      <div class="relative flex items-center justify-center w-full pt-20">
-        <div class="absolute left-1/2 transform -translate-x-full pr-16">
-          <ExercisePlay @play="startTimer" :disabled="isRunning"/>
-        </div>
+    <div class="flex items-center justify-center w-full pt-20 gap-4">
+        <ExercisePlay @play="startTimer" :disabled="isRunning" />
         <ExerciseFinish @finishWorkout="finishWorkout" />
-        <div class="absolute left-1/2 transform translate-x-full pl-1">
-          <ExercisePause @pause="pauseTimer" :disabled="!isRunning"/>
-        </div>
-      </div>
+        <ExercisePause @pause="pauseTimer" :disabled="!isRunning" />
     </div>
   </div>
   </template>
@@ -75,7 +69,7 @@
     data() {
     return {
         exercises: [
-        { id: 1, title: 'New Activity 1', activity: 'Run', integer: '2', unit: 'km' }
+        { id: 1, title: 'New Activity 1', activity: 'Run', integer: '0', unit: 'km' }
         ],
         nextId: 2,
         timer: 0,  // This will now track milliseconds
