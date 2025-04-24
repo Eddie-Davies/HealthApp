@@ -47,6 +47,7 @@
 import ExerciseTrack from './ExerciseTrack.vue';
 import ExerciseCard from './ExerciseCard.vue';
 import ExerciseNew from './ExerciseNew.vue';
+import emitter from '/src/eventBus';
 
 export default {
   components: { ExerciseTrack, ExerciseCard, ExerciseNew },
@@ -70,7 +71,7 @@ export default {
   methods: {
     startExercise() {
       this.showTrack = true;
-      this.$emit('start-exercise'); // Emit event to hide navbar
+      emitter.emit('toggle-navbar', true); // true means hide navbar
     },
     handleWorkoutFinished(workout) {
       if (workout) {
@@ -78,7 +79,7 @@ export default {
         this.exercises.unshift(workout);
       }
       this.showTrack = false;
-      this.$emit('finish-exercise'); // Emit event to show navbar
+      emitter.emit('toggle-navbar', false); // false means show navbar
     },
     deleteExercise(index) {
       // Remove the exercise at the specified index

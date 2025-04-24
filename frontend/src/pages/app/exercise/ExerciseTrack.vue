@@ -1,20 +1,20 @@
 <template>
     <div class="flex flex-col items-center">
-      <div class="mt-6 w-full flex justify-center">
+      <div class="w-full flex justify-center">
         <textarea
           v-model="newTitle"
-          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-100"
+          class="mt-20 textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-100"
           placeholder="Afternoon Run"
           rows="2"
         ></textarea>
       </div>
-      <div class="mt-10 pr-80 text-2xl">
+      <div class="pr-80 text-2xl">
         Elapsed
         <div class="text-2xl text-center text-neutral">
           {{ formatTime(timer) }}
         </div>
       </div>
-      <div class="mt-3 w-full max-w-md">
+      <div class="mt-8 w-full max-w-md">
         <ExerciseTrackCard
           v-for="(exercise, index) in exercises"
           :key="index"
@@ -36,18 +36,18 @@
         </button>
         </div>
 
-      <div class="w-full flex items-center justify-center py-4">
-        <div class="relative flex items-center justify-center w-full pt-20">
-          <div class="absolute left-1/2 transform -translate-x-full pr-16">
-            <ExercisePlay @play="startTimer"/>
-          </div>
-          <ExerciseFinish @finishWorkout="finishWorkout" />
-          <div class="absolute left-1/2 transform translate-x-full pl-1">
-            <ExercisePause @pause="pauseTimer"/>
-          </div>
+        <div class="w-full flex items-center justify-center py-4">
+      <div class="relative flex items-center justify-center w-full pt-20">
+        <div class="absolute left-1/2 transform -translate-x-full pr-16">
+          <ExercisePlay @play="startTimer" :disabled="isRunning"/>
+        </div>
+        <ExerciseFinish @finishWorkout="finishWorkout" />
+        <div class="absolute left-1/2 transform translate-x-full pl-1">
+          <ExercisePause @pause="pauseTimer" :disabled="!isRunning"/>
         </div>
       </div>
     </div>
+  </div>
   </template>
   
   <script>
