@@ -10,8 +10,7 @@
     <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
       <h3>Food</h3>
       <div v-for="(food, index) in foodItems" :key="index" class="food-item">
-        <span>{{ food.name }}</span>
-        <span>{{ food.calories }} kcal</span>
+        <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
       </div>
       <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
     </div>
@@ -19,8 +18,7 @@
     <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
       <h3>Drinks</h3>
       <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
-        <span>{{ drink.name }}</span>
-        <span>{{ drink.calories }} kcal</span>
+        <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
       </div>
       <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
     </div>
@@ -108,10 +106,10 @@ export default {
 
     async saveMeal() {
       const payload = {
-        name: this.mealName,
-        food: this.foodItems,
+        mealName: this.mealName,
+        food: this.food,
         drinks: this.drinks,
-        calories: this.totalCalories,
+        date: this.date,
       };
 
       try {

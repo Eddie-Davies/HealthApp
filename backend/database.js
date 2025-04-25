@@ -62,6 +62,7 @@ const UserSchema = new mongoose.Schema({
     targetWeight: Number,
     recoveryCode: String,
     meal: [MealSchema],
+    foods: [FoodSchema],
     exercise: [ExerciseSchema],
     goals: [GoalSchema],
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]

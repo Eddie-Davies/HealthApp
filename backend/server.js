@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
-const { UserModel, GroupModel } = require('./database');
+const { UserModel, GroupModel, FoodModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
@@ -574,14 +574,14 @@ app.get('/meals/:id', authenticateToken, async (req, res) => {
 
 // SAVE MEAL TO USER
 app.post('/meals', authenticateToken, async (req, res) => {
-    const { mealName, food, drinks, date} = req.body;
+    const { mealName, food, drinks, date } = req.body;
     try {
         const user = await UserModel.findOne({ email: req.user.email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newMeal = { mealName, food, drinks, date};
+        const newMeal = { mealName, food, drinks, date };
         user.meals.push(newMeal);
         await user.save();
 
@@ -650,7 +650,7 @@ app.delete('/meals/:id', authenticateToken, async (req, res) => {
 // GET /food/foods - Get only food (isDrink: false)
 app.get('/foods', async (req, res) => {
     try {
-        const foods = await Food.find({ isDrink: false });
+        const foods = await FoodModel.find({ isDrink: false });
         res.json(foods);
     } catch (err) {
         res.status(500).json({ message: 'Error fetching foods', error: err });
@@ -658,17 +658,24 @@ app.get('/foods', async (req, res) => {
 });
 
 // GET /food/drinks - Get only drinks (isDrink: true)
-app.get('/drinks', async (req, res) => {
+app.get('/foods', authenticateToken, async (req, res) => {
     try {
-        const drinks = await Food.find({ isDrink: true });
-        res.json(drinks);
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const foods = await FoodModel.find({ isDrink: false, user: user._id });
+        res.json({ foods });
     } catch (err) {
-        res.status(500).json({ message: 'Error fetching drinks', error: err });
+        res.status(500).json({ message: 'Error fetching foods', error: err });
     }
 });
 
+
 // POST /food - Add a new food or drink
-app.post('/food', async (req, res) => {
+app.post('/food', authenticateToken, async (req, res) => {
     const { name, calories, isDrink } = req.body;
 
     if (!name || calories === undefined || isDrink === undefined) {
@@ -676,18 +683,26 @@ app.post('/food', async (req, res) => {
     }
 
     try {
-        const newFood = new Food({ name, calories, isDrink });
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newFood = new FoodModel({ name, calories, isDrink, user: user._id });
         await newFood.save();
+
         res.status(201).json(newFood);
     } catch (err) {
         res.status(500).json({ message: 'Error saving food item', error: err });
     }
 });
 
+
 // DELETE /food/:id - Delete a food item by ID
 app.delete('/food/:id', async (req, res) => {
     try {
-        const deletedFood = await Food.findByIdAndDelete(req.params.id);
+        const deletedFood = await FoodModel.findByIdAndDelete(req.params.id);
         if (!deletedFood) {
             return res.status(404).json({ message: 'Food item not found' });
         }

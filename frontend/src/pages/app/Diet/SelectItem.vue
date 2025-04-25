@@ -10,7 +10,7 @@
       <div v-for="item in filteredItems" :key="item.name"
         class="flex justify-between items-center p-3 hover:bg-gray-100 cursor-pointer" @click="selectItem(item)">
         <span>{{ item.name }}</span>
-        <span>{{ item.calories }}kcal</span>
+        <span>{{ item.calories }} kcal</span>
       </div>
     </div>
 
@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'SelectItem',
   props: ['type'],
@@ -37,34 +38,21 @@ export default {
         name: '',
         calories: '',
       },
-      foods: [
-        { name: 'Sausage Roll', calories: 532 },
-        { name: 'Pizza', calories: 504 },
-        { name: 'Tuna', calories: 602 },
-        { name: 'Spag Bol', calories: 301 },
-        { name: 'Uranium Chair', calories: 60087 },
-        { name: 'Chips', calories: 297 },
-      ],
-      drinks: [
-        { name: 'Milkshake', calories: 500 },
-        { name: 'Water', calories: 0 },
-        { name: 'Tea', calories: 30 },
-      ],
+      items: []
     };
   },
+
   computed: {
     capitalizedType() {
       return this.type.charAt(0).toUpperCase() + this.type.slice(1);
     },
-    itemList() {
-      return this.type === 'food' ? this.foods : this.drinks;
-    },
     filteredItems() {
-      return this.itemList.filter(item =>
+      return this.items.filter(item =>
         item.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
   },
+
   methods: {
     selectItem(item) {
       const returnPath = this.$route.path.split('/select')[0]; // go back to EditMeal.vue path
@@ -76,26 +64,34 @@ export default {
           type: this.type,
         }
       });
-    }
-    ,
-    addItem() {
+    },
+    async addItem() {
       if (!this.newItem.name || !this.newItem.calories) return;
 
       const parsedCalories = parseInt(this.newItem.calories);
       const newEntry = {
         name: this.newItem.name,
         calories: parsedCalories,
+        isDrink: this.type === 'drink',
       };
-
-      if (this.type === 'food') {
-        this.foods.push(newEntry);
-      } else {
-        this.drinks.push(newEntry);
+      try {
+        const res = await axios.post('/food', newEntry);
+        this.items.push(res.data);
+        this.newItem.name = '';
+        this.newItem.calories = '';
+      } catch (err) {
+        console.error('Error adding food item:', err.response?.data || err.message);
+        console.log('Sending food:', newEntry);
       }
-
-      this.newItem.name = '';
-      this.newItem.calories = '';
-    },
+    }
   },
+  async mounted() {
+    try {
+      const res = await axios.get('/foods');
+      this.items = res.data.filter(food => food.isDrink === (this.type === 'drink'));
+    } catch (err) {
+      console.error('Error fetching food list:', err.response?.data || err.message);
+    }
+  }
 };
 </script>
