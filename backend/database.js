@@ -1,6 +1,6 @@
 // Import and Connect to MongoDB
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 const mongoURI = process.env.MONGO_URI;
 
 
@@ -39,9 +39,12 @@ const GoalSchema = new mongoose.Schema({
     progressLabel: String,
     remainingLabel: String,
     unit: String,
-    type: Boolean, // true = Food, false = Sport
-    endDate: Date
-});
+    sport: Boolean, // false = food or other
+    date: { type: Date, default: Date.now },
+    group: {type: String, default: null},
+    sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
+  });
+  
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -56,18 +59,31 @@ const UserSchema = new mongoose.Schema({
     recoveryCode: String,
     meal: [MealSchema],
     exercise: [ExerciseSchema],
-    goals: [GoalSchema]
+    goals: [GoalSchema],
+    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
+const GroupGoalSchema = new mongoose.Schema({
+    target: Number,
+    progressLabel: String,
+    remainingLabel: String,
+    description: String, // for when you receive an email. We will force users to describe the goal they share.
+    unit: String,
+    sport: Boolean, // false = food or other
+    date: { type: Date, default: Date.now },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+})
 
 // Group Schema
 const GroupSchema = new mongoose.Schema({
     name: {
-        type: String,
-        unique: true
+      type: String,
+      unique: true
     },
-    membersByID: [mongoose.Schema.Types.ObjectId], // Reference to User IDs
-    goal: [GoalSchema]
-});
+    membersByID: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    goals: [GroupGoalSchema]
+  });
+
+
 
 // Models
 const FoodModel = mongoose.model("Food", FoodSchema);
@@ -76,6 +92,8 @@ const ExerciseModel = mongoose.model("Exercise", ExerciseSchema);
 const GoalModel = mongoose.model("Goal", GoalSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const GroupModel = mongoose.model("Group", GroupSchema);
+const GroupGoal = mongoose.model("GroupGoal", GroupGoalSchema);
+
 
 module.exports = {
     FoodModel,
@@ -83,5 +101,6 @@ module.exports = {
     ExerciseModel,
     GoalModel,
     UserModel,
-    GroupModel
+    GroupModel,
+    GroupGoal
 };

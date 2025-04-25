@@ -1,11 +1,13 @@
 // Import Express and userModel from database.js
 const express = require('express');
-const { UserModel } = require('./database');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+const { UserModel, GroupModel } = require('./database');
 const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
@@ -24,11 +26,19 @@ const transporter = nodemailer.createTransport({
 
 
 const app = express();
-const port = 5000;
+const port = 8000;
 
-app.use(cors({ // This is needed because frontend and backend are on different urls.
-    origin: 'http://localhost:3000'
-}))
+const envIP = process.env.VITE_IP;
+const allowedOrigin = envIP ? `http://${envIP}:3000` : null;
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        allowedOrigin
+    ].filter(Boolean), // removes null if allowed origin is missing
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 function generateCode(){
@@ -119,7 +129,7 @@ app.post('/newPassword', async (req, res) => {
 app.get('/user', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
-        console.log("User found:", user);
+        // console.log("User found:", user);
 
         if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -297,7 +307,102 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/user/goals', authenticateToken, async (req, res) => {
+app.get('/groups', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json({ groups: user.groups }); // Each group will include _id and name
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+app.post('/groups/new', authenticateToken, async (req, res) => {
+    try {
+        const { name, membersByID } = req.body;
+        console.log(name)
+        if (!name || typeof name !== 'string') {
+            return res.status(400).json({ message: 'Group name is required and must be a string.' });
+        }
+
+        const existingGroup = await GroupModel.findOne({ name });
+
+        if (existingGroup) {
+            return res.status(409).json({ message: 'Group name already exists.' });
+        }
+
+        const newGroup = new GroupModel({
+            name,
+            membersByID
+        });
+
+        await newGroup.save();
+
+        res.status(201).json({ message: 'Group created successfully', group: newGroup });
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// CREATES NEW !GROUP! GOAL
+app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: 'Invalid group ID format.' });
+        }
+
+        const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
+        const user = await UserModel.findOne({ email: req.user.email });
+        const createdBy = user._id
+        // Basic validation
+        if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
+            return res.status(400).json({ message: 'Missing required goal fields.' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        const newGoal = {
+            description,
+            target,
+            unit,
+            sport,
+            date,
+            createdBy
+        };
+
+        // Conditionally include optional labels
+        if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
+            newGoal.progressLabel = progressLabel;
+        }
+    
+        if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
+            newGoal.remainingLabel = remainingLabel;
+        }
+    
+
+        group.goals.push(newGoal);
+        await group.save();
+
+        const addedGoal = group.goals[group.goals.length - 1];
+
+        res.status(201).json({ message: 'Group goal added successfully', goal: addedGoal });
+    } catch (error) {
+        console.error('Error adding group goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// GETS USERS GOALS 
+app.get('/goals', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
 
@@ -312,59 +417,163 @@ app.get('/user/goals', authenticateToken, async (req, res) => {
     }
 });
 
-app.delete('/user/deletegoal', authenticateToken, async (req, res) => {
+// DELETE GOAL BY ID
+app.delete('/goals/:id', authenticateToken, async (req, res) => {
     try {
-        const { goalId } = req.body; // Assuming goalId is sent in the request body
-
-        const user = await UserModel.findOne({ email: req.user.email });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        user.goals = user.goals.filter(goal => goal._id.toString() !== goalId); // Remove the goal by ID
-        await user.save();
-
-        res.status(200).json({ message: 'Goal deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting goal:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      const userId = req.user.id;
+      const goalId = req.params.id;
+  
+      await UserModel.updateOne(
+        { _id: userId },
+        { $pull: { goals: { _id: new ObjectId(goalId) } } }
+      );
+  
+      res.status(200).json({ message: "Goal deleted" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to delete goal" });
     }
-});
-
-app.get('/user/newgoal', authenticateToken, async (req, res) => {
+  });
+  
+// ADD NEW GOAL
+  app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { name, type, target, current, endDate } = req.body;
+        const { target, progress, progressLabel, remainingLabel, unit, sport, date, group } = req.body;
 
-        if (!name || typeof type !== 'boolean' || !target || current === undefined || !endDate) {
-            return res.status(400).json({ message: 'Missing or invalid goal fields' });
+        // Validate input
+        if (
+            typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
+            typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
+            typeof unit !== 'string' || unit.trim() === '' ||
+            typeof sport !== 'boolean' ||
+            !date
+        ) {
+            return res.status(400).json({
+                message: 'Invalid goal input: target must be an integer > 0, progress must be an integer between 0 and target, and unit must be non-empty.'
+            });
         }
 
+        // Find the user
         const user = await UserModel.findOne({ email: req.user.email });
-
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newGoal = {
-            name,
-            type,
-            target,
-            current,
-            endDate: new Date(endDate)
-        };
-
+        // Create the new goal and save it to the user's goals
+        const newGoal = { target, progress, progressLabel, remainingLabel, unit, sport, date, group };
         user.goals.push(newGoal);
         await user.save();
 
-        res.status(201).json({ message: 'Goal added successfully', goal: newGoal });
+        if (group) {
+            // get the desc, use the add new group goal route. Maybe do this in the Goals.vue instead.
+        }
+
+        // Respond with the saved goal
+        const savedGoal = user.goals[user.goals.length - 1];  // The newly added goal
+        res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });
+
     } catch (error) {
         console.error('Error adding goal:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
+
+// UPDATE GOAL BY ID
+app.put('/goals/update/:id', authenticateToken, async (req, res) => {
+    try {
+      const goalId = req.params.id;  // Extract the goalId from the route parameters
+      const updatedGoal = req.body;  // Extract the updated goal data from the request body
+  
+      // Find the user by the email in the token
+      const user = await UserModel.findOne({ email: req.user.email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Find the goal in the user's goals by id
+      const goalIndex = user.goals.findIndex(goal => goal._id.toString() === goalId);
+  
+      if (goalIndex === -1) {
+        return res.status(404).json({ message: 'Goal not found' });
+      }
+  
+      // Update goal fields with the updated data
+      user.goals[goalIndex] = { ...user.goals[goalIndex]._doc, ...updatedGoal };
+  
+      // Save the updated user object with the updated goal
+      await user.save();
+  
+      // Respond with success and the updated goal
+      res.status(200).json({ message: 'Goal updated successfully', goal: user.goals[goalIndex] });
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+//   ACCEPT GOAL: Copies GroupGoal to a users list of Goals
+app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
+    try {
+        const { groupId, goalId } = req.params;
+        const userEmail = req.user.email;
+
+        // Find the group
+        const group = await GroupModel.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Find the group goal
+        const groupGoal = group.goals.id(goalId);
+        if (!groupGoal) {
+            return res.status(404).json({ message: 'Group goal not found' });
+        }
+
+        // Find the user
+        const user = await UserModel.findOne({ email: userEmail });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        console.log(groupGoal);
+        // Create a copy of the group goal as a local goal
+        const copiedGoalObj = groupGoal.toObject();
+        const copiedGoal = {
+            ...copiedGoalObj,
+          sourceGroupId: groupId,
+          group: group.name,
+          progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
+          remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
+          progress: 0
+        };
+        
+        delete copiedGoal.description;
+        delete copiedGoal._id; // Let MongoDB assign a new _id
+
+        user.goals.push(copiedGoal);
+        await user.save();
+
+        const newGoal = user.goals[user.goals.length - 1];
+
+        res.status(200).json({ message: 'Group goal accepted and added to user goals', goal: newGoal });
+    } catch (err) {
+        console.error('Error accepting group goal:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 // Start the server
-app.listen(port, () => {
-    console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
+app.listen(port, '0.0.0.0', () => {
+    const prefix = `✨ Node.js server running at `;
+    const localURL = `http://localhost:${port}`;
+    const networkURL = envIP ? `http://${envIP}:3000` : null;
+
+    console.log(prefix + localURL+('     (For fast development on this device)'));
+
+    if (networkURL) {
+        console.log(' '.repeat(prefix.length -2)+'✅ ' + networkURL + ' (Other devices)');
+    } else {
+        console.error('\x1b[31m%s\x1b[0m',`⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+    }
 });
