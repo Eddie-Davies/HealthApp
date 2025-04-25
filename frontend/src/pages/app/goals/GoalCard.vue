@@ -23,8 +23,19 @@
       </div>
     </div>
     <!-- Bottom: Date -->
-    <div class="flex justify-start items-center text-xs text-neutral-400 lg:mt-2 mt-4">
-      <p>{{ formattedDate }}</p>
+    <div v-if="parsedDate > Date.now()">
+      <div class="flex justify-start items-center text-xs text-neutral-400 lg:mt-2 mt-4">
+        <p>{{ formattedDate }}</p>
+
+      </div>
+    </div>
+    <div v-else>
+      <div class="flex justify-start items-center text-xs text-error lg:mt-2 mt-4">
+        <p>{{ formattedDate }}</p>
+        <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
+
+
+      </div>
     </div>
   </div>
 </template>
