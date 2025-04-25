@@ -94,4 +94,7 @@ export default {
     }
   }
 };
+
+// TO DO: make delete button to delte food items from database
+
 </script>

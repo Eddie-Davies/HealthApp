@@ -542,7 +542,7 @@ app.get('/meals', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ meals: user.meals || [] });
+        res.status(200).json({ meals: user.meals});
     } catch (error) {
         console.error('Error fetching meals:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -585,7 +585,6 @@ app.post('/meals', authenticateToken, async (req, res) => {
         user.meals.push(newMeal);
         await user.save();
 
-        const addedMeal = user.meals[user.meals.length - 1]; // get the last pushed meal (with _id)
         res.status(201).json({ message: 'Meal saved successfully', meal: addedMeal });
     } catch (err) {
         console.error('Error saving meal:', err);
@@ -672,7 +671,6 @@ app.post('/food', authenticateToken, async (req, res) => {
 
     try {
         const user = await UserModel.findOne({ email: req.user.email });
-        console.log(user)
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
