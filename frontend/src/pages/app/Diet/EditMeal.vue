@@ -143,7 +143,4 @@ export default {
     }
   }
 };
-
-// TO DO: make delete button to delete food items from temporary meal card
-
 </script>

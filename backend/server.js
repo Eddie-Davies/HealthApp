@@ -585,7 +585,7 @@ app.post('/meals', authenticateToken, async (req, res) => {
         user.meals.push(newMeal);
         await user.save();
 
-        res.status(201).json({ message: 'Meal saved successfully', meal: addedMeal });
+        res.status(201).json({ message: 'Meal saved successfully', meal: newMeal });
     } catch (err) {
         console.error('Error saving meal:', err);
         res.status(500).json({ error: 'Failed to create meal' });
