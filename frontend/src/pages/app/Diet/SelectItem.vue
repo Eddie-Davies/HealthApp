@@ -88,7 +88,7 @@ export default {
   async mounted() {
     try {
       const res = await axios.get('/foods');
-      this.items = res.data.filter(food => food.isDrink === (this.type === 'drink'));
+      this.items = res.data.foods.filter(food => food.isDrink === (this.type === 'drink'));
     } catch (err) {
       console.error('Error fetching food list:', err.response?.data || err.message);
     }

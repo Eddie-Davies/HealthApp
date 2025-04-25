@@ -12,7 +12,7 @@
       <div v-for="(food, index) in foodItems" :key="index" class="food-item">
         <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
       </div>
-      <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
+      <button class="btn btn-md" @click="goToSelect('food')">Edit Food</button>
     </div>
 
     <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
@@ -20,7 +20,7 @@
       <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
         <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
       </div>
-      <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
+      <button class="btn btn-md" @click="goToSelect('drink')">Edit Drink</button>
     </div>
 
     <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
