@@ -17,7 +17,7 @@
                 <input required v-model="editableGoal.unit" :placeholder="goal.unit" type="text"
                     class="input input-bordered w-full mb-2" />
             </div>
-            <div v-else class="pt-15">
+            <div v-if="page === 2" class="pt-15">
                 <!-- Page 2: Labels -->
                 <label class="block text-sm mb-2">Progress Label</label>
                 <input v-model="editableGoal.progressLabel" type="text" placeholder="Progress Label (e.g. Eaten)"
@@ -26,6 +26,10 @@
                 <label class="block text-sm mb-2">Target Label</label>
                 <input v-model="editableGoal.remainingLabel" type="text" placeholder="Remaining Label (e.g. Left)"
                     class="input input-bordered w-full mb-2" />
+            </div>
+            <div v-if="page === 3" class="pt-30">
+                <label class="block text-sm mb-2">Target Date</label>
+                <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
             </div>
         </div>
         <div class="flex justify-center gap-2 my-10">
@@ -36,6 +40,10 @@
                 <button class="btn btn-md" :class="{ 'btn-outline btn-soft btn-secondary': page === 2, 'btn-ghost': page !== 2 }"
                     @click="page = 2">
                     Labels
+                </button>
+                <button class="btn btn-md" :class="{ 'btn-outline btn-soft btn-accent': page === 3, 'btn-ghost': page !== 3 }"
+                    @click="page = 3">
+                    Date
                 </button>
             </div>
 
@@ -81,6 +89,7 @@
         document.body.style.overflow = 'hidden';
     },
     beforeUnmount() {
+        console.log(this.editableGoal.date)
         document.body.style.overflow = '';
     },
 
