@@ -10,7 +10,8 @@
     <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
       <h3>Food</h3>
       <div v-for="(food, index) in foodItems" :key="index" class="food-item">
-        <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
+        <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span> <span><button type="submit" class="btn"
+            @click="deleteItem('food', index)">Delete</button></span>
       </div>
       <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
     </div>
@@ -18,7 +19,8 @@
     <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
       <h3>Drinks</h3>
       <div v-for="(drink, index) in drinks" :key="index" class="drink-item">
-        <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
+        <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span> <span><button type="submit" class="btn"
+            @click="deleteItem('drink', index)">Delete</button></span>
       </div>
       <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
     </div>
@@ -83,7 +85,6 @@ export default {
       this.$router.replace({ path: this.$route.path, query: {} });
     }
 
-    // Update localStorage with newly added item
     localStorage.setItem('tempMeal', JSON.stringify({
       name: this.mealName,
       foodItems: this.foodItems,
@@ -103,6 +104,21 @@ export default {
         path: `/home/diet/${this.mealId || 'new'}/select/${type}`,
       });
     },
+
+    deleteItem(type, index) {
+      if (type === 'food') {
+        this.foodItems.splice(index, 1);
+      } else if (type === 'drink') {
+        this.drinks.splice(index, 1);
+      }
+
+      localStorage.setItem('tempMeal', JSON.stringify({
+        name: this.mealName,
+        foodItems: this.foodItems,
+        drinks: this.drinks,
+      }));
+    },
+
 
     async saveMeal() {
       const payload = {

@@ -688,15 +688,20 @@ app.post('/food', authenticateToken, async (req, res) => {
 
 
 // DELETE /food/:id - Delete a food item by ID
-app.delete('/food/:id', async (req, res) => {
+app.delete('/food/:id', authenticateToken, async (req, res) => {
     try {
-        const deletedFood = await FoodModel.findByIdAndDelete(req.params.id);
-        if (!deletedFood) {
-            return res.status(404).json({ message: 'Food item not found' });
-        }
-        res.json({ message: 'Food item deleted successfully', deletedFood });
+        const userId = req.user.id;
+        const foodID = req.params.id;
+
+        await UserModel.updateOne(
+            { _id: userId },
+            { $pull: { foods: { _id: new ObjectId(foodID) } } }
+        );
+
+        res.status(200).json({ message: "Food deleted" });
     } catch (err) {
-        res.status(500).json({ message: 'Error deleting food item', error: err });
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete food" });
     }
 });
 
