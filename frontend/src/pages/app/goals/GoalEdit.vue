@@ -28,8 +28,13 @@
                     class="input input-bordered w-full mb-2" />
             </div>
             <div v-if="page === 3" class="pt-30">
+                <!-- Page 3: Date -->
                 <label class="block text-sm mb-2">Target Date</label>
                 <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
+<div v-if="isTodaySelected">
+  <p>Hello</p>
+</div>
+<div class="validator-hint">Current/Default Date: {{ formattedDate }}</div>
             </div>
         </div>
         <div class="flex justify-center gap-2 my-10">
@@ -94,6 +99,16 @@
     },
 
     computed: {
+        isTodaySelected() {
+    if (!this.editableGoal.date) return false;
+    
+    const today = new Date();
+    const selectedDate = new Date(this.editableGoal.date);
+    
+    return today.getFullYear() === selectedDate.getFullYear() &&
+           today.getMonth() === selectedDate.getMonth() &&
+           today.getDate() === selectedDate.getDate();
+  },
         isFormValid() {
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
             const isInt = val => Number.isInteger(val);
@@ -103,8 +118,19 @@
             isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0 && 
             this.editableGoal.progress <= this.editableGoal.target
             );
-  }
-}
-    
+        
+        },   
+        parsedDate() {
+            const parsed = new Date(this.editableGoal.date);
+            return isNaN(parsed.getTime()) ? new Date() : parsed; // fallback if invalid
+        },
+        formattedDate() {
+            const date = this.parsedDate;
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+    }
   };
   </script>
