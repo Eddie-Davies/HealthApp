@@ -30,6 +30,8 @@
                 :unit="goal.unit"
                 :type="goal.type"
                 :date="goal.date"
+                :sport="goal.sport"
+                :colour="slide.colour"
                 @edit="openEditor(goal, false, slide.group)" />
             </div>
             <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
@@ -160,16 +162,27 @@ export default {
       slides.push({
         title: this.$route.meta.title,
         goals: this.personalGoals,
-        group: null
+        group: null,
+        colour: 'text-secondary'
       });
+
+      const colourList = [
+        'text-success/90', // bright-green
+        'text-info/90', // bright-blue
+        'text-warning/70', // dark-orange
+        'text-error/70', // dark-red
+
+      ];
       
       // Add group slides
-      this.groups.forEach(group => {
+      this.groups.forEach((group, index) => {
+        const colour = colourList[index % colourList.length]; 
         console.log(group._id)
         slides.push({
           title: `${group.name} Goals`,
           goals: this.groupedGoals[group._id] || [],
-          group: group._id
+          group: group._id,
+          colour: colour
         });
       });
       

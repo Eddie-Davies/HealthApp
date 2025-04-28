@@ -3,38 +3,46 @@
     <!-- Top: Eaten + Remaining -->
     <div class="flex justify-between w-full">
       <div>
-        <p class="text-success">{{ completed.label }}</p>
+        <!-- !CUSTOM COLOUR -->
+        <p :class="colour" class="font-semibold">{{ colour }}</p> 
+
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
-        <p class="text-success mt-3">{{ remaining.label }}</p>
+        <!-- !CUSTOM COLOUR -->
+        <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
+
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
       </div>
       <!-- Vertical Progress Bar -->
       <div class="flex flex-col items-center justify-end">
         <p class="mb-1 text-neutral-400">{{ target }}</p>
-        <div class="w-4 h-20 bg-neutral-200/20 rounded-full overflow-hidden relative">
+        <div class="w-4 h-20 lg:h-28 bg-neutral-200/10 rounded-full overflow-hidden relative">
+
+        <!-- !CUSTOM COLOUR -->
           <div
-            class="absolute bottom-0 w-full bg-gradient-to-t from-accent via- to-warning rounded-full"
+            class="absolute bottom-0 w-full bg-gradient-to-t from-secondary via-secondary/60 to-primary rounded-full"
             :style="{ height: progressPercentage + '%' }">
           </div>
         </div>
-        <span>0</span>
+
+        <span v-if="sport" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-person-running"></i></span>
+        <span v-else="sport" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-flag text-sm"></i></span>
+
+
       </div>
     </div>
     <!-- Bottom: Date -->
     <div v-if="parsedDate > Date.now()">
-      <div class="flex justify-start items-center text-xs text-neutral-400 lg:mt-2 mt-4">
+      <div class="flex justify-start items-center text-xs text-neutral-400 lg:-mt-3 mt-3 ">
         <p>{{ formattedDate }}</p>
 
       </div>
     </div>
     <div v-else>
-      <div class="flex justify-start items-center text-xs text-error lg:mt-2 mt-4">
+      <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
         <p>{{ formattedDate }}</p>
         <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
-
-
       </div>
     </div>
   </div>
@@ -67,6 +75,14 @@ export default {
     date: {
       type: [Date, String],
       default: () => new Date()
+    },
+    sport: {
+      type: Boolean,
+      default: false
+    },
+    colour: {
+      type: String,
+      default: 'text-success'
     }
   },
   computed: {
@@ -97,5 +113,6 @@ export default {
       return `${day}/${month}/${year}`;
     }
   }
+
 }
 </script>
