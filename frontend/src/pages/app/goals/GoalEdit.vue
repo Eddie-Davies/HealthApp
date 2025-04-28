@@ -1,7 +1,7 @@
 <template>
     <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
         <div class="bg-base-200 p-6 rounded-xl w-80">
-            <h2 class="text-lg font-semibold mb-4 text-center">{{ isNew ? 'Create New Goal' : 'Edit Goal' }}</h2>
+            <h2 class="text-lg font-semibold mb-4 text-center">{{ goalTitle }}</h2>
             <div class="min-h-65">
             <div v-if="page === 1">
                 <!-- Page 1: Main Info -->
@@ -104,6 +104,13 @@
     },
 
     computed: {
+        goalTitle() {
+            if (this.isNew) {
+            return this.goal.group ? 'Create New Group Goal' : 'Create New Goal';
+            } else {
+            return this.goal.group ? 'Edit Group Goal' : 'Edit Goal';
+            }
+        },
         isTodaySelected() {
             if (!this.editableGoal.date) return false;
     
