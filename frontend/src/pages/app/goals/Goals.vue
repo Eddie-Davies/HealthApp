@@ -167,10 +167,10 @@ export default {
       });
 
       const colourList = [
-        'text-success/90', // bright-green
-        'text-info/90', // bright-blue
-        'text-warning/70', // dark-orange
-        'text-error/70', // dark-red
+        'text-success', // bright-green
+        'text-info', // bright-blue
+        'text-warning', // dark-orange
+        'text-error', // dark-red
 
       ];
       
