@@ -7,7 +7,7 @@ const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
@@ -26,11 +26,19 @@ const transporter = nodemailer.createTransport({
 
 
 const app = express();
-const port = 5000;
+const port = 8000;
 
-app.use(cors({ // This is needed because frontend and backend are on different urls.
-    origin: 'http://localhost:3000'
-}))
+const envIP = process.env.VITE_IP;
+const allowedOrigin = envIP ? `http://${envIP}:3000` : null;
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        allowedOrigin
+    ].filter(Boolean), // removes null if allowed origin is missing
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 function generateCode(){
@@ -299,6 +307,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/groups', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json({ groups: user.groups }); // Each group will include _id and name
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
         const { name, membersByID } = req.body;
@@ -331,15 +353,19 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
-        const { description, target, progressLabel, remainingLabel, unit, sport, date, createdBy } = req.body;
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: 'Invalid group ID format.' });
+        }
 
+        const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
+        const user = await UserModel.findOne({ email: req.user.email });
+        const createdBy = user._id
         // Basic validation
         if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
             return res.status(400).json({ message: 'Missing required goal fields.' });
         }
 
         const group = await GroupModel.findById(groupId);
-
         if (!group) {
             return res.status(404).json({ message: 'Group not found.' });
         }
@@ -438,6 +464,10 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
         user.goals.push(newGoal);
         await user.save();
 
+        if (group) {
+            // get the desc, use the add new group goal route. Maybe do this in the Goals.vue instead.
+        }
+
         // Respond with the saved goal
         const savedGoal = user.goals[user.goals.length - 1];  // The newly added goal
         res.status(201).json({ message: 'Goal added successfully', goal: savedGoal });
@@ -491,27 +521,26 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         // Find the group
         const group = await GroupModel.findById(groupId);
         if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
+            return res.status(404).json({ message: 'Group not found' });
         }
 
         // Find the group goal
         const groupGoal = group.goals.id(goalId);
         if (!groupGoal) {
-        return res.status(404).json({ message: 'Group goal not found' });
+            return res.status(404).json({ message: 'Group goal not found' });
         }
 
         // Find the user
         const user = await UserModel.findOne({ email: userEmail });
         if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
         console.log(groupGoal);
         // Create a copy of the group goal as a local goal
         const copiedGoalObj = groupGoal.toObject();
-        console.log
         const copiedGoal = {
-          sourceGroupId: copiedGoalObj._id, // Assign before spread
-          ...copiedGoalObj,
+            ...copiedGoalObj,
+          sourceGroupId: groupId,
           group: group.name,
           progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
           remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
@@ -535,6 +564,16 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
 
 
 // Start the server
-app.listen(port, () => {
-    console.log(`✨ Node.js server running at http://localhost:${port} (backend)`);
+app.listen(port, '0.0.0.0', () => {
+    const prefix = `✨ Node.js server running at `;
+    const localURL = `http://localhost:${port}`;
+    const networkURL = envIP ? `http://${envIP}:3000` : null;
+
+    console.log(prefix + localURL+('     (For fast development on this device)'));
+
+    if (networkURL) {
+        console.log(' '.repeat(prefix.length -2)+'✅ ' + networkURL + ' (Other devices)');
+    } else {
+        console.error('\x1b[31m%s\x1b[0m',`⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+    }
 });

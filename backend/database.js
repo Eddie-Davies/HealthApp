@@ -1,6 +1,6 @@
 // Import and Connect to MongoDB
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 const mongoURI = process.env.MONGO_URI;
 
 
