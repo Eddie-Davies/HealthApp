@@ -27,14 +27,18 @@
                 <input v-model="editableGoal.remainingLabel" type="text" placeholder="Remaining Label (e.g. Left)"
                     class="input input-bordered w-full mb-2" />
             </div>
-            <div v-if="page === 3" class="pt-30">
+            <div v-if="page === 3" class="pt-5">
                 <!-- Page 3: Date -->
-                <label class="block text-sm mb-2">Target Date</label>
+                 <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
+                    <div v-if="isTodaySelected" class="text-sm">Default Date (today's date):</div>
+                    <div v-else class="validator-hint text-sm">Target Date currently set to:</div>
+                    <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+                 </div>
+                
+
+                <label class="block text-sm mb-2 pt-15">Override Target Date:</label>
                 <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
-<div v-if="isTodaySelected">
-  <p>Hello</p>
-</div>
-<div class="validator-hint">Current/Default Date: {{ formattedDate }}</div>
+                
             </div>
         </div>
         <div class="flex justify-center gap-2 my-10">
