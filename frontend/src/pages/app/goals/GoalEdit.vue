@@ -30,7 +30,7 @@
             <div v-if="page === 3" class="pt-7">
                 <!-- Page 3: Date -->
                  <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
-                    <div v-if="isTodaySelected" class="text-sm">Default Date (today's date):</div>
+                    <div v-if="isTodaySelected" class="text-sm">Default Date (today's Date):</div>
                     <div v-else class="text-sm">Target Date currently set to:</div>
                     <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
                  </div>

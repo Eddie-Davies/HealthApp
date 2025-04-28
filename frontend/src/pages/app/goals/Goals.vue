@@ -4,7 +4,7 @@
     :pagination="{
       dynamicBullets: false,
       clickable: true,
-      bulletActiveClass: '!bg-secondary !opacity-80'
+      bulletActiveClass: '!bg-secondary !opacity-100'
     }"
     :keyboard="{
       enabled: true,
@@ -86,10 +86,15 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-.swiper-pagination-bullet-active {
-     background-color: bg-base-200 !important;
-}
+/* .swiper-pagination-bullet-active {
+     background-color: bg-green !important;
+} */
 
+/* MAYBE */
+/* .swiper-pagination-bullet {
+  background-color: rgb(160, 160, 160) !important;
+  opacity: 100% !important;
+} */
 .swiper-pagination {
   margin-top: 100px;
   margin-bottom: 100px
