@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 mb-4">
+  <div class="card bg-base-300 rounded-box p-4 mb-4 ">
     <!-- Title and delete button -->
     <div class="flex justify-between items-center w-full">
       <h3 class="text-lg font-semibold">{{ title }}</h3>

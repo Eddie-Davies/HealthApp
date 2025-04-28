@@ -8,9 +8,9 @@
           rows="1"
         ></textarea>
       </div>
-      <div class="pr-85 text-xl">
+      <div class="text-xl pl-90">
         Elapsed
-        <div class="text-xl text-center text-neutral">
+        <div class="text-xl text-left text-neutral w-200">
           {{ formatTime(timer) }}
             <div class="inline-grid *:[grid-area:1/1]">
             <div class="status status-error animate-ping"></div>
