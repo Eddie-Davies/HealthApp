@@ -95,12 +95,14 @@
       
     },
     mounted() {
-        document.body.style.overflow = 'hidden';
-    },
-    beforeUnmount() {
-        console.log(this.editableGoal.date)
-        document.body.style.overflow = '';
-    },
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.marginRight = `${scrollBarWidth}px`;
+},
+beforeUnmount() {
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.marginRight = '';
+},
 
     computed: {
         isTodaySelected() {
