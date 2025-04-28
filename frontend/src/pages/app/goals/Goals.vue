@@ -34,7 +34,7 @@
             </div>
             <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
               <div class="tooltip" data-tip="Click the button below :)">
-                <button class="btn">Add some new goals to start tracking!</button>
+                <div class="btn cursor-default">Add some new goals to start tracking!</div>
               </div>
             </div>
           </div>
