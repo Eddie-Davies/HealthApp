@@ -27,16 +27,14 @@
                 <input v-model="editableGoal.remainingLabel" type="text" placeholder="Remaining Label (e.g. Left)"
                     class="input input-bordered w-full mb-2" />
             </div>
-            <div v-if="page === 3" class="pt-5">
+            <div v-if="page === 3" class="pt-7">
                 <!-- Page 3: Date -->
                  <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
                     <div v-if="isTodaySelected" class="text-sm">Default Date (today's date):</div>
-                    <div v-else class="validator-hint text-sm">Target Date currently set to:</div>
+                    <div v-else class="text-sm">Target Date currently set to:</div>
                     <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
                  </div>
-                
-
-                <label class="block text-sm mb-2 pt-15">Override Target Date:</label>
+                <label class="block text-sm mb-2 pt-11">Override Target Date:</label>
                 <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
                 
             </div>
@@ -94,27 +92,28 @@
       };
       
     },
+    // Disable scrolling, and leave room for it to stop page jittering.
     mounted() {
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.marginRight = `${scrollBarWidth}px`;
-},
-beforeUnmount() {
-    document.documentElement.style.overflow = '';
-    document.documentElement.style.marginRight = '';
-},
+        const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+        document.documentElement.style.overflow = 'hidden';
+        document.documentElement.style.marginRight = `${scrollBarWidth}px`;
+    },
+    beforeUnmount() {
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.marginRight = '';
+    },
 
     computed: {
         isTodaySelected() {
-    if (!this.editableGoal.date) return false;
+            if (!this.editableGoal.date) return false;
     
-    const today = new Date();
-    const selectedDate = new Date(this.editableGoal.date);
-    
-    return today.getFullYear() === selectedDate.getFullYear() &&
-           today.getMonth() === selectedDate.getMonth() &&
-           today.getDate() === selectedDate.getDate();
-  },
+            const today = new Date();
+            const selectedDate = new Date(this.editableGoal.date);
+            
+            return today.getFullYear() === selectedDate.getFullYear() &&
+                today.getMonth() === selectedDate.getMonth() &&
+                today.getDate() === selectedDate.getDate();
+        },
         isFormValid() {
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
             const isInt = val => Number.isInteger(val);
@@ -124,8 +123,7 @@ beforeUnmount() {
             isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0 && 
             this.editableGoal.progress <= this.editableGoal.target
             );
-        
-        },   
+        },
         parsedDate() {
             const parsed = new Date(this.editableGoal.date);
             return isNaN(parsed.getTime()) ? new Date() : parsed; // fallback if invalid
