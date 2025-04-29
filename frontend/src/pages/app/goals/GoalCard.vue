@@ -34,10 +34,15 @@
       </div>
     </div>
     <!-- Bottom: Date -->
-    <div v-if="parsedDate > Date.now()">
-      <div class="flex justify-start items-center text-xs text-neutral-400 lg:-mt-3 mt-3 ">
+    <div v-if="parsedDate > Date.now() && !isComplete">
+      <div class="flex justify-start items-center text-xs text-neutral-400 lg:-mt-3 mt-3">
         <p>{{ formattedDate }}</p>
-
+      </div>
+    </div>
+    <div v-else-if="isComplete">
+      <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
+        <p>{{ formattedDate }}</p>
+        <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
       </div>
     </div>
     <div v-else>
@@ -87,6 +92,9 @@ export default {
     }
   },
   computed: {
+    isComplete(){
+      return this.target === this.progress;
+    },
     completed() {
       return {
         label: this.progressLabel,
