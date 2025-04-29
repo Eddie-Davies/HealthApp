@@ -7,12 +7,19 @@
 
     <!-- List -->
     <div class="divide-y border rounded mt-2">
-      <div v-for="item in filteredItems" :key="item.name"
-        class="flex justify-between items-center p-3 hover:bg-gray-100 cursor-pointer" @click="selectItem(item)">
-        <span>{{ item.name }}</span>
-        <span>{{ item.calories }} kcal</span>
+      <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4" data-tip="Fill out a new food item below :)">
+        <button class="btn">Add a new food item to start tracking!</button>
+      </div>
+      <div v-for="item in filteredItems" :key="item._id"
+        class="flex justify-between items-center p-3 hover:bg-gray-100">
+        <div @click="selectItem(item)" class="flex-1 cursor-pointer">
+          <span>{{ item.name }}</span> <span>{{ item.calories }} kcal</span>
+        </div>
+        <button class="btn btn-sm btn-error ml-2" @click.stop="deleteItem(item._id)">Delete</button>
       </div>
     </div>
+
+
 
     <!-- Add New -->
     <div class="mt-6 border-t pt-4">
@@ -83,6 +90,15 @@ export default {
         console.error('Error adding food item:', err.response?.data || err.message);
         console.log('Sending food:', newEntry);
       }
+    },
+    async deleteItem(id) {
+      if (!confirm('Are you sure you want to delete this item?')) return;
+      try {
+        await axios.delete(`/food/${id}`);
+        this.items = this.items.filter(item => item._id !== id);
+      } catch (err) {
+        console.error('Error deleting item:', err.response?.data || err.message);
+      }
     }
   },
   async mounted() {
@@ -94,7 +110,4 @@ export default {
     }
   }
 };
-
-// TO DO: make delete button to delte food items from database
-
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center">
+  <div v-if="isLoaded" class="flex flex-col items-center justify-center">
     <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
       class="input input-ghost text-xl font-semibold" />
 
@@ -32,6 +32,8 @@
     </div>
 
     <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
+    <button v-if="!isNew" class="btn mt-4 btn-error" @click="deleteMeal">Delete Meal</button>
+
   </div>
 </template>
 
@@ -45,6 +47,7 @@ export default {
       mealName: '',
       foodItems: [],
       mealId: this.$route.params.id,
+      isLoaded: false
     };
   },
   computed: {
@@ -60,9 +63,12 @@ export default {
     totalCalories() {
       return this.foodItems.reduce((sum, item) => sum + (item.calories || 0), 0);
     },
+    storageKey() {
+      return this.isNew ? 'tempNewMeal' : `tempEditMeal_${this.mealId}`;
+    }
   },
   async mounted() {
-    const tempMeal = JSON.parse(localStorage.getItem('tempMeal'));
+    const tempMeal = JSON.parse(localStorage.getItem(this.storageKey));
 
     if (tempMeal) {
       this.mealName = tempMeal.name || '';
@@ -74,8 +80,8 @@ export default {
         const res = await axios.get(`/meals/${this.mealId}`);
         const meal = res.data.meal;
 
-        this.mealName = meal.name || '';
-        this.foodItems = meal.food || [];
+        this.mealName = meal.mealName || '';
+        this.foodItems = meal.foods || [];
       } catch (err) {
         console.error('Failed to fetch meal by ID:', err.response?.data || err);
       }
@@ -94,17 +100,18 @@ export default {
     }
 
     localStorage.setItem(
-      'tempMeal',
+      this.storageKey,
       JSON.stringify({
         name: this.mealName,
         foodItems: this.foodItems,
       })
     );
+    this.isLoaded = true;
   },
   methods: {
     goToSelect(type) {
       localStorage.setItem(
-        'tempMeal',
+        this.storageKey,
         JSON.stringify({
           name: this.mealName,
           foodItems: this.foodItems,
@@ -140,12 +147,22 @@ export default {
         } else {
           await axios.put(`/meals/update/${this.mealId}`, payload);
         }
-        localStorage.removeItem('tempMeal');
+        localStorage.removeItem(this.storageKey);
         this.$router.push('/home/diet');
       } catch (err) {
         console.error('Error saving meal:', err.response?.data || err);
       }
     },
+    async deleteMeal() {
+      if (!confirm('Are you sure you want to delete this meal?')) return;
+      try {
+        await axios.delete(`/meals/${this.mealId}`);
+        localStorage.removeItem(this.storageKey);
+        this.$router.push('/home/diet');
+      } catch (err) {
+        console.error('Error deleting meal:', err.response?.data || err);
+      }
+    }
   },
 };
 </script>

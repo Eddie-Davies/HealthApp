@@ -4,10 +4,16 @@
     <NewMeal />
 
     <div class="mt-16 w-full max-w-md">
-      <h2 class="text-xl font-semibold mb-4">Previous Meals</h2>
-      <MealCard v-for="(meal, index) in meals" :key="index" :name="meal.mealName" :food="meal.foods.filter(f => !f.isDrink)" :drinks="meal.foods.filter(f => f.isDrink)" :date="meal.date" :id="meal._id" />
+      <div v-if="meals.length > 0">
+        <h2 class="text-xl font-semibold mb-4">Previous Meals</h2>
+        <MealCard v-for="(meal, index) in meals" :key="index" :name="meal.mealName"
+          :food="meal.foods.filter(f => !f.isDrink)" :drinks="meal.foods.filter(f => f.isDrink)" :date="meal.date"
+          :id="meal._id" />
+      </div>
+      <div v-else class="tooltip flex justify-center items-center" data-tip="Click the button above :)">
+        <button class="btn">Log some new meals to start tracking!</button>
+      </div>
     </div>
-
   </div>
 </template>
 
