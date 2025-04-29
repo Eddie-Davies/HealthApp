@@ -18,7 +18,7 @@
                 <input required v-model="editableGoal.unit" :placeholder="goal.unit" type="text"
                     class="input input-bordered w-full mb-2" />
             </div>
-            <div v-if="page === 2" class="pt-15">
+            <div v-if="page === 2" class="pt-5">
                 <!-- Page 2: Labels -->
                 <label class="block text-sm mb-2">Progress Label</label>
                 <input v-model="editableGoal.progressLabel" type="text" placeholder="Progress Label (e.g. Eaten)"
