@@ -45,36 +45,43 @@
       </div>
     </div>
 
-  
-  
     <GroupOptions
-    v-if="editingGoal"
-    :goal="editingGoal"
-    :isNew="isNewGoal"
-    @save="descriptionPrompt"
-    @confirm-delete="confirmDeleteGoal"
-    @cancel="editingGoal = null"
+    v-if="showOptions"
+    :groupName="familyName"
+    @cancel="showOptions = false"
+    @view-members="showMembers = true; showOptions = false"
   />
+
+  <MemberManagement
+      v-if="showMembers"
+      :groupName="familyName"
+      :members="members"
+      @go-back="showMembers = false, showOptions = true;"
+    />
 
   </template>
   
   <script>
+  import GroupOptions from './GroupOptions.vue';
+  import MemberManagement from './MemberManagement.vue';
   export default {
     name: 'GroupCard',
     data() {
       return {
-        showOptions: false
+        showOptions: false,
+        showMembers: false
       }
     },
     methods:
      {
         goToOptionsPage() {
-            showOptions = true;
+            this.showOptions = true;
         }
       },
     components:
     {
-      GroupOptions
+      GroupOptions,
+      MemberManagement
     },
     props: {
       familyName: {
