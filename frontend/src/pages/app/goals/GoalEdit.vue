@@ -11,7 +11,8 @@
 
                 <label class="block text-sm mb-2">Progress</label>
                 <input v-model.number="editableGoal.progress" :placeholder="goal.progress" type="number"
-                    class="input input-bordered w-full mb-2" />
+                    class="input input-bordered w-full mb-2"
+                    @keyup.enter="isFormValid && $emit('save', editableGoal)" />
 
                 <label class="block text-sm mb-2">Unit</label>
                 <input required v-model="editableGoal.unit" :placeholder="goal.unit" type="text"
