@@ -32,8 +32,8 @@
                     <label class="text-sm mr-5">Sport/Activity Focused?</label>
                     <label class="toggle toggle-neutral text-base-content relative cursor-pointer">
                         <input v-model="editableGoal.sport" type="checkbox" class="peer hidden" />
-                        <i class="p-1 text-sm fa-solid fa-flag transition-colors duration-300 peer-checked:text-success"></i>
-                        <i class="p-1 ml-0.5 text-sm fa-solid fa-person-running transition-colors duration-300 peer-checked:text-success"></i>
+                        <i class="p-1 text-sm fa-solid fa-flag transition-colors duration-300 peer-checked:text-primary"></i>
+                        <i class="p-1 ml-0.5 text-sm fa-solid fa-person-running transition-colors duration-300 peer-checked:text-primary"></i>
                     </label>
                 </div>
             </div>
