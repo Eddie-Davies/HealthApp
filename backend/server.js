@@ -370,8 +370,8 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (typeof description !== 'string') {
             return res.status(400).json({ message: 'Description must be a string.' });
         }
-        if (description.length < 3 || description.length > 60) {
-            return res.status(400).json({ message: 'Description must be between 3 and 60 characters long.' });
+        if (description.length < 1 || description.length > 60) {
+            return res.status(400).json({ message: 'Description must be between 1 and 60 characters long.' });
         }
 
         // Validate target
