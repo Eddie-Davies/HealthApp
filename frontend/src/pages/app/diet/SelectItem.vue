@@ -7,7 +7,8 @@
 
     <!-- List -->
     <div class="divide-y border rounded mt-2">
-      <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4" data-tip="Fill out a new food item below :)">
+      <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4"
+        data-tip="Fill out a new food item below :)">
         <button class="btn">Add a new food item to start tracking!</button>
       </div>
       <div v-for="item in filteredItems" :key="item._id"
