@@ -3,6 +3,9 @@
     <!-- Main content when user data is available -->
     <div v-if="user">
       <Avatar :initials="getIntials()" />
+
+      <ErrorBanner />
+
       <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
         <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
       </div>
@@ -51,12 +54,14 @@
 import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
 import Avatar from '../../components/avatar/Avatar.vue';
+import ErrorBanner from '../../components/errorBanner/ErrorBanner.vue';
 
 export default {
   name: 'Home',
   components: {
     Avatar,
-    Navbar
+    Navbar,
+    ErrorBanner
   },
 
   data() {

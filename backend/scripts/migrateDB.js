@@ -10,7 +10,7 @@ const {
     ExerciseModel,
     GoalModel,
     GroupModel
-} = require('./database');
+} = require('../database');
 
 // To run migration, CD into Backend and then run:
 // node migrateDB.js

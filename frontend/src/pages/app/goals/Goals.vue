@@ -54,17 +54,12 @@
   </swiper>
 
   <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
-  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription"></GoalDescriptionAlert>
+  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
+  </GoalDescriptionAlert>
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
-  <GoalEdit
-    v-if="editingGoal"
-    :goal="editingGoal"
-    :isNew="isNewGoal"
-    @save="descriptionPrompt"
-    @confirm-delete="confirmDeleteGoal"
-    @cancel="editingGoal = null"
-  />
+  <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
+    @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
 
 </template>
 
@@ -75,12 +70,15 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
 @media (min-width: 1150px) {
   .cols-1150-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-html, body {
+
+html,
+body {
   -webkit-overflow-scrolling: touch;
 }
 
@@ -143,11 +141,13 @@ import axios from 'axios';
 
 import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
+
 
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -185,14 +185,15 @@ export default {
       confirmingDelete: false,
       showAlert: false,
       showDescriptionBox: false,
-      goalDescription: false
+      goalDescription: false,
+      errorMessage: ''
     };
   },
   computed: {
     // Create slides array for the swiper
     slides() {
       const slides = [];
-      
+
       // Add personal goals slide
       slides.push({
         title: this.$route.meta.title,
@@ -220,7 +221,7 @@ export default {
           colour: colour
         });
       });
-      
+
       return slides;
     },
     // Creates grouped goals and personal for use in slider.
@@ -231,7 +232,7 @@ export default {
       });
       return result;
     },
-    
+
     personalGoals() {
       return this.goals.filter(goal => !goal.group);
     }
@@ -252,11 +253,11 @@ export default {
     try {
       const res = await axios.get('/groups')
       this.groups = res.data.groups;
-      console.log('Groups:',this.groups)
-    } catch(err) {
+      console.log('Groups:', this.groups)
+    } catch (err) {
       console.error('Error fetching groups:', err.response?.data)
     }
-    
+
   },
   methods: {
     toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
@@ -273,61 +274,79 @@ export default {
       this.editingGoal = { ...goal, group: groupId }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
       this.isNewGoal = isNew;
     },
-// GOAL SAVING
+    // GOAL SAVING
     async saveGoal(updatedGoal) {
-      console.log('Save Goal (description):', this.description)
-      console.log('Updated goal group', updatedGoal.group)
+      console.log('Save Goal (description):', this.description);
+      console.log('Updated goal group', updatedGoal.group);
+
       const alreadyExists = !!updatedGoal._id;
+
       try {
         let savedGoal;
+
         if (alreadyExists) {
-          // Update existing goal in database
           const res = await axios.put(`/goals/update/${updatedGoal._id}`, updatedGoal);
           savedGoal = res.data.goal;
         } else {
-          // Create new goal in database
-          const res = await axios.post('/goals/new', updatedGoal);
-          savedGoal = res.data.goal;
-          updatedGoal._id = savedGoal._id;
+          try {
+            const res = await axios.post('/goals/new', updatedGoal);
+            savedGoal = res.data.goal;
+            updatedGoal._id = savedGoal._id;
 
-          if (updatedGoal.group){
-            // If a new group goal, also update the Group Goal Database.
-            try {
-              const groupGoal = {
-                ...updatedGoal,
-                description: this.description
-              };
-              delete groupGoal.progress // Progress isn't synced for group goals.
-              const groupId = groupGoal.group
-              const res = await axios.post(`/groups/${groupId}/new-goal`, groupGoal)
-              console.log('Posted new group goal:', res.data)
-            } catch (err){
-              console.error('Error posting group goal:', err.response?.data || err);
+            if (updatedGoal.group) {
+              const groupGoal = { ...updatedGoal, description: this.description };
+              delete groupGoal.progress;
+
+              const groupId = groupGoal.group;
+              await axios.post(`/groups/${groupId}/new-goal`, groupGoal);
+              console.log('Posted new group goal successfully.');
             }
+
+            this.goals.push(updatedGoal);
+
+          } catch (err) {
+            console.error('Error during goal creation:', err.response?.data || err.message);
+
+            if (updatedGoal && updatedGoal._id) {
+              try {
+                await axios.delete(`/goals/${updatedGoal._id}`);
+                console.log('Rolled back personal goal creation due to group error.');
+              } catch (deleteErr) {
+                console.error('Failed to rollback personal goal:', deleteErr.response?.data || deleteErr.message);
+              }
+            }
+
+            throw err; //rethrow to catch blok so error banner displays message
           }
-          // Push to local goals array since it's new
-          this.goals.push(updatedGoal);
         }
 
-        // Update or replace locally if already in array
         const index = this.goals.findIndex(g => g._id === savedGoal._id);
         if (index !== -1) {
           this.goals[index] = { ...savedGoal };
         }
+
         this.editingGoal = null;
+
       } catch (err) {
-        console.error('Error saving goal:', err.response?.data || err.message);
+        console.error('Error saving goal overall:', err.response?.data || err.message);
+
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
       }
     },
-    descriptionPrompt(goal){
+    descriptionPrompt(goal) {
       console.log(goal)
-      if (goal.group && this.isNewGoal){      
+      if (goal.group && this.isNewGoal) {
         this.pendingGoal = goal
         this.editingGoal = null;
         console.log(this.pendingGoal)
-        this.showDescriptionBox = true;}
+        this.showDescriptionBox = true;
+      }
       else {
-      console.log('Saving goal with group ID:', goal.group);
+        console.log('Saving goal with group ID:', goal.group);
 
         this.confirmSaveGoal(goal)
       }
@@ -340,7 +359,7 @@ export default {
       this.showDescriptionBox = false;
     },
 
-    confirmDescriptionApproved(description){
+    confirmDescriptionApproved(description) {
       this.showDescriptionBox = false;
       this.description = description
       this.confirmSaveGoal(this.pendingGoal)
@@ -350,7 +369,7 @@ export default {
     confirmSaveGoal(goal) {
       this.editingGoal = null;
 
-      if (goal.group && this.isNewGoal){ 
+      if (goal.group && this.isNewGoal) {
         this.pendingGoal = goal;
         this.showDescriptionBox = false
         this.showAlert = true;
@@ -414,7 +433,7 @@ export default {
 
     // GOAL CREATION
     createNewGoal(groupId = null) {
-  
+
       const newGoal = {
         target: 10,
         progress: 0,
@@ -427,6 +446,6 @@ export default {
       };
       this.openEditor(newGoal, true, groupId);
     }
-      }
-    };
+  }
+};
 </script>
