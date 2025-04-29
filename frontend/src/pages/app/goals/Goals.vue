@@ -108,6 +108,20 @@ html, body {
   transform: scale(1);
   opacity: 1;
 }
+
+.goal-tiles-move {
+  position: relative;
+}
+
+/* Ensure leaving elements stay in place during their exit animation */
+.goal-tiles-leave-active {
+  position: absolute;
+}
+
+/* Small delay so leaving elements start their animation first */
+.goal-tiles-leave-active + .goal-tiles-move {
+  transition-delay: 0.05s;
+}
 /* DEBUG: */
 /* .swiper {
  background-color: rgb(64, 114, 62);
