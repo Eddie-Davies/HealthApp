@@ -5,13 +5,14 @@ import Signup from './pages/service/Signup.vue';
 import ForgotPassword from './pages/service/ForgotPassword.vue';
 import NewPassword  from './pages/service/NewPassword.vue';
 
-
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
 import Exercise from './pages/app/Exercise.vue';
-import Diet from './pages/app/Diet.vue';
+import Diet from './pages/app/diet/Diet.vue';
 
+import EditMeal from './pages/app/diet/EditMeal.vue'
+import SelectItem from './pages/app/diet/SelectItem.vue'
 
 
 const routes = [
@@ -28,6 +29,9 @@ const routes = [
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
+      { path: '/home/diet/new', component: EditMeal },
+      { path: '/home/diet/:id', component: EditMeal},
+      { path: '/home/diet/:mealId/select/:type', component: SelectItem, props: true }
     ],
   },
 ];
