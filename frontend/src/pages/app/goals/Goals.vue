@@ -220,34 +220,28 @@ export default {
         let savedGoal;
 
         if (alreadyExists) {
-          // Updating an existing goal
           const res = await axios.put(`/goals/update/${updatedGoal._id}`, updatedGoal);
           savedGoal = res.data.goal;
         } else {
-          // Creating a new goal
           try {
-            // 1. Save personal goal first
             const res = await axios.post('/goals/new', updatedGoal);
             savedGoal = res.data.goal;
             updatedGoal._id = savedGoal._id;
 
-            // 2. If it's a group goal, post group goal too
             if (updatedGoal.group) {
               const groupGoal = { ...updatedGoal, description: this.description };
-              delete groupGoal.progress; // Groups don't track personal progress
+              delete groupGoal.progress;
 
               const groupId = groupGoal.group;
               await axios.post(`/groups/${groupId}/new-goal`, groupGoal);
               console.log('Posted new group goal successfully.');
             }
 
-            // 3. If both POSTs succeeded, push goal to local list
             this.goals.push(updatedGoal);
 
           } catch (err) {
             console.error('Error during goal creation:', err.response?.data || err.message);
 
-            // ⚡ If group goal creation failed after personal save, try deleting the personal goal
             if (updatedGoal && updatedGoal._id) {
               try {
                 await axios.delete(`/goals/${updatedGoal._id}`);
@@ -257,11 +251,10 @@ export default {
               }
             }
 
-            throw err; // Rethrow so the outer catch shows the error banner
+            throw err; //rethrow to catch blok so error banner displays message
           }
         }
 
-        // 4. Update goal in local array if already existed
         const index = this.goals.findIndex(g => g._id === savedGoal._id);
         if (index !== -1) {
           this.goals[index] = { ...savedGoal };
