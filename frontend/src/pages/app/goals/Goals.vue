@@ -19,20 +19,26 @@
         <PageHeader :title="slide.title" />
         <div class="mt-20 pb-5">
           <div class="flex justify-center">
-            <div v-if="slide.goals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-              <GoalCard 
-                v-for="goal in slide.goals"
-                :key="goal._id"
-                :target="goal.target"
-                :progress="goal.progress"
-                :progressLabel="goal.progressLabel"
-                :remainingLabel="goal.remainingLabel"
-                :unit="goal.unit"
-                :type="goal.type"
-                :date="goal.date"
-                :sport="goal.sport"
-                :colour="slide.colour"
-                @edit="openEditor(goal, false, slide.group)" />
+            <div v-if="slide.goals.length">
+              <TransitionGroup
+                name="goal-tiles"
+                tag="div"
+                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center"
+              >
+                <GoalCard
+                  v-for="goal in slide.goals"
+                  :key="goal._id"
+                  :target="goal.target"
+                  :progress="goal.progress"
+                  :progressLabel="goal.progressLabel"
+                  :remainingLabel="goal.remainingLabel"
+                  :unit="goal.unit"
+                  :type="goal.type"
+                  :date="goal.date"
+                  :sport="goal.sport"
+                  :colour="slide.colour"
+                  @edit="openEditor(goal, false, slide.group)" />
+              </TransitionGroup>
             </div>
             <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
               <div class="tooltip" data-tip="Click the button below :)">
@@ -64,6 +70,7 @@
 </template>
 
 <style>
+/* CUSTOM MEDIA QUERIES/SCREEN SIZES. CONTROLS HOW MANY TILES IN A LINE. */
 @media (min-width: 600px) {
   .cols-850-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -78,16 +85,34 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+.swiper-slide {
+  display: flex;
+  flex-direction: column;
+  /* OLD: overflow-y: visible; allow scrolling when content is taller */
+}
+.swiper-pagination {
+  margin-top: 100px;
+  margin-bottom: 100px
+}
+/* ANIMATION FOR TILES */
+.goal-tiles-move, .goal-tiles-enter-active,.goal-tiles-leave-active {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goal-tiles-enter-from, .goal-tiles-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
+.goal-tiles-enter-to, .goal-tiles-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
 /* DEBUG: */
 /* .swiper {
  background-color: rgb(64, 114, 62);
 } */
 
-.swiper-slide {
-  /* overflow-y: visible; allow scrolling when content is taller */
-  display: flex;
-  flex-direction: column;
-}
 /* .swiper-pagination-bullet-active {
      background-color: bg-green !important;
 } */
@@ -97,10 +122,7 @@ html, body {
   background-color: rgb(160, 160, 160) !important;
   opacity: 100% !important;
 } */
-.swiper-pagination {
-  margin-top: 100px;
-  margin-bottom: 100px
-}
+
 </style>
 
 <script>
