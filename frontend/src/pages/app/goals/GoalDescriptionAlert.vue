@@ -8,6 +8,7 @@
         <div class="text-sm text-base-content/70 mt-10">
             <p>Enter a short description/name for your new goal.</p><br>
             <p>Others in your group will see this when offered to accept the goal.</p>
+            <p>Description must be between 3 and 60 characters.</p>
         </div>
         <input v-model="description" required type="text" placeholder="eg. eat an apple everyday for a week" class="input mt-10 mb-15" />
         <div class="w-full flex gap-3">
