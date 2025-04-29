@@ -26,7 +26,16 @@
 
                 <label class="block text-sm mb-2">Target Label</label>
                 <input v-model="editableGoal.remainingLabel" type="text" placeholder="Remaining Label (e.g. Left)"
-                    class="input input-bordered w-full mb-2" />
+                    class="input input-bordered w-full mb-10" />
+
+                <div class="flex place-items-center justify-center">
+                    <label class="text-sm mr-5">Sport/Activity Focused?</label>
+                    <label class="toggle toggle-neutral text-base-content relative cursor-pointer">
+                        <input type="checkbox" class="peer hidden" />
+                        <i class="p-1 text-sm fa-solid fa-flag transition-colors duration-300 peer-checked:text-success"></i>
+                        <i class="p-1 ml-0.5 text-sm fa-solid fa-person-running transition-colors duration-300 peer-checked:text-success"></i>
+                    </label>
+                </div>
             </div>
             <div v-if="page === 3" class="pt-7">
                 <!-- Page 3: Date -->

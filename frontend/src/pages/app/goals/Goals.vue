@@ -23,8 +23,7 @@
               <TransitionGroup
                 name="goal-tiles"
                 tag="div"
-                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center"
-              >
+                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
                 <GoalCard
                   v-for="goal in slide.goals"
                   :key="goal._id"
