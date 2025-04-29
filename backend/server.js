@@ -360,9 +360,43 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id
-        // Basic validation
-        if (!description || typeof description !== 'string' || !target || !unit || typeof sport !== 'boolean' || !date || !createdBy) {
-            return res.status(400).json({ message: 'Missing required goal fields.' });
+        
+        //validation
+
+        // Validate description
+        if (!description) {
+            return res.status(400).json({ message: 'Description is required.' });
+        }
+        if (typeof description !== 'string') {
+            return res.status(400).json({ message: 'Description must be a string.' });
+        }
+        if (description.length < 3 || description.length > 60) {
+            return res.status(400).json({ message: 'Description must be between 3 and 60 characters long.' });
+        }
+
+        // Validate target
+        if (target == null) {
+            return res.status(400).json({ message: 'Target is required.' });
+        }
+
+        // Validate unit
+        if (unit == null) {
+            return res.status(400).json({ message: 'Unit is required.' });
+        }
+
+        // Validate sport
+        if (typeof sport !== 'boolean') {
+            return res.status(400).json({ message: 'Sport must be a boolean.' });
+        }
+
+        // Validate date
+        if (date == null) {
+            return res.status(400).json({ message: 'Date is required.' });
+        }
+
+        // Validate createdBy
+        if (createdBy == null) {
+            return res.status(400).json({ message: 'CreatedBy is required.' });
         }
 
         const group = await GroupModel.findById(groupId);
