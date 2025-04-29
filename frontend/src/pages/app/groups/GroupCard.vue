@@ -38,17 +38,44 @@
   
         <!-- Options Button -->
         <div class="flex items-start">
-          <button class="rounded px-3 py-1 text-sm hover:text-accent" @click="$emit('options-click')">
+          <button class="rounded px-3 py-1 text-sm hover:text-accent" @click="goToOptionsPage">
             Options
           </button>
         </div>
       </div>
     </div>
+
+  
+  
+    <GroupOptions
+    v-if="editingGoal"
+    :goal="editingGoal"
+    :isNew="isNewGoal"
+    @save="descriptionPrompt"
+    @confirm-delete="confirmDeleteGoal"
+    @cancel="editingGoal = null"
+  />
+
   </template>
   
   <script>
   export default {
     name: 'GroupCard',
+    data() {
+      return {
+        showOptions: false
+      }
+    },
+    methods:
+     {
+        goToOptionsPage() {
+            showOptions = true;
+        }
+      },
+    components:
+    {
+      GroupOptions
+    },
     props: {
       familyName: {
         type: String,
@@ -62,6 +89,7 @@
         type: Array,
         default: () => ['Light Y', 'Misa A', 'Ryuk S', 'Misa A']
       }
-    }
+    },
+    
   }
   </script>
