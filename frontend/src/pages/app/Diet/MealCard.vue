@@ -2,24 +2,25 @@
     <div class="card bg-base-300 rounded-box p-4 flex flex-col mt-8">
         <!-- Top: Title -->
         <h1 class="text-lg font-semibold text-neutral/80">{{ name }}</h1>
+        <p class="text-sm text-gray-500 mb-2">{{ formattedDateTime }}</p>
 
         <!-- Activity Details -->
         <div class="flex justify-between mt-2">
             <div>
                 <p class="text-neutral-400">Food</p>
                 <ul class="text-neutral text-sm">
-                    <li v-for="(item, index) in food" :key="index">{{ item }}</li>
+                    <li v-for="(item, index) in food" :key="index">{{ item.name }}</li>
                 </ul>
             </div>
             <div>
                 <p class="text-neutral-400">Drinks</p>
                 <ul class="text-neutral text-sm">
-                    <li v-for="(item, index) in drinks" :key="index">{{ item }}</li>
+                    <li v-for="(item, index) in drinks" :key="index">{{ item.name }}</li>
                 </ul>
             </div>
             <div>
                 <p class="text-neutral-400">Calories</p>
-                <h2 class="font-medium text-neutral">{{ calories }}</h2>
+                <h2 class="font-medium text-neutral">{{ totalCalories }} kcal</h2>
             </div>
         </div>
 
@@ -40,13 +41,12 @@
 
 <script>
 export default {
-
     methods: {
         goToEditPage() {
             this.$router.push(`/home/diet/${this.id}`)
         }
     },
-    
+
     name: 'DietCard',
     props: {
         name: {
@@ -61,9 +61,31 @@ export default {
             type: Array,
             default: () => []
         },
-        calories: {
+        date: [String, Date],
+        id: {
             type: String,
-            default: '0 kcal'
+            required: true
+        }
+    },
+    computed: {
+        totalCalories() {
+            const sumCalories = (items) =>
+                items.reduce((acc, item) => acc + (item.calories || 0), 0);
+            return sumCalories(this.food) + sumCalories(this.drinks);
+        },
+        formattedDateTime() {
+            if (!this.date) return 'Unknown Date';
+            const date = new Date(this.date);
+            if (isNaN(date)) return 'Invalid Date';
+
+            return date.toLocaleString(undefined, {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         }
     }
 }

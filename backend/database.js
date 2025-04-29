@@ -17,9 +17,11 @@ const FoodSchema = new mongoose.Schema({
 
 // Meal Schema
 const MealSchema = new mongoose.Schema({
-    mealName: [String],
-    food: [FoodSchema],
-    drinks: [FoodSchema],
+    mealName: {
+        type: String,
+        required: true
+    },
+    foods: [FoodSchema],
     date: {
         type: Date,
         default: Date.now

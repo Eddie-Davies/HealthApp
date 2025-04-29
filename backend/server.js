@@ -574,14 +574,14 @@ app.get('/meals/:id', authenticateToken, async (req, res) => {
 
 // SAVE MEAL TO USER
 app.post('/meals', authenticateToken, async (req, res) => {
-    const { mealName, food, drinks, date } = req.body;
+    const { mealName, foods, date } = req.body;
     try {
         const user = await UserModel.findOne({ email: req.user.email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newMeal = { mealName, food, drinks, date };
+        const newMeal = { mealName, foods, date };
         user.meals.push(newMeal);
         await user.save();
 
