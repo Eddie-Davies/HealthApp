@@ -3,6 +3,9 @@
     <!-- Main content when user data is available -->
     <div v-if="user">
       <Avatar :initials="getIntials()" />
+
+      <ErrorBanner />
+
       <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
         <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
       </div>
@@ -24,15 +27,15 @@
         class="text-4xl font-bold bg-gradient-to-r from-secondary via-primary to-warning inline-block text-transparent bg-clip-text absolute top-4 left-1/2 transform -translate-x-1/2">
         Blossom
       </h1>
-      <div class="card bg-base-100 w-100 shadow-2xl">
+      <div class="card bg-base-100 w-auto shadow-2xl">
         <div class="card-body">
           <h2 class="card-title text-center flex justify-center">Please log in or create a new account.</h2>
           <div class="card-actions justify-center">
-            <div class="flex mt-5 space-x-4">
-              <router-link to="/login" class="btn btn-secondary">
+            <div class="mt-5 md:space-x-4 md:space-y-0 space-y-2 flex-col md:flex-row w-full md:w-auto">
+              <router-link to="/login" class="btn btn-secondary w-full md:w-auto">
                 Login
               </router-link>
-              <router-link to="/signup" class="btn btn-primary">
+              <router-link to="/signup" class="btn btn-primary w-full md:w-auto">
                 Sign Up
               </router-link>
             </div>
@@ -51,12 +54,14 @@
 import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
 import Avatar from '../../components/avatar/Avatar.vue';
+import ErrorBanner from '../../components/errorBanner/ErrorBanner.vue';
 
 export default {
   name: 'Home',
   components: {
     Avatar,
-    Navbar
+    Navbar,
+    ErrorBanner
   },
 
   data() {

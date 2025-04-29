@@ -6,7 +6,10 @@
 
 
 
-
+/* Fix scrollbars shifting page on Windows 10 11 isn't affected, not sure about MacOS or Linux */
+html {
+  overflow-y: scroll;
+}
 
 
 @plugin "daisyui/theme" {

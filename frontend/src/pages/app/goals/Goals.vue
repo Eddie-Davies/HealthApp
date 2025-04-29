@@ -4,126 +4,151 @@
     :pagination="{
       dynamicBullets: false,
       clickable: true,
-      bulletActiveClass: '!bg-secondary !opacity-80'
+      bulletActiveClass: '!bg-secondary !opacity-100'
     }"
     :keyboard="{
       enabled: true,
     }"
+    :touchEventsTarget="'container'"
     :modules="modules"
     class="mySwiper">
-    <swiper-slide>
+    
+    <!-- Single swiper-slide that shows all types of goals -->
+    <swiper-slide v-for="(slide, index) in slides" :key="index">
       <div class="flex-grow flex flex-col">
-      <PageHeader :title="$route.meta.title" />
-      <div class="mt-20 pb-5">
-        <div class="flex justify-center">
-          <div v-if="personalGoals.length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-            <GoalCard v-for="goal in personalGoals"
-              :key="goal._id"
-              :target="goal.target"
-              :progress="goal.progress"
-              :progressLabel="goal.progressLabel"
-              :remainingLabel="goal.remainingLabel"
-              :unit="goal.unit"
-              :type="goal.type"
-              :date="goal.date"
-              @edit="openEditor(goal)" />
-          </div>
-          <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
-            <div class="tooltip" data-tip="Click the button below :)">
-              <button class="btn">Add some new goals to start tracking!</button>
+        <PageHeader :title="slide.title" />
+        <div class="mt-20 pb-5">
+          <div class="flex justify-center">
+            <div v-if="slide.goals.length">
+              <TransitionGroup
+                name="goal-tiles"
+                tag="div"
+                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+                <GoalCard
+                  v-for="goal in slide.goals"
+                  :key="goal._id"
+                  :target="goal.target"
+                  :progress="goal.progress"
+                  :progressLabel="goal.progressLabel"
+                  :remainingLabel="goal.remainingLabel"
+                  :unit="goal.unit"
+                  :type="goal.type"
+                  :date="goal.date"
+                  :sport="goal.sport"
+                  :colour="slide.colour"
+                  @edit="openEditor(goal, false, slide.group)" />
+              </TransitionGroup>
+            </div>
+            <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
+              <div class="tooltip" data-tip="Click the button below :)">
+                <div class="btn cursor-default">Add some new goals to start tracking!</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-        <div class="mt-10 mb-50 flex flex-wrap justify-center">
-          <GoalNew @new-goal="createNewGoal()" />
+        <div class="mt-10 mb-40 flex flex-wrap justify-center">
+          <GoalNew :group="slide.group" @new-goal="createNewGoal(slide.group)" />
         </div>
       </div>
     </swiper-slide>
-    
-
-  <swiper-slide v-for="group in Object.keys(groupedGoals)" :key="group">
-    <div class="flex-grow flex flex-col">
-    <PageHeader :title="`${group} Goals`" />
-    <div class="mt-20 pb-5">
-      <div class="flex justify-center">
-        <div v-if="groupedGoals[group].length" class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-          <GoalCard v-for="goal in groupedGoals[group]" v-bind="goal"
-            :key="goal.id"
-            :target="goal.target"
-            :progress="goal.progress"
-            :progressLabel="goal.progressLabel"
-            :remainingLabel="goal.remainingLabel"
-            :unit="goal.unit"
-            :type="goal.type"
-            :date="goal.date"
-            @edit="openEditor(goal, false, group)" />
-        </div>
-        <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
-            <div class="tooltip" data-tip="Click the button below :)">
-              <button class="btn">Add some new goals to start tracking!</button>
-            </div>
-          </div>
-        </div>
-    </div>
-    <div class="mt-10 mb-50 flex flex-wrap justify-center">
-      <GoalNew :group="group" @new-goal="createNewGoal(group)" />
-    </div>
-  </div>
-  </swiper-slide>
-  
   </swiper>
 
-  <GoalEdit
-    v-if="editingGoal"
-    :goal="editingGoal"
-    :isNew="isNewGoal"
-    @save="saveGoal"
-    @delete="deleteGoal"
-    @cancel="editingGoal = null"
-  />
+  <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
+  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
+  </GoalDescriptionAlert>
+  <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
+
+  <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
+    @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
+
 </template>
 
 <style>
+/* CUSTOM MEDIA QUERIES/SCREEN SIZES. CONTROLS HOW MANY TILES IN A LINE. */
 @media (min-width: 600px) {
   .cols-850-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
 @media (min-width: 1150px) {
   .cols-1150-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-html, body, #app {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* prevent weird scroll issues */
-}
 
-.swiper {
-  height: 100vh !important;
+html,
+body {
+  -webkit-overflow-scrolling: touch;
 }
 
 .swiper-slide {
-  height: 100vh !important;
-  overflow-y: auto; /* allow scrolling when content is taller */
   display: flex;
   flex-direction: column;
+  /* OLD: overflow-y: visible; allow scrolling when content is taller */
 }
-.swiper-pagination-bullet-active {
-     background-color: bg-base-200 !important;
+.swiper-pagination {
+  margin-top: 100px;
+  margin-bottom: 100px
 }
-</style>
+/* ANIMATION FOR TILES */
+.goal-tiles-move, .goal-tiles-enter-active,.goal-tiles-leave-active {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+.goal-tiles-enter-from, .goal-tiles-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
+.goal-tiles-enter-to, .goal-tiles-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.goal-tiles-move {
+  position: relative;
+}
+
+/* Ensure leaving elements stay in place during their exit animation */
+.goal-tiles-leave-active {
+  position: absolute;
+}
+
+/* Small delay so leaving elements start their animation first */
+.goal-tiles-leave-active + .goal-tiles-move {
+  transition-delay: 0.05s;
+}
+/* DEBUG: */
+/* .swiper {
+ background-color: rgb(64, 114, 62);
+} */
+
+/* .swiper-pagination-bullet-active {
+     background-color: bg-green !important;
+} */
+
+/* MAYBE */
+/* .swiper-pagination-bullet {
+  background-color: rgb(160, 160, 160) !important;
+  opacity: 100% !important;
+} */
+
+</style>
 
 <script>
 import axios from 'axios';
 
 import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
+import GoalGroupAlert from './GoalGroupAlert.vue';
+import GoalDeleteAlert from './GoalDeleteAlert.vue';
+import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
+
+
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination, Keyboard } from 'swiper/modules';
@@ -138,6 +163,9 @@ export default {
     GoalCard,
     GoalNew,
     GoalEdit,
+    GoalGroupAlert,
+    GoalDeleteAlert,
+    GoalDescriptionAlert,
     PageHeader
   },
   setup() {
@@ -147,99 +175,253 @@ export default {
   },
   data() {
     return {
-      // Example to be used with MongoDB later
-      // id is temporary, mongo db provides it own. 
-      goals: [],
-      editingGoal: null,
-      isNewGoal: false,
       user: null,
+      goals: [],
+      groups: [],
+      editingGoal: null,
+      pendingGoal: null,
+      goalPendingDelete: null,
+      isNewGoal: false,
+      confirmingDelete: false,
+      showAlert: false,
+      showDescriptionBox: false,
+      goalDescription: false,
+      errorMessage: ''
     };
   },
-
-  // CONVERT THE GOALS PULLED INTO PERSONAL GOALS AND GROUP GOALS
   computed: {
-    groupedGoals() {
-      const result = {};
+    // Create slides array for the swiper
+    slides() {
+      const slides = [];
 
-      this.goals.forEach(goal => {
-        if (goal.group) {
-          if (!result[goal.group]) result[goal.group] = [];
-          result[goal.group].push(goal);
-        }
+      // Add personal goals slide
+      slides.push({
+        title: this.$route.meta.title,
+        goals: this.personalGoals,
+        group: null,
+        colour: 'text-secondary'
       });
 
+      const colourList = [
+        'text-success', // bright-green
+        'text-info', // bright-blue
+        'text-warning', // dark-orange
+        'text-error', // dark-red
+
+      ];
+      
+      // Add group slides
+      this.groups.forEach((group, index) => {
+        const colour = colourList[index % colourList.length]; 
+        console.log(group._id)
+        slides.push({
+          title: `${group.name} Goals`,
+          goals: this.groupedGoals[group._id] || [],
+          group: group._id,
+          colour: colour
+        });
+      });
+
+      return slides;
+    },
+    // Creates grouped goals and personal for use in slider.
+    groupedGoals() {
+      const result = {};
+      this.groups.forEach(group => {
+        result[group._id] = this.goals.filter(goal => String(goal.group) === String(group._id));
+      });
       return result;
     },
 
-
-    // Optionally if you want "My Goals" to mean 'groupless' ones
     personalGoals() {
       return this.goals.filter(goal => !goal.group);
     }
   },
+
   async mounted() {
-    // Get User Goals when Mounted
+    // Get user Goals
     try {
       const res = await axios.get('/goals');
-      console.log('User goals:', res.data.goals);
       this.goals = res.data.goals;
     } catch (err) {
       console.error('Error fetching goals:', err.response?.data);
     }
-  },
+    console.log('GOALS:', this.goals.map(g => ({ id: g._id, group: g.group })));
 
+
+    // Get user Groups
+    try {
+      const res = await axios.get('/groups')
+      this.groups = res.data.groups;
+      console.log('Groups:', this.groups)
+    } catch (err) {
+      console.error('Error fetching groups:', err.response?.data)
+    }
+
+  },
   methods: {
-    toTitleCase(str) {
+    toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
       return str.replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },
-    openEditor(goal, isNew = false, groupName = null) {
-      this.editingGoal = { ...goal, group: groupName }; // store group info (defaults to null = indicating no group)
-      this.isNewGoal = isNew;
+
+    continueToGoalEditor() {
+      this.editingGoal = { ...this.pendingGoal };
+      this.pendingGoal = null;
+      this.showAlert = false;
     },
 
+    openEditor(goal, isNew = false, groupId = null) {
+      this.editingGoal = { ...goal, group: groupId }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
+      this.isNewGoal = isNew;
+    },
+    // GOAL SAVING
     async saveGoal(updatedGoal) {
+      console.log('Save Goal (description):', this.description);
+      console.log('Updated goal group', updatedGoal.group);
+
       const alreadyExists = !!updatedGoal._id;
 
       try {
         let savedGoal;
 
         if (alreadyExists) {
-          // Update existing goal in database
           const res = await axios.put(`/goals/update/${updatedGoal._id}`, updatedGoal);
           savedGoal = res.data.goal;
         } else {
-          // Create new goal in database
-          const res = await axios.post('/goals/new', updatedGoal);
-          savedGoal = res.data.goal;
-          updatedGoal._id = savedGoal._id;
+          try {
+            const res = await axios.post('/goals/new', updatedGoal);
+            savedGoal = res.data.goal;
+            updatedGoal._id = savedGoal._id;
 
-          // Push to local goals array since it's new
-          this.goals.push(updatedGoal);
+            if (updatedGoal.group) {
+              const groupGoal = { ...updatedGoal, description: this.description };
+              delete groupGoal.progress;
+
+              const groupId = groupGoal.group;
+              await axios.post(`/groups/${groupId}/new-goal`, groupGoal);
+              console.log('Posted new group goal successfully.');
+            }
+
+            this.goals.push(updatedGoal);
+
+          } catch (err) {
+            console.error('Error during goal creation:', err.response?.data || err.message);
+
+            if (updatedGoal && updatedGoal._id) {
+              try {
+                await axios.delete(`/goals/${updatedGoal._id}`);
+                console.log('Rolled back personal goal creation due to group error.');
+              } catch (deleteErr) {
+                console.error('Failed to rollback personal goal:', deleteErr.response?.data || deleteErr.message);
+              }
+            }
+
+            throw err; //rethrow to catch blok so error banner displays message
+          }
         }
 
-        // Update or replace locally
         const index = this.goals.findIndex(g => g._id === savedGoal._id);
         if (index !== -1) {
-          this.goals[index] = { ...savedGoal };  // Replace the goal in the local array
+          this.goals[index] = { ...savedGoal };
         }
 
         this.editingGoal = null;
 
       } catch (err) {
-        console.error('Error saving goal:', err.response?.data || err.message);
+        console.error('Error saving goal overall:', err.response?.data || err.message);
+
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
+      }
+    },
+    descriptionPrompt(goal) {
+      console.log(goal)
+      if (goal.group && this.isNewGoal) {
+        this.pendingGoal = goal
+        this.editingGoal = null;
+        console.log(this.pendingGoal)
+        this.showDescriptionBox = true;
+      }
+      else {
+        console.log('Saving goal with group ID:', goal.group);
+
+        this.confirmSaveGoal(goal)
+      }
+
+    },
+
+    cancelDescription() {
+      this.editingGoal = this.pendingGoal
+      this.pendingGoal = null;
+      this.showDescriptionBox = false;
+    },
+
+    confirmDescriptionApproved(description) {
+      this.showDescriptionBox = false;
+      this.description = description
+      this.confirmSaveGoal(this.pendingGoal)
+
+    },
+
+    confirmSaveGoal(goal) {
+      this.editingGoal = null;
+
+      if (goal.group && this.isNewGoal) {
+        this.pendingGoal = goal;
+        this.showDescriptionBox = false
+        this.showAlert = true;
+      } else {
+        this.showAlert = false;
+        this.saveGoal(goal)
+      }
+    },
+    confirmSaveApproved() {
+      this.saveGoal(this.pendingGoal);
+      this.pendingGoal = null;
+      this.showAlert = false;
+    },
+
+    cancelSave() {
+      this.editingGoal = this.pendingGoal
+      this.pendingGoal = null;
+      this.showAlert = false;
+    },
+
+    // GOAL DELETION
+    confirmDeleteGoal(goal) {
+      this.editingGoal = null;
+
+      if (goal.group) {
+        // Show group goal warning 
+        this.goalPendingDelete = goal;
+        this.confirmingDelete = true;
+      } else {
+        // Personal goal – skip deletion warning
+        this.deleteGoal(goal);
       }
     },
 
+    confirmDeleteApproved() {
+      this.deleteGoal(this.goalPendingDelete);
+      this.goalPendingDelete = null;
+      this.confirmingDelete = false;
+    },
 
-    
+    cancelDelete() {
+      this.editingGoal = this.goalPendingDelete
+      this.goalPendingDelete = null;
+      this.confirmingDelete = false;
+    },
+
     async deleteGoal(goalToDelete) {
       try {
-        // Send delete request to backend
-        console.log("Deleting goal:", goalToDelete);
-        console.log("Goal ID:", goalToDelete._id);
+        // Pass goal id to backend for deletion.
         await axios.delete(`/goals/${goalToDelete._id}`);
 
-        // Update local state: remove from the main goals array
+        // Remove goal from local array.
         this.goals = this.goals.filter(g => g._id !== goalToDelete._id);
 
         // Exit editing mode
@@ -249,19 +431,21 @@ export default {
       }
     },
 
-    createNewGoal(groupName = null) {
-    const newGoal = {
-      target: 10,
-      progress: 0,
-      progressLabel: 'Progress',
-      remainingLabel: 'Remaining',
-      unit: 'units',
-      sport: false,
-      group: 'Family',
-      date: new Date()
-    };
-    this.openEditor(newGoal, true, groupName);
+    // GOAL CREATION
+    createNewGoal(groupId = null) {
+
+      const newGoal = {
+        target: 10,
+        progress: 0,
+        progressLabel: 'Progress',
+        remainingLabel: 'Remaining',
+        unit: 'units',
+        sport: false,
+        group: groupId,
+        date: new Date()
+      };
+      this.openEditor(newGoal, true, groupId);
+    }
   }
-}
 };
 </script>
