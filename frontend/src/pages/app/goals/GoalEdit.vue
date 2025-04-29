@@ -40,11 +40,11 @@
             <div v-if="page === 3" class="pt-7">
                 <!-- Page 3: Date -->
                  <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
-                    <div v-if="isTodaySelected" class="text-sm">Default Date (today's Date):</div>
-                    <div v-else class="text-sm">Target Date currently set to:</div>
+                    <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+                    <div v-else class="text-sm">Deadline currently set to:</div>
                     <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
                  </div>
-                <label class="block text-sm mb-2 pt-11">Override Target Date:</label>
+                <label class="block text-sm mb-2 pt-11">Override Deadline:</label>
                 <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
                 
             </div>
@@ -60,7 +60,7 @@
                 </button>
                 <button class="btn btn-md" :class="{ 'btn-outline btn-soft btn-accent': page === 3, 'btn-ghost': page !== 3 }"
                     @click="page = 3">
-                    Date
+                    Deadline
                 </button>
             </div>
 
