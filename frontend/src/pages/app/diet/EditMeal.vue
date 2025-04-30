@@ -33,6 +33,7 @@
 
     <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
     <button v-if="!isNew" class="btn mt-4 btn-error" @click="deleteMeal">Delete Meal</button>
+    <button class="btn mt-4 btn-outline" @click="cancelEdit">Cancel</button>
 
   </div>
 </template>
@@ -131,6 +132,12 @@ export default {
         path: `/home/diet/${this.mealId || 'new'}/select/${type}`,
       });
     },
+
+    cancelEdit() {
+      localStorage.removeItem(this.storageKey);
+      this.$router.push('/home/diet');
+    },
+
     deleteItem(index, isDrink = false) {
       const list = isDrink ? this.drinkOnly : this.foodOnly;
       const item = list[index];
