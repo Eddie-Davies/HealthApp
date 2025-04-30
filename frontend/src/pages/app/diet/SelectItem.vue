@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 space-y-4">
+  <div v-if="isLoaded" class="p-4 space-y-4">
     <h1 class="text-2xl font-semibold">Select {{ capitalizedType }}</h1>
 
     <!-- Search -->
@@ -46,7 +46,8 @@ export default {
         name: '',
         calories: '',
       },
-      items: []
+      items: [],
+      isLoaded: false
     };
   },
 
@@ -113,6 +114,7 @@ export default {
     } catch (err) {
       console.error('Error fetching food list:', err.response?.data || err.message);
     }
+    this.isLoaded = true;
   }
 };
 </script>
