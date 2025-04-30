@@ -309,17 +309,17 @@ app.post('/login', async (req, res) => {
 
 app.get('/groups', authenticateToken, async (req, res) => {
     try {
-      const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res.json({ groups: user.groups }); // Each group will include _id and name
+        const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ groups: user.groups }); // Each group will include _id and name
     } catch (error) {
-      console.error('Error fetching user groups:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching user groups:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  });
+});
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
@@ -357,10 +357,10 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id
-        
+
         //validation
 
         // Validate description
@@ -574,11 +574,11 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         const copiedGoalObj = groupGoal.toObject();
         const copiedGoal = {
             ...copiedGoalObj,
-          sourceGroupId: groupId,
-          group: group.name,
-          progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
-          remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
-          progress: 0
+            sourceGroupId: groupId,
+            group: group.name,
+            progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
+            remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
+            progress: 0
         };
 
         delete copiedGoal.description;
@@ -605,7 +605,7 @@ app.get('/meals', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ meals: user.meals});
+        res.status(200).json({ meals: user.meals });
     } catch (error) {
         console.error('Error fetching meals:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -728,8 +728,12 @@ app.get('/foods', authenticateToken, async (req, res) => {
 app.post('/food', authenticateToken, async (req, res) => {
     const { name, calories, isDrink } = req.body;
 
-    if (!name || calories === undefined || isDrink === undefined) {
-        return res.status(400).json({ message: 'Missing required fields' });
+    if (
+        typeof name !== 'string' || name.trim() === '' ||
+        typeof calories !== 'number' || calories < 0 ||
+        typeof isDrink !== 'boolean'
+    ) {
+        return res.status(400).json({ message: 'Invalid or missing required fields' });
     }
 
     try {
@@ -739,7 +743,7 @@ app.post('/food', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newFood = { name, calories, isDrink};
+        const newFood = { name, calories, isDrink };
         user.foods.push(newFood)
         await user.save()
 
@@ -774,11 +778,11 @@ app.listen(port, '0.0.0.0', () => {
     const localURL = `http://localhost:${port}`;
     const networkURL = envIP ? `http://${envIP}:3000` : null;
 
-    console.log(prefix + localURL+('     (For fast development on this device)'));
+    console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length -2)+'✅ ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m',`⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });

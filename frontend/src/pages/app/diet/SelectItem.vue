@@ -74,7 +74,11 @@ export default {
       });
     },
     async addItem() {
-      if (!this.newItem.name || !this.newItem.calories) return;
+      if (
+        !this.newItem.name ||
+        this.newItem.calories === '' ||
+        this.newItem.calories === null
+      ) return;
 
       const parsedCalories = parseInt(this.newItem.calories);
       const newEntry = {
