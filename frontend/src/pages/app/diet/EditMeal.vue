@@ -87,6 +87,16 @@ export default {
       }
     }
 
+    if (!this.mealName) {
+      const hour = new Date().getHours();
+      if (hour < 11) {
+        this.mealName = 'Breakfast';
+      } else if (hour < 16) {
+        this.mealName = 'Lunch';
+      } else {
+        this.mealName = 'Dinner';
+      }
+    }
 
     const { name, calories, type } = this.$route.query;
     if (name && calories && type) {
