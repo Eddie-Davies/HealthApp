@@ -16,7 +16,7 @@
         <div @click="selectItem(item)" class="flex-1 cursor-pointer">
           <span>{{ item.name }}</span> <span>{{ item.calories }} kcal</span>
         </div>
-        <button class="btn btn-sm btn-error ml-2" @click.stop="deleteItem(item._id)">Delete</button>
+        <button class="btn btn-sm btn-error ml-2 p-3" @click.stop="deleteItem(item._id)">Delete</button>
       </div>
     </div>
 
