@@ -1,11 +1,10 @@
 <template>
   <PageHeader :title="$route.meta.title" />
   <div class="mt-20 px-4 pb-16 flex flex-col items-center">
-    <!-- Groups List -->
     <div class="w-full max-w-md">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold">Your Groups</h2>
-        <button class="btn btn-sm btn-primary">
+        <button class="btn btn-sm btn-primary" @click="showModal = true">
           + New Group
         </button>
       </div>
@@ -19,39 +18,43 @@
         class="mb-4"
       />
     </div>
+
+    <!-- New Group Modal -->
+    <NewGroupModal 
+      v-if="showModal" 
+      @close="showModal = false" 
+      @create="addGroup"
+    />
   </div>
 </template>
 
 <script>
 import PageHeader from '../../../components/header/PageHeader.vue';
 import FamilyCard from './GroupCard.vue';
+import NewGroupModal from './GroupNew.vue';
 
 export default {
   name: 'Groups',
   components: {
     PageHeader,
-    FamilyCard
+    FamilyCard,
+    NewGroupModal
   },
   data() {
     return {
+      showModal: false,
       groups: [
-        { 
-          name: 'The Family', 
-          members: ['Light Y', 'Misa A', 'Ryuk S'],
-          goal: 'Family Goals'
-        },
-        { 
-          name: 'Work Team', 
-          members: ['John D', 'Sarah M', 'Mike T'],
-          goal: 'Q3 Objectives' 
-        },
-        { 
-          name: 'Gym Buddies', 
-          members: ['Alex R', 'Jamie K'],
-          // goal falls back to default "Goals"
-        }
+        { name: 'The Family', members: ['Light Y', 'Misa A', 'Ryuk S'], goal: 'Family Goals' },
+        { name: 'Work Team', members: ['John D', 'Sarah M', 'Mike T'], goal: 'Q3 Objectives' },
+        { name: 'Gym Buddies', members: ['Alex R', 'Jamie K'] }
       ]
+    };
+  },
+  methods: {
+    addGroup(newGroup) {
+      this.groups.push(newGroup);
+      this.showModal = false;
     }
   }
-}
+};
 </script>
