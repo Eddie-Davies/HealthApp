@@ -5,7 +5,7 @@
   <!-- Dropdown Menu -->
   <div
     :class="[
-      'absolute right-0 mt-2 bg-base-200 rounded-lg py-2 z-50 shadow-lg mr-3',
+      'fixed right-0 mt-2 bg-base-200 rounded-lg py-2 z-50 shadow-lg mr-3',
       scrollBHidden ? 'mr-6' : ''
     ]"
   >
