@@ -1,24 +1,33 @@
 <template>
-    <div class="flex flex-col items-center">
-      <div class="w-full flex justify-center">
+    <div class="flex flex-col items-center w-full px-4">
+      <!-- Wrapper to constrain width and align children to left -->
+      <div class="w-full max-w-md flex flex-col items-start">
+        <!-- Title Input - Left aligned within container -->
         <textarea
           v-model="newTitle"
-          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-115"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full"
           placeholder="Afternoon Run"
           rows="1"
         ></textarea>
-      </div>
-      <div class="text-xl pl-90">
-        Elapsed
-        <div class="text-xl text-left text-neutral w-200">
-          {{ formatTime(timer) }}
-            <div class="inline-grid *:[grid-area:1/1]">
-            <div class="status status-error animate-ping"></div>
-            <div class="status status-error"></div>
+        
+        <!-- Timer Section  -->
+        <div class="flex flex-col items-start mt-4 ml-1 w-full">
+          <span class="text-xl">Elapsed</span>
+          <div class="flex items-center gap-3 mt-1">
+            <div class="text-xl text-neutral">
+              {{ formatTime(timer) }}
             </div>
+            <!-- Status indicator -->
+            <div class="inline-grid *:[grid-area:1/1]">
+              <div class="status status-error animate-ping"></div>
+              <div class="status status-error"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="mt-8 w-full max-w-md">
+      
+      <!-- Activity Cards - Centered on page, but content left-aligned -->
+      <div class="mt-8 xs:mt-4 w-full max-w-md">
         <ExerciseTrackCard
           v-for="(exercise, index) in exercises"
           :key="exercise.id"
@@ -31,21 +40,23 @@
           @updateUnit="updateUnit"
         />
       </div>
-
-    <div class="w-full flex justify-center mt-4">
-        <button 
-            @click="addNewActivity" 
-            class="btn btn-primary" >
-            + Add Activity
-        </button>
-    </div>
   
-    <div class="flex items-center justify-center w-full pt-20 gap-4">
+      <!-- Add Activity Button - Centered -->
+      <div class="w-full max-w-md flex justify-center mt-4 xs:mt-2">
+        <button 
+          @click="addNewActivity" 
+          class="btn btn-primary" >
+          + Add Activity
+        </button>
+      </div>
+    
+      <!-- Control Buttons - Centered -->
+      <div class="flex flex-wrap items-center justify-center w-full mt-10 gap-4">
         <ExercisePlay @play="startTimer" :disabled="isRunning" />
         <ExerciseFinish @finishWorkout="finishWorkout" />
         <ExercisePause @pause="pauseTimer" :disabled="!isRunning" />
+      </div>
     </div>
-  </div>
   </template>
   
   <script>
@@ -69,7 +80,7 @@
     data() {
     return {
         exercises: [
-        { id: 1, title: 'New Activity 1', activity: 'Run', integer: '0', unit: 'km' }
+        { id: 1, title: 'Activity 1', activity: 'Run', integer: '0', unit: 'km' }
         ],
         nextId: 2,
         timer: 0,  // This will now track milliseconds
@@ -106,7 +117,7 @@
     addNewActivity() {
       const newActivity = {
         id: this.nextId,
-        title: `New Activity ${this.nextId}`,
+        title: `Activity ${this.nextId}`,
         activity: 'Run',
         integer: '0',
         unit: 'km'

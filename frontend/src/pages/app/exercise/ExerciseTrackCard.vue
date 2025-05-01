@@ -2,35 +2,32 @@
   <div class="card bg-base-300 rounded-box p-4 flex flex-col mb-4">
     <!-- Top: Title -->
     <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
-    
     <!-- Activity Details -->
-    <div class="flex text-center mt-3">
-      <div class="pr-20">
+    <div class="flex text-center mt-3 gap-5 xs:gap-2">
+      <div class="pr-5 xs:pr-2">
         <p class="text-neutral-400">Activity</p>
         <input
           v-model="editedActivity"
-          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
           type="text"
           @blur="emitChanges"
         />
       </div>
-      
-      <div class="pr-20">
+      <div class="pr-5 xs:pr-2">
         <p class="text-neutral-400">Integer</p>
         <input
           v-model="editedInteger"
-          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"
         />
       </div>
-      
       <div>
         <p class="text-neutral-400">Unit</p>
         <input
           v-model="editedUnit"
-          class="input font-medium select-ghost text-neutral focus:outline-none focus:ring-0 border-none shadow-none bg-transparent p-0 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"
@@ -97,3 +94,4 @@ export default {
   }
 };
 </script>
+
