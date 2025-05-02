@@ -252,7 +252,7 @@ app.post('/signup', async (req, res) => {
             return res.status(400).json({ errors });
         }
 
-
+        // no need to set firstLogin to true as it is the default value in the schema.
 
         console.log(`Incoming request to /signup: Email: ${email}`);
         // Check if email is already in database.
@@ -307,19 +307,73 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.put('/users/firstLogin', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const {
+            age,
+            gender,
+            weight,
+            height,
+            targetWeight,
+            bmi
+        } = req.body;
+
+        const errors = [];
+
+        if (!age || age < 0 || age > 120) errors.push("Invalid age.");
+        if (typeof gender !== "boolean") errors.push("Gender must be a boolean.");
+        if (!weight || weight < 0) errors.push("Invalid weight.");
+        if (!height || height < 0) errors.push("Invalid height.");
+        if (!targetWeight || targetWeight < 0) errors.push("Invalid target weight.");
+        if (!bmi || bmi < 0) errors.push("Invalid BMI.");
+
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            userId,
+            {
+                age,
+                gender,
+                weight,
+                height,
+                targetWeight,
+                bmi,
+                firstLogin: false
+            },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        console.log(`User (${userId}) completed first login onboarding.`);
+        return res.status(200).json({ message: "User updated successfully", user: updatedUser });
+
+    } catch (err) {
+        console.error("Error during first login update:", err);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+
 app.get('/groups', authenticateToken, async (req, res) => {
     try {
-      const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res.json({ groups: user.groups }); // Each group will include _id and name
+        const user = await UserModel.findOne({ email: req.user.email }).populate('groups', 'name');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({ groups: user.groups }); // Each group will include _id and name
     } catch (error) {
-      console.error('Error fetching user groups:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching user groups:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  });
+});
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
@@ -357,10 +411,10 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, sport, date} = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id
-        
+
         //validation
 
         // Validate description
@@ -574,11 +628,11 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         const copiedGoalObj = groupGoal.toObject();
         const copiedGoal = {
             ...copiedGoalObj,
-          sourceGroupId: groupId,
-          group: group.name,
-          progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
-          remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
-          progress: 0
+            sourceGroupId: groupId,
+            group: group.name,
+            progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
+            remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
+            progress: 0
         };
 
         delete copiedGoal.description;
@@ -605,7 +659,7 @@ app.get('/meals', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ meals: user.meals});
+        res.status(200).json({ meals: user.meals });
     } catch (error) {
         console.error('Error fetching meals:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -739,7 +793,7 @@ app.post('/food', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newFood = { name, calories, isDrink};
+        const newFood = { name, calories, isDrink };
         user.foods.push(newFood)
         await user.save()
 
@@ -774,11 +828,11 @@ app.listen(port, '0.0.0.0', () => {
     const localURL = `http://localhost:${port}`;
     const networkURL = envIP ? `http://${envIP}:3000` : null;
 
-    console.log(prefix + localURL+('     (For fast development on this device)'));
+    console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length -2)+'✅ ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m',`⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });

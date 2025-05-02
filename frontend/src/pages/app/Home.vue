@@ -6,6 +6,10 @@
 
       <ErrorBanner />
 
+      <div v-if="user.firstLogin == true">
+        <FirstLogin :user="{ firstName: user.firstName, lastName: user.lastName }" @save="handleSave" />
+      </div>
+
       <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
         <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
       </div>
@@ -55,13 +59,15 @@ import axios from 'axios'
 import Navbar from '../../components/navbar/Navbar.vue';
 import Avatar from '../../components/avatar/Avatar.vue';
 import ErrorBanner from '../../components/errorBanner/ErrorBanner.vue';
+import FirstLogin from '../../components/firstLogin/FirstLogin.vue';
 
 export default {
   name: 'Home',
   components: {
     Avatar,
     Navbar,
-    ErrorBanner
+    ErrorBanner,
+    FirstLogin
   },
 
   data() {
@@ -109,7 +115,7 @@ export default {
 </script>
 
 
-  <!-- <div v-if="!user" class="justify-center flex my-10">
+<!-- <div v-if="!user" class="justify-center flex my-10">
     <router-link to="/login" class="btn btn-primary mr-10">Login</router-link>
     <router-link to="/signup" class="btn btn-secondary">Signup</router-link>
   </div>
