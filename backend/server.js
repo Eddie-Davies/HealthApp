@@ -225,10 +225,11 @@ app.get('/', (req, res) => {
 
 app.post('/signup', async (req, res) => {
     try {
-        let { first_name, last_name, email, password } = req.body;
+        let { first_name, last_name, username, email, password } = req.body;
 
         first_name = first_name?.trim();
         last_name = last_name?.trim();
+        username = username?.trim();
         email = email?.toLowerCase().trim();
         password = password?.trim();
 
@@ -239,6 +240,9 @@ app.post('/signup', async (req, res) => {
         }
         if (!last_name || !/^[a-zA-Z]{2,30}$/.test(last_name)) {
             errors.push("Last name must be between 2 and 30 alphabetic characters.");
+        }
+        if (!username || !/^[a-zA-Z0-9]{4,16}$/.test(username)) {
+            errors.push("Username must be between 2 and 16 alphanumeric characters.");
         }
         if (!email || !/^[^\s@]+@[^\s@]+$/.test(email)) {
             errors.push("Invalid email format.");
@@ -265,7 +269,7 @@ app.post('/signup', async (req, res) => {
         // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        user = { first_name, last_name, email, password_hash: hashedPassword } // password: hashedpassword keeps the correct label.
+        user = { first_name, last_name, username, email, password_hash: hashedPassword } // password: hashedpassword keeps the correct label.
         const newUser = await UserModel.create(user);
 
         console.log(`User (${email}) added to database.`);
@@ -278,15 +282,15 @@ app.post('/signup', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        console.log(`Incoming request to /login: Email: ${email}`);
+        const { username, password } = req.body;
+        console.log(`Incoming request to /login: username: ${ username }`);
 
         // Check if user exists
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ username });
 
         if (!user) {
             console.log('User not found');
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Invalid username or password' });
         }
 
         const passwordCorrect = await bcrypt.compare(password, user.password_hash)
