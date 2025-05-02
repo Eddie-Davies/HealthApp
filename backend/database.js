@@ -58,9 +58,13 @@ const UserSchema = new mongoose.Schema({
     last_name: { type: String, required: true },
     age: { type: Number, required: false },
     email: { type: String, unique: true, required: true },
+    username: { type: String, unique: true, required: true },
     password_hash: { type: String, required: true }, // Added password field
+    firstLogin: { type: Boolean, default: true },
     gender: Boolean,
     weight: Number,
+    bmi : Number,
+    height : Number,
     targetWeight: Number,
     recoveryCode: String,
     meals: [MealSchema],
