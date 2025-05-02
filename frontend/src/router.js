@@ -8,6 +8,7 @@ import NewPassword  from './pages/service/NewPassword.vue';
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
+import Profile from './pages/app/profile/Profile.vue';
 import Exercise from './pages/app/Exercise.vue';
 import Diet from './pages/app/diet/Diet.vue';
 
@@ -27,6 +28,7 @@ const routes = [
     children: [
       { path: "goals", component: Goals, meta: {title: 'My Goals'}},
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
+      { path: "profile", component: Profile, meta: {title: 'My Profile'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },
