@@ -266,6 +266,12 @@ app.post('/signup', async (req, res) => {
             return res.status(401).json({ message: `This email (${email}) is already associated with an account.` });
         }
 
+        const usernameInDB = await UserModel.findOne({ username });
+        if (usernameInDB) {
+            console.log('User already has an account! ');
+            return res.status(401).json({ message: `This Username (${username}) is already associated with an account.` });
+        }
+
         // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
