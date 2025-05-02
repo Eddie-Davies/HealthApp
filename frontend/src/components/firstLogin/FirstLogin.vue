@@ -54,9 +54,9 @@
                         {{ isTargetHealthy ? 'Healthy' : 'Unhealthy' }} (Healthy Range: {{ healthyRange.min.toFixed(1)
                         }}–{{ healthyRange.max.toFixed(1) }} kg)
                     </span>
+                </p>
                 <p class="mt-1 text-sm italic text-gray-500">
                     {{ targetWeightMessage }}
-                </p>
                 </p>
             </div>
         </div>
