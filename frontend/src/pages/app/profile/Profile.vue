@@ -19,26 +19,53 @@
                     </p>
                     <h1 class="mt-6 font-bold text-5xl text-primary lg:text-7xl lg:mt-15">75.4</h1>
                 </div>
-                <div class="">
-                    <div class="absolute bottom-0 w-full flex justify-evenly items-center mb-3 p-2">
-                        <button class="btn btn-secondary lg:h-15 w-1/3"><i class="fa-solid fa-minus"></i></button>
+                <div class="absolute bottom-0 w-full flex justify-evenly items-center mb-3 p-2">
+                    <button class="btn btn-secondary lg:h-15 w-1/3"><i class="fa-solid fa-minus"></i></button>
 
-                        <select class="select select-ghost font-bold text-base-content/69 text-center w-1/4">
-                            <option value="0.1">0.1</option>
-                            <option value="0.5">0.5</option>
-                            <option value="1">1</option>
-                        </select>
+                    <select class="select select-ghost font-bold text-base-content/69 text-center w-1/4">
+                        <option value="0.1">0.1</option>
+                        <option value="0.5">0.5</option>
+                        <option value="1">1</option>
+                    </select>
 
-                        <button class="btn btn-secondary w-1/3 lg:h-15 "><i class="fa-solid fa-plus"></i></button>
-                    </div>
+                    <button class="btn btn-secondary w-1/3 lg:h-15 "><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
 
 
             <!-- Two Side-by-Side Cards -->
             <div class="grid grid-cols-2 gap-6">
-                <div class="card bg-base-200 rounded-xl size-39 lg:size-84"></div>
-                <div class="card bg-base-200 rounded-xl size-39 lg:size-84"></div>
+                <div class="card bg-base-200 rounded-xl border-2 border-secondary text-center size-39 lg:size-84">
+                    <p id="title" class="absolute top-5 pb-5 self-center text-xl font-semibold">Calorie Intake</p>
+
+                    <div class="flex flex-col items-center justify-center h-screen mt-4">
+                        <div class="text-xl font-bold text-primary">
+                            2300
+                        </div>
+                        <div class="text-neutral/60">
+                            kcal
+                        </div>
+                    </div>
+                    <p id="subtitle" class="absolute bottom-0 right-0 p-2 text-sm text-base-content/60">
+                        (last 24hrs)
+                    </p>
+                </div>
+
+                <div class="card bg-base-200 rounded-xl border-2 border-secondary text-center size-39 lg:size-84">
+                    <p id="title" class="absolute top-5 pb-5 self-center text-xl font-semibold">Exercise</p>
+
+                    <div class="flex flex-col items-center justify-center h-screen mt-4">
+                        <div class="text-xl font-bold text-primary">
+                            190
+                        </div>
+                        <div class="text-neutral/60">
+                            minutes
+                        </div>
+                    </div>
+                    <p id="subtitle" class="absolute bottom-0 right-0 p-2 text-sm text-base-content/60">
+                        (last 24hrs)
+                    </p>
+                </div>
             </div>
 
             <!-- Bottom Wide Card -->
