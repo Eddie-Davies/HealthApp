@@ -10,20 +10,31 @@
           rows="1"
         ></textarea>
         
-        <!-- Timer Section  -->
-        <div class="flex flex-col items-start mt-4 ml-1 w-full">
-          <span class="text-xl">Elapsed</span>
-          <div class="flex items-center gap-3 mt-1">
-            <div class="text-xl text-neutral">
-              {{ formatTime(timer) }}
-            </div>
-            <!-- Status indicator -->
-            <div class="inline-grid *:[grid-area:1/1]">
-              <div class="status status-error animate-ping"></div>
-              <div class="status status-error"></div>
-            </div>
-          </div>
+            <!-- Timer Section  -->
+    <div class="flex justify-between items-start mt-4 ml-1">
+    <!-- Elapsed section -->
+    <div class="flex flex-col items-start">
+        <span class="text-xl">Elapsed</span>
+        <div class="flex items-center gap-3 mt-1">
+        <div class="text-xl text-neutral">
+            {{ formatTime(timer) }}
         </div>
+        <!-- Status indicator -->
+        <div class="inline-grid *:[grid-area:1/1]">
+            <div class="status status-error animate-ping"></div>
+            <div class="status status-error"></div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Activities section -->
+    <div class="flex flex-col text-xl ml-10">
+        <span>Activities</span>
+        <span class="text-xl mt-1">{{ exercises.length }} added </span>
+    </div>
+    </div>
+
+
       </div>
       
       <!-- Activity Cards - Centered on page, but content left-aligned -->
