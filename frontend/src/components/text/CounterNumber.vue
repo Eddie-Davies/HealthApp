@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :id="uniqueCounterId" class="text-xl font-bold text-primary lg:text-5xl">
+    <div :id="uniqueCounterId">
       0
     </div>
   </div>
@@ -15,10 +15,6 @@ export default {
     displayNumber: {
       type: Number,
       required: true
-    },
-    unit: {
-      type: String,
-      default: ''
     },
     counterId: {
       type: [String, Number], // allows you to provide your own incase i need to in future.
