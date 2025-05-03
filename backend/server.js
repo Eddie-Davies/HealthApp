@@ -814,6 +814,17 @@ app.delete('/food/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
+app.get('/dob', authenticateToken, async(req, res) => {
+    const user = await UserModel.findOne({ email: req.user.email });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user.age);
+
+});
+
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;
