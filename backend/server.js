@@ -612,6 +612,52 @@ app.get('/meals', authenticateToken, async (req, res) => {
     }
 });
 
+// Get recent calories (last 24hrs)
+app.get('/recent-calories', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const now = new Date();
+        const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+
+        let recentCalories = 0;
+
+        for (const meal of user.meals) {
+            // Check if the meal is from the last 24 hours
+            const mealDate = new Date(meal.date);
+            const isMealRecent = mealDate >= twentyFourHoursAgo;
+
+            // If the meal is NOT recent, go to next meal
+            if (!isMealRecent) {
+                continue;
+            }
+            
+            // Work out calories for this meal
+            let caloriesInThisMeal = 0;
+            // Sum all calories from each food in meal
+            const foodsInMeal = meal.foods || [];
+            for (const food of foodsInMeal) {
+                const foodCalories = food.calories || 0;
+                caloriesInThisMeal += foodCalories;
+            }
+            
+            recentCalories += caloriesInThisMeal;
+        }
+        res.status(200).json(recentCalories);
+    } catch (error) {
+        console.error('Error fetching recent calories:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
     try {
