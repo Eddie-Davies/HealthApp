@@ -36,36 +36,21 @@
             <!-- Two Side-by-Side Cards -->
             <div class="grid grid-cols-2 gap-6">
                 <div class="card bg-base-200 rounded-xl border-2 border-secondary text-center size-39 lg:size-84">
-                    <p id="title" class="absolute top-5 pb-5 self-center text-xl font-semibold">Calorie Intake</p>
+                    <p id="title" class="relative top-5 pb-5 self-center text-xl font-semibold lg:mt-10">Calorie Intake</p>
 
-                    <div class="flex flex-col items-center justify-center h-screen mt-4">
-                        <div class="text-xl font-bold text-primary">
+                    <div class="flex flex-col items-center justify-center my-6 mt-2 lg:mt-12 ">
+                        <div class="text-xl font-bold text-primary lg:text-5xl">
                             2300
                         </div>
-                        <div class="text-neutral/60">
+                        <div class="text-neutral/60 lg:text-2xl">
                             kcal
                         </div>
                     </div>
-                    <p id="subtitle" class="absolute bottom-0 right-0 p-2 text-sm text-base-content/60">
+                    <p id="subtitle" class="absolute bottom-0 right-0 p-2 text-sm text-base-content/60 lg:text-lg lg:p-5">
                         (last 24hrs)
                     </p>
                 </div>
 
-                <div class="card bg-base-200 rounded-xl border-2 border-secondary text-center size-39 lg:size-84">
-                    <p id="title" class="absolute top-5 pb-5 self-center text-xl font-semibold">Exercise</p>
-
-                    <div class="flex flex-col items-center justify-center h-screen mt-4">
-                        <div class="text-xl font-bold text-primary">
-                            190
-                        </div>
-                        <div class="text-neutral/60">
-                            minutes
-                        </div>
-                    </div>
-                    <p id="subtitle" class="absolute bottom-0 right-0 p-2 text-sm text-base-content/60">
-                        (last 24hrs)
-                    </p>
-                </div>
             </div>
 
             <!-- Bottom Wide Card -->
