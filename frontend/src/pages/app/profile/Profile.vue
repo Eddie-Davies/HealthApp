@@ -29,7 +29,10 @@
                     />
             </div>
             <!-- Bottom Wide Card -->
-            <ProfileCardMed/>
+            <ProfileCardMed 
+                title="Age"
+                :displayNumber="age"
+                message="119 days until your next birthday"/>
         </div>
     </div>
 </template>
@@ -53,7 +56,9 @@ export default {
     data(){
         return {
             calories: 0,
-            exercise: 50
+            exercise: 50, // temporary value,
+            dob: 0 // change to null instead after implementing the rest.
+
         }
     },
     async mounted() {
@@ -64,6 +69,19 @@ export default {
             console.log(this.calories)
         } catch (err) {
             console.error('Error fetching last 24hr calories:', err.response?.data);
+        }
+
+        try {
+            const res = await axios.get('/dob'); // temporarily returns age instead.
+            this.dob = res.data;
+
+        } catch (err) {
+            console.error('Error fetching date of birth:', err.response?.data);
+        }
+    },
+    computed: {
+        age() { // simulate converting dob to age.
+            return this.dob;
         }
     }
 }
