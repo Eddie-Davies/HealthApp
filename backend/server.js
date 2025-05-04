@@ -851,6 +851,28 @@ app.get('/weights', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Error fetching weights', error: err });
 }});
 
+app.post('/weight', authenticateToken, async (req, res) => {
+    try {
+        const { value } = req.body;
+
+        if (typeof value !== 'number') {
+            return res.status(400).json({ message: 'Invalid weight value' });
+        }
+
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.weight = value;
+        await user.save();
+
+        res.status(200).json({ message: 'Weight updated successfully', weight: user.weight });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating weight', error: err });
+    }
+});
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;

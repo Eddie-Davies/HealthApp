@@ -99,7 +99,7 @@ export default {
             const res = await axios.get('/weights');
             this.weight = res.data.weight
             this.targetWeight = res.data.targetWeight
-            // console.log(this.weight, this.targetWeight)
+            console.log(this.weight, this.targetWeight)
         } catch (err) {
             console.error('Error fetching weight(s):', err.response?.data);
         }
