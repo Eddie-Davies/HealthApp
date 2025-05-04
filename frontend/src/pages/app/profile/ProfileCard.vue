@@ -17,6 +17,8 @@
                         <option value="0.1">0.1</option>
                         <option value="0.5">0.5</option>
                         <option value="1">1</option>
+                        <option value="10">10</option>
+
                     </select>
 
                     <button @click="increment" class="btn btn-secondary w-1/3 lg:h-15 "><i class="fa-solid fa-plus"></i></button>
