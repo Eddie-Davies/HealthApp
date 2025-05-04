@@ -5,7 +5,7 @@
         <!-- Title Input - Left aligned within container -->
         <textarea
           v-model="newTitle"
-          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
           placeholder="Afternoon Run"
           rows="1"
         ></textarea>
@@ -14,9 +14,9 @@
     <div class="flex justify-between items-start mt-4 ml-1">
     <!-- Elapsed section -->
     <div class="flex flex-col items-start">
-        <span class="text-xl">Elapsed</span>
+        <span class="text-xl font-semibold text-base-content/95">Elapsed</span>
         <div class="flex items-center gap-3 mt-1">
-        <div class="text-xl text-neutral">
+        <div class="text-lg text-neutral/85">
             {{ formatTime(timer) }}
         </div>
         <!-- Status indicator -->
@@ -28,9 +28,9 @@
     </div>
 
     <!-- Activities section -->
-    <div class="flex flex-col text-xl ml-10">
-        <span>Activities</span>
-        <span class="text-xl mt-1">{{ exercises.length }} added </span>
+    <div class="flex flex-col ml-10">
+        <span class="text-xl font-semibold text-base-content/95">Activities</span>
+        <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
     </div>
     </div>
 

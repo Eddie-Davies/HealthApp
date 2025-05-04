@@ -3,31 +3,31 @@
     <!-- Top: Title -->
     <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
     <!-- Activity Details -->
-    <div class="flex text-center mt-3 gap-5 xs:gap-2">
+    <div class="flex text-center mt-5 gap-5 xs:gap-2">
       <div class="pr-5 xs:pr-2">
-        <p class="text-neutral-400">Activity</p>
+        <p class="text-neutral-400 mb-2">Activity</p>
         <input
           v-model="editedActivity"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-2xl px-3 text-center"
           type="text"
           @blur="emitChanges"
         />
       </div>
       <div class="pr-5 xs:pr-2">
-        <p class="text-neutral-400">Integer</p>
+        <p class="text-neutral-400 mb-2">Integer</p>
         <input
           v-model="editedInteger"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-2xl px-3 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"
         />
       </div>
       <div>
-        <p class="text-neutral-400">Unit</p>
+        <p class="text-neutral-400 mb-2">Unit</p>
         <input
           v-model="editedUnit"
-          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-full px-3 text-center"
+          class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-2xl px-3 text-center"
           type="text"
           @blur="emitChanges"
           @keyup.enter="emitChanges"
