@@ -3,28 +3,53 @@
     <!-- Top: Eaten + Remaining -->
     <div class="flex justify-between w-full">
       <div>
-        <p class="text-success">{{ completed.label }}</p>
+        <p :class="colour" class="font-semibold">{{ completed.label }}</p> 
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
-        <p class="text-success mt-3">{{ remaining.label }}</p>
+
+        <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
       </div>
       <!-- Vertical Progress Bar -->
       <div class="flex flex-col items-center justify-end">
         <p class="mb-1 text-neutral-400">{{ target }}</p>
-        <div class="w-4 h-20 bg-neutral-200/20 rounded-full overflow-hidden relative">
-          <div
-            class="absolute bottom-0 w-full bg-gradient-to-t from-accent via- to-warning rounded-full"
-            :style="{ height: progressPercentage + '%' }">
-          </div>
+        <div class="w-4 h-20 lg:h-28 bg-neutral-200/10 rounded-full overflow-hidden relative">
+
+          <div class="absolute bottom-0 w-full rounded-full overflow-hidden"
+            :class="{
+              'bg-gradient-to-t from-secondary to-primary': colour === 'text-secondary',
+              'bg-gradient-to-t from-green-400 to-green-600': colour === 'text-success',
+              'bg-gradient-to-t from-sky-400 to-sky-600': colour === 'text-info',
+              'bg-gradient-to-t from-amber-400 to-amber-600': colour === 'text-warning',
+              'bg-gradient-to-t from-rose-400 to-rose-600': colour === 'text-error',
+            }"
+            :style="{ height: progressPercentage + '%', transition: 'height 0.5s ease' }">
         </div>
-        <span>0</span>
+      </div>
+        <span v-if="sport" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-person-running"></i></span>
+        <span v-else="sport" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-flag text-sm"></i></span>
+
+
       </div>
     </div>
     <!-- Bottom: Date -->
-    <div class="flex justify-start items-center text-xs text-neutral-400 lg:mt-2 mt-4">
-      <p>{{ formattedDate }}</p>
+    <div v-if="parsedDate > Date.now() && !isComplete">
+      <div class="flex justify-start items-center text-xs text-neutral-400 lg:-mt-3 mt-3">
+        <p>{{ formattedDate }}</p>
+      </div>
+    </div>
+    <div v-else-if="isComplete">
+      <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
+        <p>{{ formattedDate }}</p>
+        <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
+      </div>
+    </div>
+    <div v-else>
+      <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
+        <p>{{ formattedDate }}</p>
+        <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
+      </div>
     </div>
   </div>
 </template>
@@ -56,9 +81,20 @@ export default {
     date: {
       type: [Date, String],
       default: () => new Date()
+    },
+    sport: {
+      type: Boolean,
+      default: false
+    },
+    colour: {
+      type: String,
+      default: 'text-success'
     }
   },
   computed: {
+    isComplete(){
+      return this.target === this.progress;
+    },
     completed() {
       return {
         label: this.progressLabel,
@@ -86,5 +122,6 @@ export default {
       return `${day}/${month}/${year}`;
     }
   }
+
 }
 </script>
