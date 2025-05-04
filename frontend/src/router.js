@@ -8,9 +8,9 @@ import NewPassword  from './pages/service/NewPassword.vue';
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Groups from './pages/app/Groups.vue';
+import Settings from './pages/app/Settings.vue';
 
 import Exercise from './pages/app/exercise/Exercise.vue';
-import ExerciseTrack from './pages/app/exercise/ExerciseTrack.vue';
 import Diet from './pages/app/diet/Diet.vue';
 
 
@@ -34,7 +34,8 @@ const routes = [
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },
       { path: '/home/diet/:id', component: EditMeal},
-      { path: '/home/diet/:mealId/select/:type', component: SelectItem, props: true }
+      { path: '/home/diet/:mealId/select/:type', component: SelectItem, props: true },
+      { path: "settings", component: Settings, meta: {title: 'My Settings'}},
     ],
   },
   
