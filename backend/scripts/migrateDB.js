@@ -82,3 +82,33 @@ async function runMigration2() {
   }
 
 // runMigration3();
+
+async function runMigration_setAccountCreationDate() {
+  try {
+    console.log('✅ Connected to MongoDB (via database.js)');
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const users = await UserModel.find({ accountCreationDate: { $exists: false } });
+
+    for (const user of users) {
+      await UserModel.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            accountCreationDate: thirtyDaysAgo
+          }
+        }
+      );
+    }
+
+    console.log('✅ Migration complete');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Migration failed:', err);
+    process.exit(1);
+  }
+}
+
+// runMigration_setAccountCreationDate()
