@@ -2,7 +2,8 @@
     <div class="border-2 border-secondary card bg-base-200 rounded-xl lg:rounded-3xl h-65 w-84 lg:h-84 lg:w-174">
                 <div class="text-center">
                     <p class="font-semibold text-xl mt-10">{{ title }}<span class="text-neutral/60 ml-2">({{ unit }})</span></p>
-                    <h1 class="mt-6 font-bold text-5xl text-primary lg:text-7xl lg:mt-10">{{ localDisplayNumber.toFixed(1) }}</h1>
+                    <CounterNumber class="mt-6 font-bold text-5xl text-primary lg:text-7xl lg:mt-10" :display-number="localDisplayNumber.toFixed(1)" :runOnce="true"/>
+                    <!-- <h1 >{{  }}</h1> -->
                     <div class="tooltip tooltip-bottom" data-tip="Change your target weight in the goals page"> 
                         <!-- TODO: Change above to non hardcoded later. -->
                         <div class="mt-1 font-medium text-sm text-neutral/60 lg:text-xl lg:mt-3">(Target: <span class="font-semibold text-primary/80"> {{ secondaryNumber }}{{ unit }}</span>)</div>
@@ -25,8 +26,12 @@
 
 <script>
 import axios from 'axios';
+import CounterNumber from '../../../components/text/CounterNumber.vue';
 export default {
     name: 'ProfileCard',
+    components: {
+        CounterNumber
+    },
     props: {
         title: String,
         displayNumber: {
