@@ -13,14 +13,14 @@
             <!-- Timer Section  -->
     <div class="flex justify-between items-start mt-4 ml-1">
     <!-- Elapsed section -->
-    <div class="flex flex-col items-start">
+    <div class="relative flex flex-col items-start w-22">
         <span class="text-xl font-semibold text-base-content/95">Elapsed</span>
         <div class="flex items-center gap-3 mt-1">
         <div class="text-lg text-neutral/85">
             {{ formatTime(timer) }}
         </div>
         <!-- Status indicator -->
-        <div class="inline-grid *:[grid-area:1/1]">
+        <div class="inline-grid *:[grid-area:1/1] absolute right-0">
             <div class="status status-error animate-ping"></div>
             <div class="status status-error"></div>
         </div>
