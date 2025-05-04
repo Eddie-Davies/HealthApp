@@ -6,7 +6,7 @@
         <!-- Member Since -->
         <p class="text-center mt-10 text-base-content/50">
             <span><i class="fa-solid fa-trophy mr-1"></i></span>
-            Member since 20/05/2025
+            Member since {{ memberSince }}
         </p>
 
         <!-- Main Card Layout -->
@@ -57,7 +57,8 @@ export default {
         return {
             calories: 0,
             exercise: 50, // temporary value,
-            dob: 0 // change to null instead after implementing the rest.
+            dob: 0, // change to null instead after implementing the rest.
+            memberSince: '04/05/2025' // default to date this was implemented instead of 00/00/0000.
 
         }
     },
@@ -77,6 +78,14 @@ export default {
 
         } catch (err) {
             console.error('Error fetching date of birth:', err.response?.data);
+        }
+
+        try {
+            const res = await axios.get('/join-date'); // temporarily returns age instead.
+            this.memberSince = res.data.joinDate;
+
+        } catch (err) {
+            console.error('Error fetching join-date:', err.response?.data);
         }
     },
     computed: {

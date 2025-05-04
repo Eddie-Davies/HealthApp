@@ -825,6 +825,18 @@ app.get('/dob', authenticateToken, async(req, res) => {
 
 });
 
+app.get('/join-date', authenticateToken, async (req, res) => {
+    const user = await UserModel.findOne({ email: req.user.email });
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    const date = new Date(user.accountCreationDate);
+    const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+
+    res.json({ joinDate: formattedDate });
+});
+
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;
