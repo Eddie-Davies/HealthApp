@@ -9,7 +9,7 @@
 
     <!-- Food List -->
     <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
-      <h3 class = "font-bold">Food</h3>
+      <h3 class="font-bold">Food</h3>
       <div v-for="(food, index) in foodOnly" :key="index" class="food-item">
         <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
         <span>
@@ -21,7 +21,7 @@
 
     <!-- Drink List -->
     <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
-      <h3 class = "font-bold">Drinks</h3>
+      <h3 class="font-bold">Drinks</h3>
       <div v-for="(drink, index) in drinkOnly" :key="index" class="drink-item">
         <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
         <span>
@@ -36,6 +36,18 @@
     <button class="btn m-3 btn-outline" @click="cancelEdit">Cancel</button>
 
   </div>
+
+  <div v-if="showDeleteModal" class="fixed inset-0 backdrop-blur flex justify-center items-center z-50">
+    <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
+      <p>Are you sure you want to delete this meal?</p>
+      <div class="flex justify-end mt-6">
+        <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
+        <button class="btn btn-error" @click="confirmDelete">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -48,7 +60,8 @@ export default {
       mealName: '',
       foodItems: [],
       mealId: this.$route.params.id,
-      isLoaded: false
+      isLoaded: false,
+      showDeleteModal: false
     };
   },
   computed: {
@@ -171,13 +184,17 @@ export default {
       }
     },
     async deleteMeal() {
-      if (!confirm('Are you sure you want to delete this meal?')) return;
+      this.showDeleteModal = true;
+    },
+    async confirmDelete() {
       try {
         await axios.delete(`/meals/${this.mealId}`);
         localStorage.removeItem(this.storageKey);
         this.$router.push('/home/diet');
       } catch (err) {
         console.error('Error deleting meal:', err.response?.data || err);
+      } finally {
+        this.showDeleteModal = false;
       }
     }
   },
