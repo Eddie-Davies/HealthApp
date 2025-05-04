@@ -12,7 +12,12 @@
         <!-- Main Card Layout -->
         <div class="mt-10 grid justify-items-center space-y-6">
             <!-- Top Centered Card -->
-            <ProfileCard />
+            <ProfileCard
+                title="Current Weight"
+                :displayNumber="weight"
+                :secondaryNumber="targetWeight"
+                unit="kg"
+                />
             <!-- Two Side-by-Side Cards -->
             <div class="grid grid-cols-2 gap-6">
                 <ProfileCardSmall
@@ -55,6 +60,8 @@ export default {
     },
     data(){
         return {
+            weight: 0,
+            targetWeight: 0,
             calories: 0,
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
@@ -86,6 +93,15 @@ export default {
 
         } catch (err) {
             console.error('Error fetching join-date:', err.response?.data);
+        }
+
+        try {
+            const res = await axios.get('/weights');
+            this.weight = res.data.weight
+            this.targetWeight = res.data.targetWeight
+            // console.log(this.weight, this.targetWeight)
+        } catch (err) {
+            console.error('Error fetching weight(s):', err.response?.data);
         }
     },
     computed: {

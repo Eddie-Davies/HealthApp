@@ -825,6 +825,7 @@ app.get('/dob', authenticateToken, async(req, res) => {
 
 });
 
+// GET ACCOUNT CREATION DATE
 app.get('/join-date', authenticateToken, async (req, res) => {
     const user = await UserModel.findOne({ email: req.user.email });
     if (!user) {
@@ -836,6 +837,19 @@ app.get('/join-date', authenticateToken, async (req, res) => {
 
     res.json({ joinDate: formattedDate });
 });
+
+
+app.get('/weights', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ weight: user.weight, targetWeight: user.targetWeight });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching weights', error: err });
+}});
 
 // Start the server
 app.listen(port, '0.0.0.0', () => {
