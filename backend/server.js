@@ -714,6 +714,15 @@ app.put('/meals/update/:id', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        if (!updatedMeal.mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof updatedMeal.mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (updatedMeal.mealName.length < 1 || updatedMeal.mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
+        }
 
         // Find the meal in the user's meals by id
         const mealIndex = user.meals.findIndex(meal => meal._id.toString() === mealId);
