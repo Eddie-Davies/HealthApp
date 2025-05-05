@@ -330,6 +330,158 @@ app.get('/groupsPage', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+  app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groups
+        user.groups = user.groups.filter(group => group.toString() !== groupId);
+        await user.save();
+
+        // Remove the user from the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $pull: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully left the group' });
+    } catch (error) {
+        console.error('Error leaving group:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add the group to the user's groups
+        user.groups.push(groupId);
+        await user.save();
+
+        // Add the user to the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $addToSet: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully joined the group' });
+    } catch (error) {
+        console.error('Error joining group:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+);
+
+app.get('/groupInvites', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email }).populate({
+        path: 'groupInvites',
+        populate: { path: 'membersByID', select: 'username' }
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.json({ invites: user.groupInvites });
+    } catch (error) {
+      console.error('Error fetching group invites:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });  
+  
+
+app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+        const newMemberEmail = req.body.newMemberEmail;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the new member by email
+        const newMember = await UserModel.findOne({ email: newMemberEmail });
+
+        if (!newMember) {
+            return res.status(404).json({ message: 'New member not found' });
+        }
+
+        // Add the new member to the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $addToSet: { membersByID: newMember._id } }
+        );
+
+        // Notify the new member via email
+        const group = await GroupModel.findById(groupId);
+        const groupName = group ? group.name : 'a group';
+
+        try {
+            await transporter.sendMail({
+                from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
+                to: newMemberEmail,
+                subject: "You've been invited to join a group!",
+                text: `Hello ${newMember.first_name},\n\nYou have been invited to join the group "${groupName}".\n\nBest regards,\nThe Blossom Dev Team`
+            });
+        } catch (emailError) {
+            console.error('Error sending invitation email:', emailError);
+            return res.status(500).json({ message: 'Error sending invitation email' });
+        }
+
+        res.status(200).json({ message: 'New member added successfully and notified via email' });
+    } catch (error) {
+        console.error('Error adding new member:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('groupsPage/deleteGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Check if the group has only one member
+        if (group.membersByID.length > 1) {
+            return res.status(400).json({ message: 'Group can only be deleted if there is one member left.' });
+        }
+
+        // Remove the group from the user's groups
+        user.groups = user.groups.filter(group => group.toString() !== groupId);
+        await user.save();
+
+        // Delete the group from the database
+        await GroupModel.findByIdAndDelete(groupId);
+
+        res.status(200).json({ message: 'Group deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting group:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
   
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
