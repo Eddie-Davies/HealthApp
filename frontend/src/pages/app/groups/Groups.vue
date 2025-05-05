@@ -47,7 +47,8 @@ export default {
         { name: 'Work Team', members: ['John D', 'Sarah M', 'Mike T'], goal: 'Q3 Objectives' },
         { name: 'Gym Buddies', members: ['Alex R', 'Jamie K'] }
       ],
-      
+      members: [],
+      goals : []
     };
   },
   methods: {
