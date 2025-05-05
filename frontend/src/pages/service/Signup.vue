@@ -30,7 +30,7 @@
 
               <label class="fieldset-label">Username</label>
               <input v-model="username" @input="validateField('username')" type="text" required placeholder="Username"
-                minlength="4" pattern="[a-zA-Z0-9]{4,16}$" class="input validator w-full" />
+                minlength="4" pattern="^[a-zA-Z0-9]{4,16}$" class="input validator w-full" />
               <div v-if="errors.username" class="validator-hint">{{ errors.username }}</div>
 
               <label class="fieldset-label">Email</label>
@@ -94,11 +94,8 @@
 </template>
 
 
-
-
 <script>
 import axios from 'axios';
-
 export default {
   name: 'Signup',
   data() {
@@ -108,7 +105,7 @@ export default {
       email: '',
       username: '',
       password: '',
-      errorMessage: '', // Store error message
+      errorMessage: '',
 
       errors: {
         first_name: null,
@@ -157,9 +154,9 @@ export default {
       if (field === "username") {
         if (!this.username.match(/^[a-zA-Z0-9]{4,16}$/)) {
           this.errors.username = "Username must be 4–16 characters and contain only letters and numbers.";
+        } else {
+          this.errors.username = null;
         }
-      } else {
-        this.errors.username = null;
       }
     },
 

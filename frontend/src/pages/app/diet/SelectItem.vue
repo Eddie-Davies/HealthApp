@@ -28,7 +28,8 @@
     </div>
   </div>
 
-  <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+  <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
+    class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
     <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
       <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
       <p>Are you sure you want to delete this item?</p>
@@ -42,6 +43,7 @@
 
 <script>
 import axios from 'axios';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 export default {
   name: 'SelectItem',
   props: ['type', 'mealId'],
@@ -72,7 +74,7 @@ export default {
 
   methods: {
     selectItem(item) {
-      const returnPath = this.$route.path.split('/select')[0]; // go back to EditMeal.vue path
+      const returnPath = this.$route.path.split('/select')[0];
       this.$router.push({
         path: returnPath,
         query: {
@@ -96,13 +98,17 @@ export default {
         isDrink: this.type === 'drink',
       };
       try {
-        const res = await axios.post('/food', newEntry);
-        this.items.push(res.data);
+        await axios.post('/food', newEntry);
+        await this.fetchItems();
         this.newItem.name = '';
         this.newItem.calories = '';
       } catch (err) {
         console.error('Error adding food item:', err.response?.data || err.message);
-        console.log('Sending food:', newEntry);
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
       }
     },
     async deleteItem(id) {
@@ -119,15 +125,18 @@ export default {
         this.showDeleteModal = false;
         this.itemToDeleteId = null;
       }
+    },
+    async fetchItems() {
+      try {
+        const res = await axios.get('/foods');
+        this.items = res.data.foods.filter(food => food.isDrink === (this.type === 'drink'));
+      } catch (err) {
+        console.error('Error fetching food list:', err.response?.data || err.message);
+      }
     }
   },
   async mounted() {
-    try {
-      const res = await axios.get('/foods');
-      this.items = res.data.foods.filter(food => food.isDrink === (this.type === 'drink'));
-    } catch (err) {
-      console.error('Error fetching food list:', err.response?.data || err.message);
-    }
+    await this.fetchItems();
     this.isLoaded = true;
   }
 };

@@ -970,7 +970,16 @@ app.post('/meals', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        if (!mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (mealName.length < 1 || mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
+        }
+        
         const newMeal = { mealName, foods, date };
         user.meals.push(newMeal);
         await user.save();
@@ -993,6 +1002,15 @@ app.put('/meals/update/:id', authenticateToken, async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+        if (!updatedMeal.mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof updatedMeal.mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (updatedMeal.mealName.length < 1 || updatedMeal.mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
         }
 
         // Find the meal in the user's meals by id
@@ -1055,14 +1073,21 @@ app.get('/foods', authenticateToken, async (req, res) => {
 app.post('/food', authenticateToken, async (req, res) => {
     const { name, calories, isDrink } = req.body;
 
-    if (
-        typeof name !== 'string' || name.trim() === '' ||
-        typeof calories !== 'number' || calories < 0 ||
-        typeof isDrink !== 'boolean'
-    ) {
-        return res.status(400).json({ message: 'Invalid or missing required fields' });
+    if (!name) {
+        return res.status(400).json({ message: 'Food name required' });
     }
-
+    if (typeof name !== 'string') {
+        return res.status(400).json({ message: 'Food name must be a string' });
+    }
+    if (name.length < 1 || name.length > 30) {
+        return res.status(400).json({ message: 'Food name must be between 1 and 30 characters long.' });
+    }
+    if (typeof calories !== 'number' || calories < 0) {
+        return res.status(400).json({ message: 'calories must be a number' });
+    }
+    if (typeof isDrink !== 'boolean') {
+        return res.status(400).json({ message: 'isDrink name must be a boolean' });
+    }
     try {
         const user = await UserModel.findOne({ email: req.user.email });
 
