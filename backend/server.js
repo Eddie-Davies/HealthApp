@@ -481,7 +481,56 @@ app.put('/groupsPage/deleteGroup', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-  
+
+app.put('/groupsPage/acceptInvite', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groupInvites
+        user.groupInvites = user.groupInvites.filter(invite => invite.toString() !== groupId);
+        await user.save();
+
+        // Add the group to the user's groups
+        user.groups.push(groupId);
+        await user.save();
+
+        // Add the user to the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $addToSet: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully accepted the group invite' });
+    } catch (error) {
+        console.error('Error accepting group invite:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/declineInvite', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groupInvites
+        user.groupInvites = user.groupInvites.filter(invite => invite.toString() !== groupId);
+        await user.save();
+
+        res.status(200).json({ message: 'Successfully declined the group invite' });
+    } catch (error) {
+        console.error('Error declining group invite:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {

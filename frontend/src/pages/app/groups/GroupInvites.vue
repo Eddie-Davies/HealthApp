@@ -15,11 +15,11 @@
             </p>
           </div>
           <div class="flex justify-center gap-4">
-            <button class="btn btn-success btn-sm w-24" @click="logAccept(invite._id)">
-              Accept
+            <button class="btn btn-success btn-sm w-24" @click="acceptInvite(invite._id)">
+            Accept
             </button>
-            <button class="btn btn-error btn-sm w-24" @click="logDeny(invite._id)">
-              Deny
+            <button class="btn btn-error btn-sm w-24" @click="denyInvite(invite._id)">
+            Deny
             </button>
           </div>
         </div>
@@ -32,22 +32,44 @@
   </template>
   
   <script>
-  export default {
-    name: 'GroupInvites',
-    props: {
-      invites: {
-        type: Array,
-        default: () => []
+import axios from 'axios';
+
+export default {
+  name: 'GroupInvites',
+  props: {
+    invites: {
+      type: Array,
+      default: () => []
+    }
+  },
+  emits: ['accepted', 'denied'],
+  methods: {
+    async acceptInvite(groupId) {
+      try {
+        const res = await axios.put('/groupsPage/acceptInvite', {
+          groupId
+        });
+        console.log('✅ Accepted:', res.data.message);
+        this.$emit('accepted', groupId);
+        window.location.reload();
+      } catch (err) {
+        console.error('❌ Error accepting invite:', err.response?.data?.message || err.message);
       }
     },
-    methods: {
-      logAccept(groupId) {
-        console.log(`✅ Accept clicked for group ID: ${groupId}`);
-      },
-      logDeny(groupId) {
-        console.log(`❌ Deny clicked for group ID: ${groupId}`);
+    async denyInvite(groupId) {
+      try {
+        const res = await axios.put('/groupsPage/declineInvite', {
+          groupId
+        });
+        console.log('❌ Denied:', res.data.message);
+        this.$emit('denied', groupId);
+        window.location.reload();
+      } catch (err) {
+        console.error('❌ Error denying invite:', err.response?.data?.message || err.message);
       }
     }
-  };
-  </script>
+  }
+};
+</script>
+
   
