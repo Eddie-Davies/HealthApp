@@ -141,9 +141,9 @@ app.get('/user', authenticateToken, async (req, res) => {
 });
 
 // Test route
-app.get('/', (req, res) => {
-    res.send('<h1>Testing index from the backend!</h1>');
-});
+// app.get('/', (req, res) => {
+//     res.send('<h1>Testing index from the backend!</h1>');
+// });
 
 app.post('/signup', async (req, res) => {
     try {
