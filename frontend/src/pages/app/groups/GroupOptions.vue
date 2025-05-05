@@ -3,9 +3,9 @@
     <div class="bg-base-200 p-6 rounded-xl w-80">
       <h2 class="text-lg font-semibold mb-4 text-center">{{ groupName }}</h2>
       <div class="flex flex-col items-center">
-        <button class="btn btn-ghost mb-2" @click="goToMembers">Members</button>
-        <button class="btn btn-ghost mb-2" @click="updateGroupInfo">Goals</button>
-        <button class="btn btn-ghost mb-2" @click="$emit('cancel')">Leave</button>
+        <button class="btn btn-sm btn-primary" @click="goToMembers">Members</button>
+        <button class="btn btn-sm" @click="updateGroupInfo">Goals</button>
+        <button class="btn btn-sm" @click="leaveGroup">Leave Group</button>
       </div>
     </div>
   </div>
@@ -23,6 +23,9 @@ export default {
   methods: {
     goToMembers() {
       this.$emit('view-members');
+    },
+    leaveGroup(){
+        
     }
   }
 }

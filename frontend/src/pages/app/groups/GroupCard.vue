@@ -4,17 +4,8 @@
       <div class="flex justify-between items-center">
         <h1 class="text-lg font-semibold text-neutral/80">{{ familyName }}</h1>
         <div class="flex items-center text-sm text-neutral-400 gap-1">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            class="h-5 w-5" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
-            stroke-width="2"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M12 12a4 4 0 100-8 4 4 0 000 8z" />
-          </svg>
-          <span>{{ members.length }} members</span>
+          <i class="mr-1 fa-solid fa-flag"></i>
+          <span>{{ goalsCount }} Goals</span>
         </div>
       </div>
   
@@ -22,8 +13,8 @@
       <div class="flex justify-between items-start gap-4">
         <!-- Goals -->
         <div>
-          <h2 class="text-md font-medium text-neutral-500 mb-1">Goals</h2>
-          <div class="text-neutral-400">{{ goalsCount }}</div>
+          <h2 class="text-md font-medium text-neutral-500 mb-1">No.</h2>
+          <div class="text-neutral-400">{{ members.length }}</div>
         </div>
   
         <!-- Members List -->
@@ -90,7 +81,7 @@
       },
       goalsCount: {
         type: Number,
-        default: 4
+        default: 2
       },
       members: {
         type: Array,
