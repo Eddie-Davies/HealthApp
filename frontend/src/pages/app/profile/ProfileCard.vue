@@ -50,14 +50,14 @@ export default {
         }
     },
     mounted() {
-        console.log("Display Number", this.displayNumber);
+        // console.log("Display Number", this.displayNumber);
         this.localDisplayNumber = this.displayNumber;
     },
     watch: {
         displayNumber: {
             immediate: true,
             handler(newValue) {
-                console.log("Display Number changed:", newValue);
+                // console.log("Display Number changed:", newValue);
                 this.localDisplayNumber = newValue;
             }
         }
