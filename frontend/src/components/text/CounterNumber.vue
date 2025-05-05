@@ -13,7 +13,7 @@ export default {
   name: 'CounterNumber',
   props: {
     displayNumber: {
-      type: Number,
+      type: [Number, String],
       required: true
     },
     counterId: {
