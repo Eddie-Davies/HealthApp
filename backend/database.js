@@ -56,10 +56,10 @@ const GoalSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    age: { type: Number, required: false },
+    date_of_birth: { type: Date},
     email: { type: String, unique: true, required: true },
     username: { type: String, unique: true, required: true },
-    password_hash: { type: String, required: true }, // Added password field
+    password_hash: { type: String, required: true },
     firstLogin: { type: Boolean, default: true },
     gender: Boolean,
     weight: Number,
@@ -71,6 +71,7 @@ const UserSchema = new mongoose.Schema({
     foods: [FoodSchema],
     exercise: [ExerciseSchema],
     goals: [GoalSchema],
+    accountCreationDate: {type: Date, required: true, default: Date.now},
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
 

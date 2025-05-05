@@ -289,7 +289,7 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log(`Incoming request to /login: username: ${ username }`);
+        console.log(`Incoming request to /login: username: ${username}`);
 
         // Check if user exists
         const user = await UserModel.findOne({ username });
@@ -322,7 +322,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         const userId = req.user.id;
 
         const {
-            age,
+            date_of_birth,
             gender,
             weight,
             height,
@@ -332,7 +332,13 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
 
         const errors = [];
 
-        if (!age || age < 0 || age > 120) errors.push("Invalid age.");
+        if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
+            errors.push("Invalid date of birth.");
+        } else {
+            const age = new Date().getFullYear() - new Date(date_of_birth).getFullYear();
+            if (age < 0 || age > 120) errors.push("Date of birth results in invalid age.");
+        }
+
         if (typeof gender !== "boolean") errors.push("Gender must be a boolean.");
         if (!weight || weight < 0) errors.push("Invalid weight.");
         if (!height || height < 0) errors.push("Invalid height.");
@@ -346,7 +352,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         const updatedUser = await UserModel.findByIdAndUpdate(
             userId,
             {
-                age,
+                date_of_birth: new Date(date_of_birth),
                 gender,
                 weight,
                 height,
@@ -676,6 +682,52 @@ app.get('/meals', authenticateToken, async (req, res) => {
     }
 });
 
+// Get recent calories (last 24hrs)
+app.get('/recent-calories', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const now = new Date();
+        const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+
+        let recentCalories = 0;
+
+        for (const meal of user.meals) {
+            // Check if the meal is from the last 24 hours
+            const mealDate = new Date(meal.date);
+            const isMealRecent = mealDate >= twentyFourHoursAgo;
+
+            // If the meal is NOT recent, go to next meal
+            if (!isMealRecent) {
+                continue;
+            }
+            
+            // Work out calories for this meal
+            let caloriesInThisMeal = 0;
+            // Sum all calories from each food in meal
+            const foodsInMeal = meal.foods || [];
+            for (const food of foodsInMeal) {
+                const foodCalories = food.calories || 0;
+                caloriesInThisMeal += foodCalories;
+            }
+            
+            recentCalories += caloriesInThisMeal;
+        }
+        res.status(200).json(recentCalories);
+    } catch (error) {
+        console.error('Error fetching recent calories:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
     try {
@@ -832,6 +884,65 @@ app.delete('/food/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
+app.get('/dob', authenticateToken, async(req, res) => {
+    const user = await UserModel.findOne({ email: req.user.email });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user.age);
+
+});
+
+// GET ACCOUNT CREATION DATE
+app.get('/join-date', authenticateToken, async (req, res) => {
+    const user = await UserModel.findOne({ email: req.user.email });
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    const date = new Date(user.accountCreationDate);
+    const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+
+    res.json({ joinDate: formattedDate });
+});
+
+
+app.get('/weights', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ weight: user.weight, targetWeight: user.targetWeight });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching weights', error: err });
+}});
+
+app.post('/weight', authenticateToken, async (req, res) => {
+    try {
+        const { value } = req.body;
+
+        if (typeof value !== 'number') {
+            return res.status(400).json({ message: 'Invalid weight value' });
+        }
+
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.weight = value;
+        await user.save();
+
+        res.status(200).json({ message: 'Weight updated successfully', weight: user.weight });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating weight', error: err });
+    }
+});
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;
