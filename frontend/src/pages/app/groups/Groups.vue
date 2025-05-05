@@ -14,6 +14,7 @@
             v-for="(group, index) in groups"
             :key="index"
             :groupName="group.name"
+            :groupId="group._id"
             :members="group.membersByID.map(m => m.username)"
             :goalsCount="group.goals?.length || 0"
           />
