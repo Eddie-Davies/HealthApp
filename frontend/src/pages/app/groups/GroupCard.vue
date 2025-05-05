@@ -2,10 +2,10 @@
     <div class="card bg-base-300 rounded-box p-4 flex flex-col gap-3">
       <!-- Top Row: Family Name and Members Count -->
       <div class="flex justify-between items-center">
-        <h1 class="text-lg font-semibold text-neutral/80">{{ familyName }}</h1>
+        <h1 class="text-lg font-semibold text-neutral/80">{{ groupName }}</h1>
         <div class="flex items-center text-sm text-neutral-400 gap-1">
           <i class="mr-1 fa-solid fa-flag"></i>
-          <span>{{ goalsCount }} Goals</span>
+          <span>{{ goalsCount }} Goals </span>
         </div>
       </div>
   
@@ -21,8 +21,12 @@
         <div class="flex-1">
           <h2 class="text-md font-medium text-neutral-500 mb-1">Members</h2>
           <div class="flex flex-wrap gap-x-4 gap-y-1 text-neutral">
-            <span v-for="(member, idx) in members" :key="idx" class="whitespace-nowrap">
-              {{ member }}
+            <span
+              v-for="(member, idx) in members"
+              :key="idx"
+              class="whitespace-nowrap"
+            >
+              {{ member.first_name }} {{ member.last_name }}
             </span>
           </div>
         </div>
@@ -38,14 +42,14 @@
 
     <GroupOptions
     v-if="showOptions"
-    :groupName="familyName"
+    :groupName="groupName"
     @cancel="showOptions = false"
     @view-members="showMembers = true; showOptions = false"
   />
 
   <MemberManagement
       v-if="showMembers"
-      :groupName="familyName"
+      :groupName="groupName"
       :members="members"
       @go-back="showMembers = false, showOptions = true;"
     />
@@ -75,9 +79,9 @@
       MemberManagement
     },
     props: {
-      familyName: {
+      groupName: {
         type: String,
-        default: 'The Family'
+        default: ''
       },
       goalsCount: {
         type: Number,
@@ -85,9 +89,13 @@
       },
       members: {
         type: Array,
-        default: () => ['Light Y', 'Misa A', 'Ryuk S', 'Misa A']
+        default: () => ['']
       }
     },
-    
+    methods: {
+      goToOptionsPage() {
+        this.showOptions = true;
+      }
+    }
   }
   </script>

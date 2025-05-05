@@ -12,9 +12,9 @@
       <FamilyCard
         v-for="(group, index) in groups"
         :key="index"
-        :family-name="group.name"
-        :members="group.members"
-        :goals-title="group.goal || 'Goals'"
+        :groupName="group.name"
+        :members="group.members.map(m => `${m.first_name} ${m.last_name}`)"
+        :goalsCount="group.goals?.length || 0"
       />
     </div>
 
