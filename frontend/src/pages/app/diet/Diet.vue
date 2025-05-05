@@ -49,12 +49,12 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-        this.meals = res.data.meals;
+
+        this.meals = res.data.meals.sort((a, b) => new Date(b.date) - new Date(a.date));
       } catch (err) {
         console.error('Error fetching meals:', err);
       }
     }
-
   },
   async mounted() {
     await this.fetchMeals();

@@ -7,6 +7,7 @@ const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const defaultFoods = require('./defaultFoods');
 require('dotenv').config({ path: __dirname + '/../.env' });
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
@@ -197,7 +198,9 @@ app.post('/signup', async (req, res) => {
         // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        user = { first_name, last_name, username, email, password_hash: hashedPassword } // password: hashedpassword keeps the correct label.
+
+        user = { first_name, last_name, username, email, password_hash: hashedPassword, foods: defaultFoods} // password: hashedpassword keeps the correct label.
+
         const newUser = await UserModel.create(user);
 
         console.log(`User (${email}) added to database.`);
@@ -763,8 +766,12 @@ app.get('/foods', authenticateToken, async (req, res) => {
 app.post('/food', authenticateToken, async (req, res) => {
     const { name, calories, isDrink } = req.body;
 
-    if (!name || calories === undefined || isDrink === undefined) {
-        return res.status(400).json({ message: 'Missing required fields' });
+    if (
+        typeof name !== 'string' || name.trim() === '' ||
+        typeof calories !== 'number' || calories < 0 ||
+        typeof isDrink !== 'boolean'
+    ) {
+        return res.status(400).json({ message: 'Invalid or missing required fields' });
     }
 
     try {

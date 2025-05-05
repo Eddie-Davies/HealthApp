@@ -1,11 +1,9 @@
 <template>
-  <div class="p-4 space-y-4">
+  <div v-if="isLoaded" class="p-4 space-y-4">
     <h1 class="text-2xl font-semibold">Select {{ capitalizedType }}</h1>
 
-    <!-- Search -->
     <input v-model="searchQuery" type="text" placeholder="Search..." class="input input-bordered w-full" />
 
-    <!-- List -->
     <div class="divide-y border rounded mt-2">
       <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4"
         data-tip="Fill out a new food item below :)">
@@ -16,13 +14,10 @@
         <div @click="selectItem(item)" class="flex-1 cursor-pointer">
           <span>{{ item.name }}</span> <span>{{ item.calories }} kcal</span>
         </div>
-        <button class="btn btn-sm btn-error ml-2" @click.stop="deleteItem(item._id)">Delete</button>
+        <button class="btn btn-sm btn-error ml-2 p-3" @click.stop="deleteItem(item._id)">Delete</button>
       </div>
     </div>
 
-
-
-    <!-- Add New -->
     <div class="mt-6 border-t pt-4">
       <h2 class="font-semibold mb-2">Add new {{ capitalizedType }}:</h2>
       <input v-model="newItem.name" placeholder="Name" class="input input-bordered w-full mb-2" />
@@ -32,13 +27,24 @@
       </button>
     </div>
   </div>
+
+  <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+    <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
+      <p>Are you sure you want to delete this item?</p>
+      <div class="flex justify-end mt-6">
+        <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
+        <button class="btn btn-error" @click="confirmDelete">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
 export default {
   name: 'SelectItem',
-  props: ['type'],
+  props: ['type', 'mealId'],
   data() {
     return {
       searchQuery: '',
@@ -46,7 +52,10 @@ export default {
         name: '',
         calories: '',
       },
-      items: []
+      items: [],
+      isLoaded: false,
+      showDeleteModal: false,
+      itemToDeleteId: null
     };
   },
 
@@ -74,7 +83,11 @@ export default {
       });
     },
     async addItem() {
-      if (!this.newItem.name || !this.newItem.calories) return;
+      if (
+        !this.newItem.name ||
+        this.newItem.calories === '' ||
+        this.newItem.calories === null
+      ) return;
 
       const parsedCalories = parseInt(this.newItem.calories);
       const newEntry = {
@@ -93,12 +106,18 @@ export default {
       }
     },
     async deleteItem(id) {
-      if (!confirm('Are you sure you want to delete this item?')) return;
+      this.itemToDeleteId = id;
+      this.showDeleteModal = true;
+    },
+    async confirmDelete() {
       try {
-        await axios.delete(`/food/${id}`);
-        this.items = this.items.filter(item => item._id !== id);
+        await axios.delete(`/food/${this.itemToDeleteId}`);
+        this.items = this.items.filter(item => item._id !== this.itemToDeleteId);
       } catch (err) {
         console.error('Error deleting item:', err.response?.data || err.message);
+      } finally {
+        this.showDeleteModal = false;
+        this.itemToDeleteId = null;
       }
     }
   },
@@ -109,6 +128,7 @@ export default {
     } catch (err) {
       console.error('Error fetching food list:', err.response?.data || err.message);
     }
+    this.isLoaded = true;
   }
 };
 </script>

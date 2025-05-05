@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoaded" class="flex flex-col items-center justify-center">
+  <div v-if="isLoaded" class="flex flex-col items-center justify-center px-4 pb-16 w-full max-w-md mx-auto">
     <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
       class="input input-ghost text-xl font-semibold" />
 
@@ -7,34 +7,45 @@
       Total Calories: {{ totalCalories }} kcal
     </div>
 
-    <!-- Food List -->
-    <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
-      <h3>Food</h3>
+    <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
+      <h3 class="font-bold">Food</h3>
       <div v-for="(food, index) in foodOnly" :key="index" class="food-item">
         <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
         <span>
-          <button class="btn" @click="deleteItem(index)">Delete</button>
+          <button class="btn btn-error m-3" @click="deleteItem(index)">Delete</button>
         </span>
       </div>
-      <button class="btn btn-md" @click="goToSelect('food')">Add Food</button>
+      <button class="btn btn-md m-3" @click="goToSelect('food')">Add Food</button>
     </div>
 
-    <!-- Drink List -->
-    <div class="bg-base-200 p-6 rounded-xl w-80 mt-8">
-      <h3>Drinks</h3>
+    <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
+      <h3 class="font-bold">Drinks</h3>
       <div v-for="(drink, index) in drinkOnly" :key="index" class="drink-item">
         <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
         <span>
-          <button class="btn" @click="deleteItem(index, true)">Delete</button>
+          <button class="btn btn-error m-3" @click="deleteItem(index, true)">Delete</button>
         </span>
       </div>
-      <button class="btn btn-md" @click="goToSelect('drink')">Add Drink</button>
+      <button class="btn btn-md m-3" @click="goToSelect('drink')">Add Drink</button>
     </div>
 
-    <button class="btn mt-8 btn-success" @click="saveMeal">Save Meal</button>
-    <button v-if="!isNew" class="btn mt-4 btn-error" @click="deleteMeal">Delete Meal</button>
+    <button class="btn mt-8 btn-success m-3" @click="saveMeal">Save Meal</button>
+    <button v-if="!isNew" class="btn m-3 btn-error" @click="deleteMeal">Delete Meal</button>
+    <button class="btn m-3 btn-outline" @click="cancelEdit">Cancel</button>
 
   </div>
+
+  <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+    <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
+      <p>Are you sure you want to delete this meal?</p>
+      <div class="flex justify-end mt-6">
+        <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
+        <button class="btn btn-error" @click="confirmDelete">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -47,7 +58,8 @@ export default {
       mealName: '',
       foodItems: [],
       mealId: this.$route.params.id,
-      isLoaded: false
+      isLoaded: false,
+      showDeleteModal: false
     };
   },
   computed: {
@@ -73,9 +85,7 @@ export default {
     if (tempMeal) {
       this.mealName = tempMeal.name || '';
       this.foodItems = tempMeal.foodItems || [];
-    }
-
-    if (!this.isNew) {
+    } else if (!this.isNew) {
       try {
         const res = await axios.get(`/meals/${this.mealId}`);
         const meal = res.data.meal;
@@ -87,6 +97,16 @@ export default {
       }
     }
 
+    if (!this.mealName) {
+      const hour = new Date().getHours();
+      if (hour < 11) {
+        this.mealName = 'Breakfast';
+      } else if (hour < 16) {
+        this.mealName = 'Lunch';
+      } else {
+        this.mealName = 'Dinner';
+      }
+    }
 
     const { name, calories, type } = this.$route.query;
     if (name && calories && type) {
@@ -121,6 +141,12 @@ export default {
         path: `/home/diet/${this.mealId || 'new'}/select/${type}`,
       });
     },
+
+    cancelEdit() {
+      localStorage.removeItem(this.storageKey);
+      this.$router.push('/home/diet');
+    },
+
     deleteItem(index, isDrink = false) {
       const list = isDrink ? this.drinkOnly : this.foodOnly;
       const item = list[index];
@@ -129,7 +155,7 @@ export default {
       );
       if (actualIndex !== -1) this.foodItems.splice(actualIndex, 1);
       localStorage.setItem(
-        'tempMeal',
+        this.st,
         JSON.stringify({
           name: this.mealName,
           foodItems: this.foodItems,
@@ -154,13 +180,17 @@ export default {
       }
     },
     async deleteMeal() {
-      if (!confirm('Are you sure you want to delete this meal?')) return;
+      this.showDeleteModal = true;
+    },
+    async confirmDelete() {
       try {
         await axios.delete(`/meals/${this.mealId}`);
         localStorage.removeItem(this.storageKey);
         this.$router.push('/home/diet');
       } catch (err) {
         console.error('Error deleting meal:', err.response?.data || err);
+      } finally {
+        this.showDeleteModal = false;
       }
     }
   },
