@@ -421,7 +421,6 @@ app.get('/groupInvites', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: 'User already invited to this group' });
       }
   
-      // Add the groupId to the user's groupInvites
       await UserModel.updateOne(
         { _id: newMember._id },
         { $addToSet: { groupInvites: groupId } }
@@ -431,7 +430,7 @@ app.get('/groupInvites', authenticateToken, async (req, res) => {
       const group = await GroupModel.findById(groupId);
       const groupName = group ? group.name : 'a group';
   
-      // Send email invitation
+      // Send email inviitation
       try {
         await transporter.sendMail({
           from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
@@ -440,18 +439,18 @@ app.get('/groupInvites', authenticateToken, async (req, res) => {
           text: `Hi ${newMember.first_name},\n\nYou've been invited to join the group "${groupName}" on Blossom.\n\nLog in to accept or decline the invitation.\n\n– The Blossom Team`
         });
       } catch (emailErr) {
-        console.error('❌ Error sending invitation email:', emailErr);
+        console.error('Error sending invitation email:', emailErr);
         return res.status(500).json({ message: 'User invited, but email failed to send.' });
       }
   
       return res.status(200).json({ message: 'User successfully invited and notified via email.' });
     } catch (error) {
-      console.error('❌ Error processing invite:', error);
+      console.error('Error processing invite:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   });
 
-app.put('groupsPage/deleteGroup', authenticateToken, async (req, res) => {
+app.put('/groupsPage/deleteGroup', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
         const groupId = req.body.groupId;
@@ -471,11 +470,9 @@ app.put('groupsPage/deleteGroup', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Group can only be deleted if there is one member left.' });
         }
 
-        // Remove the group from the user's groups
         user.groups = user.groups.filter(group => group.toString() !== groupId);
         await user.save();
 
-        // Delete the group from the database
         await GroupModel.findByIdAndDelete(groupId);
 
         res.status(200).json({ message: 'Group deleted successfully' });
