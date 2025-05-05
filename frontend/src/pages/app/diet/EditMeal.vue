@@ -80,54 +80,54 @@ export default {
     }
   },
   async mounted() {
-  const tempMeal = JSON.parse(localStorage.getItem(this.storageKey));
+    const tempMeal = JSON.parse(localStorage.getItem(this.storageKey));
 
-  if (tempMeal) {
-    this.mealName = tempMeal.name || '';
-    this.foodItems = tempMeal.foodItems || [];
-  } else if (!this.isNew) {
-    try {
-      const res = await axios.get(`/meals/${this.mealId}`);
-      const meal = res.data.meal;
+    if (tempMeal) {
+      this.mealName = tempMeal.name || '';
+      this.foodItems = tempMeal.foodItems || [];
+    } else if (!this.isNew) {
+      try {
+        const res = await axios.get(`/meals/${this.mealId}`);
+        const meal = res.data.meal;
 
-      this.mealName = meal.mealName || '';
-      this.foodItems = meal.foods || [];
-    } catch (err) {
-      console.error('Failed to fetch meal by ID:', err.response?.data || err);
+        this.mealName = meal.mealName || '';
+        this.foodItems = meal.foods || [];
+      } catch (err) {
+        console.error('Failed to fetch meal by ID:', err.response?.data || err);
+      }
     }
-  }
 
-  if (!this.mealName) {
-    const hour = new Date().getHours();
-    if (hour < 11) {
-      this.mealName = 'Breakfast';
-    } else if (hour < 16) {
-      this.mealName = 'Lunch';
-    } else {
-      this.mealName = 'Dinner';
+    if (!this.mealName) {
+      const hour = new Date().getHours();
+      if (hour < 11) {
+        this.mealName = 'Breakfast';
+      } else if (hour < 16) {
+        this.mealName = 'Lunch';
+      } else {
+        this.mealName = 'Dinner';
+      }
     }
-  }
 
-  const { name, calories, type } = this.$route.query;
-  if (name && calories && type) {
-    const item = {
-      name,
-      calories: parseInt(calories),
-      isDrink: type === 'drink',
-    };
-    this.foodItems.push(item);
-    this.$router.replace({ path: this.$route.path, query: {} });
-  }
+    const { name, calories, type } = this.$route.query;
+    if (name && calories && type) {
+      const item = {
+        name,
+        calories: parseInt(calories),
+        isDrink: type === 'drink',
+      };
+      this.foodItems.push(item);
+      this.$router.replace({ path: this.$route.path, query: {} });
+    }
 
-  localStorage.setItem(
-    this.storageKey,
-    JSON.stringify({
-      name: this.mealName,
-      foodItems: this.foodItems,
-    })
-  );
-  this.isLoaded = true;
-},
+    localStorage.setItem(
+      this.storageKey,
+      JSON.stringify({
+        name: this.mealName,
+        foodItems: this.foodItems,
+      })
+    );
+    this.isLoaded = true;
+  },
   methods: {
     goToSelect(type) {
       localStorage.setItem(
