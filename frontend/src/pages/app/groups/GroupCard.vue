@@ -50,11 +50,12 @@
   />
 
   <MemberManagement
-    v-if="showMembers"
-    :groupName="groupName"
-    :members="members"
-    @go-back="showMembers = false; showOptions = true"
-  />
+  v-if="showMembers"
+  :groupName="groupName"
+  :groupId="groupId"
+  :members="members"
+  @go-back="showMembers = false; showOptions = true"
+/>
 </template>
 
 <script>

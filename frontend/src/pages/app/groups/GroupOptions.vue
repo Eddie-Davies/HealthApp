@@ -41,11 +41,11 @@ export default {
         await axios.put('/groupsPage/leaveGroup', {
           groupId: this.groupId
         });
-        console.log(`✅ Left group: ${this.groupId}`);
+        console.log(`Left group: ${this.groupId}`);
         this.$emit('cancel');
         window.location.reload();
       } catch (err) {
-        console.error('❌ Failed to leave group:', err);
+        console.error('Failed to leave group:', err);
       }
     }
   }

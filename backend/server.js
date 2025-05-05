@@ -24,7 +24,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-
 const app = express();
 const port = 8000;
 
@@ -401,53 +400,56 @@ app.get('/groupInvites', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });  
-  
 
-app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
+  app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
     try {
-        const user = await UserModel.findOne({ email: req.user.email });
-        const groupId = req.body.groupId;
-        const newMemberEmail = req.body.newMemberEmail;
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Find the new member by email
-        const newMember = await UserModel.findOne({ email: newMemberEmail });
-
-        if (!newMember) {
-            return res.status(404).json({ message: 'New member not found' });
-        }
-
-        // Add the new member to the group's membersByID
-        await GroupModel.updateOne(
-            { _id: groupId },
-            { $addToSet: { membersByID: newMember._id } }
-        );
-
-        // Notify the new member via email
-        const group = await GroupModel.findById(groupId);
-        const groupName = group ? group.name : 'a group';
-
-        try {
-            await transporter.sendMail({
-                from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
-                to: newMemberEmail,
-                subject: "You've been invited to join a group!",
-                text: `Hello ${newMember.first_name},\n\nYou have been invited to join the group "${groupName}".\n\nBest regards,\nThe Blossom Dev Team`
-            });
-        } catch (emailError) {
-            console.error('Error sending invitation email:', emailError);
-            return res.status(500).json({ message: 'Error sending invitation email' });
-        }
-
-        res.status(200).json({ message: 'New member added successfully and notified via email' });
+      const user = await UserModel.findOne({ email: req.user.email });
+      const { groupId, newMemberUsername } = req.body;
+  
+      if (!user) {
+        return res.status(404).json({ message: 'Requesting user not found' });
+      }
+  
+      const newMember = await UserModel.findOne({ username: newMemberUsername });
+  
+      if (!newMember) {
+        return res.status(404).json({ message: 'User not found by username' });
+      }
+  
+      // Check if already invited
+      if (newMember.groupInvites.includes(groupId)) {
+        return res.status(400).json({ message: 'User already invited to this group' });
+      }
+  
+      // Add the groupId to the user's groupInvites
+      await UserModel.updateOne(
+        { _id: newMember._id },
+        { $addToSet: { groupInvites: groupId } }
+      );
+  
+      // Get group name for the email
+      const group = await GroupModel.findById(groupId);
+      const groupName = group ? group.name : 'a group';
+  
+      // Send email invitation
+      try {
+        await transporter.sendMail({
+          from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
+          to: newMember.email,
+          subject: "You've been invited to join a group on Blossom!",
+          text: `Hi ${newMember.first_name},\n\nYou've been invited to join the group "${groupName}" on Blossom.\n\nLog in to accept or decline the invitation.\n\n– The Blossom Team`
+        });
+      } catch (emailErr) {
+        console.error('❌ Error sending invitation email:', emailErr);
+        return res.status(500).json({ message: 'User invited, but email failed to send.' });
+      }
+  
+      return res.status(200).json({ message: 'User successfully invited and notified via email.' });
     } catch (error) {
-        console.error('Error adding new member:', error);
-        res.status(500).json({ message: 'Internal server error' });
+      console.error('❌ Error processing invite:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
-});
+  });
 
 app.put('groupsPage/deleteGroup', authenticateToken, async (req, res) => {
     try {
