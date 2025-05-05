@@ -1,10 +1,7 @@
 <template>
   <div v-if="isLoaded" class="flex flex-col items-center justify-center px-4 pb-16 w-full max-w-md mx-auto">
-    <input type="text" v-model="mealName" class="input validator text-xl font-semibold" required pattern=".{1,30}"
-      minlength="1" maxlength="30" placeholder="Meal Name" title="Meal name must be between 1 and 30 characters" />
-    <p class="validator-hint">
-      Must be between 1 and 30 characters long
-    </p>
+    <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
+      class="input input-ghost text-xl font-semibold" />
 
     <div class="mt-8">
       Total Calories: {{ totalCalories }} kcal
