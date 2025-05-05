@@ -433,11 +433,23 @@ app.get('/groupInvites', authenticateToken, async (req, res) => {
       // Send email inviitation
       try {
         await transporter.sendMail({
-          from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
-          to: newMember.email,
-          subject: "You've been invited to join a group on Blossom!",
-          text: `Hi ${newMember.first_name},\n\nYou've been invited to join the group "${groupName}" on Blossom.\n\nLog in to accept or decline the invitation.\n\n– The Blossom Team`
-        });
+            from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
+            to: newMember.email,
+            subject: "You've been invited to join a group on Blossom!",
+            text: `Hi ${newMember.first_name},
+          
+          You've been invited to join the group "${groupName}" on Blossom.
+          
+          Log in to accept or decline the invitation.
+          
+          – The Blossom Team`,
+            html: `
+              <p>Hi ${newMember.first_name},</p>
+              <p>You've been invited to join the group <strong>"${groupName}"</strong> on Blossom.</p>
+              <p><a href="http://localhost:3000/home/groups" target="_blank">Log in to accept or decline the invitation.</a></p>
+              <p>– The Blossom Team</p>
+            `
+          });
       } catch (emailErr) {
         console.error('Error sending invitation email:', emailErr);
         return res.status(500).json({ message: 'User invited, but email failed to send.' });
@@ -572,88 +584,97 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 // CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(groupId)) {
-            return res.status(400).json({ message: 'Invalid group ID format.' });
+      const { groupId } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(groupId)) {
+        return res.status(400).json({ message: 'Invalid group ID format.' });
+      }
+  
+      const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
+      const user = await UserModel.findOne({ email: req.user.email });
+      const createdBy = user._id;
+  
+      if (!description || typeof description !== 'string' || description.length < 1 || description.length > 60) {
+        return res.status(400).json({ message: 'Description must be a string between 1 and 60 characters.' });
+      }
+      if (target == null || unit == null || typeof sport !== 'boolean' || !date) {
+        return res.status(400).json({ message: 'Missing required goal fields.' });
+      }
+  
+      const group = await GroupModel.findById(groupId);
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+      }
+  
+      const newGoal = {
+        description,
+        target,
+        unit,
+        sport,
+        date,
+        createdBy
+      };
+  
+      if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
+        newGoal.progressLabel = progressLabel;
+      }
+  
+      if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
+        newGoal.remainingLabel = remainingLabel;
+      }
+  
+      group.goals.push(newGoal);
+      await group.save();
+  
+      const addedGoal = group.goals[group.goals.length - 1];
+  
+      //emial
+      const memberUsers = await UserModel.find({
+        _id: { $in: group.membersByID },
+        _id: { $ne: createdBy } // exclude creator
+      });
+  
+      const recipientEmails = memberUsers.map(member => member.email);
+  
+      if (recipientEmails.length > 0) {
+        try {
+          await transporter.sendMail({
+            from: `"Group Goal Alert" <${EMAIL_ADDRESS}>`,
+            to: recipientEmails,
+            subject: `New Goal in Group "${group.name}"`,
+            text: `Hi there!
+
+            A new goal "${description}" has been added to your group "${group.name}".
+
+            View it here:
+            http://localhost:3000/home/groups
+
+            Log in to view or subscribe to it!
+
+            – The Blossom Team`,
+            html: `
+                <p>Hi there!</p>
+                <p>A new goal <strong>"${description}"</strong> has been added to your group <strong>"${group.name}"</strong>.</p>
+                <p><a href="http://localhost:3000/home/groups" target="_blank">Click here to view and subscribe to the goal</a>.</p>
+                <p>– The Blossom Team</p>
+            `
+          });
+        } catch (emailErr) {
+          console.error('❌ Error sending goal notification email:', emailErr);
+          // Still succeed but warn the frontend
+          return res.status(200).json({
+            message: 'Goal added, but failed to send email notifications.',
+            goal: addedGoal
+          });
         }
-
-        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
-        const user = await UserModel.findOne({ email: req.user.email });
-        const createdBy = user._id
-
-        //validation
-
-        // Validate description
-        if (!description) {
-            return res.status(400).json({ message: 'Description is required.' });
-        }
-        if (typeof description !== 'string') {
-            return res.status(400).json({ message: 'Description must be a string.' });
-        }
-        if (description.length < 1 || description.length > 60) {
-            return res.status(400).json({ message: 'Description must be between 1 and 60 characters long.' });
-        }
-
-        // Validate target
-        if (target == null) {
-            return res.status(400).json({ message: 'Target is required.' });
-        }
-
-        // Validate unit
-        if (unit == null) {
-            return res.status(400).json({ message: 'Unit is required.' });
-        }
-
-        // Validate sport
-        if (typeof sport !== 'boolean') {
-            return res.status(400).json({ message: 'Sport must be a boolean.' });
-        }
-
-        // Validate date
-        if (date == null) {
-            return res.status(400).json({ message: 'Date is required.' });
-        }
-
-        // Validate createdBy
-        if (createdBy == null) {
-            return res.status(400).json({ message: 'CreatedBy is required.' });
-        }
-
-        const group = await GroupModel.findById(groupId);
-        if (!group) {
-            return res.status(404).json({ message: 'Group not found.' });
-        }
-
-        const newGoal = {
-            description,
-            target,
-            unit,
-            sport,
-            date,
-            createdBy
-        };
-
-        // Conditionally include optional labels
-        if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
-            newGoal.progressLabel = progressLabel;
-        }
-
-        if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
-            newGoal.remainingLabel = remainingLabel;
-        }
-
-
-        group.goals.push(newGoal);
-        await group.save();
-
-        const addedGoal = group.goals[group.goals.length - 1];
-
-        res.status(201).json({ message: 'Group goal added successfully', goal: addedGoal });
+      }
+  
+      res.status(201).json({ message: 'Group goal added and members notified.', goal: addedGoal });
     } catch (error) {
-        console.error('Error adding group goal:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error('Error adding group goal:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-});
+  });
+  
 
 // Fetch all goals from a specific group
 app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
