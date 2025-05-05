@@ -72,7 +72,8 @@ const UserSchema = new mongoose.Schema({
     exercise: [ExerciseSchema],
     goals: [GoalSchema],
     accountCreationDate: {type: Date, required: true, default: Date.now},
-    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
+    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
+    groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
 
 const GroupGoalSchema = new mongoose.Schema({

@@ -171,3 +171,26 @@ async function runMigration_setAccountCreationDate() {
 }
 
 // runMigration_setAccountCreationDate()
+
+async function runMigration6_addGroupInvites() {
+  try {
+    console.log('✅ Connected to MongoDB (via database.js)');
+
+    const users = await UserModel.find({ groupInvites: { $exists: false } });
+
+    for (const user of users) {
+      await UserModel.updateOne(
+        { _id: user._id },
+        { $set: { groupInvites: [] } }
+      );
+    }
+
+    console.log(`✅ Migration complete – ${users.length} users updated`);
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Migration failed:', err);
+    process.exit(1);
+  }
+}
+
+// runMigration6_addGroupInvites()
