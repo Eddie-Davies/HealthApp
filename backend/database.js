@@ -71,6 +71,7 @@ const UserSchema = new mongoose.Schema({
     foods: [FoodSchema],
     exercise: [ExerciseSchema],
     goals: [GoalSchema],
+    accountCreationDate: {type: Date, required: true, default: Date.now},
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
 
