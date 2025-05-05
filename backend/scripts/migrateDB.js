@@ -132,6 +132,16 @@ async function runMigration5() {
 
     console.log(`✅ Migration complete – ${updatedCount} users updated`);
 
+  } catch (err) {
+    console.error('❌ Migration failed:', err);
+  }
+  finally {
+    process.exit(0);
+  }
+}
+
+// runMigration5();
+
 async function runMigration_setAccountCreationDate() {
   try {
     console.log('✅ Connected to MongoDB (via database.js)');
@@ -159,8 +169,5 @@ async function runMigration_setAccountCreationDate() {
     process.exit(1);
   }
 }
-
-
-// runMigration5();
 
 // runMigration_setAccountCreationDate()
