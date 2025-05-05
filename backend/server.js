@@ -681,7 +681,16 @@ app.post('/meals', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        if (!mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (mealName.length < 1 || mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
+        }
+        
         const newMeal = { mealName, foods, date };
         user.meals.push(newMeal);
         await user.save();
