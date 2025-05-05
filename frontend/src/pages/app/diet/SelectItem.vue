@@ -74,7 +74,7 @@ export default {
 
   methods: {
     selectItem(item) {
-      const returnPath = this.$route.path.split('/select')[0]; // go back to EditMeal.vue path
+      const returnPath = this.$route.path.split('/select')[0];
       this.$router.push({
         path: returnPath,
         query: {
@@ -98,8 +98,8 @@ export default {
         isDrink: this.type === 'drink',
       };
       try {
-        const res = await axios.post('/food', newEntry);
-        this.items.push(res.data);
+        await axios.post('/food', newEntry);
+        await this.fetchItems();
         this.newItem.name = '';
         this.newItem.calories = '';
       } catch (err) {
@@ -125,15 +125,18 @@ export default {
         this.showDeleteModal = false;
         this.itemToDeleteId = null;
       }
+    },
+    async fetchItems() {
+      try {
+        const res = await axios.get('/foods');
+        this.items = res.data.foods.filter(food => food.isDrink === (this.type === 'drink'));
+      } catch (err) {
+        console.error('Error fetching food list:', err.response?.data || err.message);
+      }
     }
   },
   async mounted() {
-    try {
-      const res = await axios.get('/foods');
-      this.items = res.data.foods.filter(food => food.isDrink === (this.type === 'drink'));
-    } catch (err) {
-      console.error('Error fetching food list:', err.response?.data || err.message);
-    }
+    await this.fetchItems();
     this.isLoaded = true;
   }
 };
