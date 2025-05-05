@@ -31,6 +31,7 @@
 import PageHeader from '../../../components/header/PageHeader.vue';
 import FamilyCard from './GroupCard.vue';
 import NewGroupModal from './GroupNew.vue';
+import axios from 'axios';
 
 export default {
   name: 'Groups',
@@ -42,20 +43,27 @@ export default {
   data() {
     return {
       showModal: false,
-      groups: [
-        { name: 'The Family', members: ['Light Y', 'Misa A', 'Ryuk S'], goal: 'Family Goals' },
-        { name: 'Work Team', members: ['John D', 'Sarah M', 'Mike T'], goal: 'Q3 Objectives' },
-        { name: 'Gym Buddies', members: ['Alex R', 'Jamie K'] }
-      ],
+      groups: [],
       members: [],
-      goals : []
+      goals : 0,
     };
   },
   methods: {
-    addGroup(newGroup) {
-      this.groups.push(newGroup);
-      this.showModal = false;
+    // addGroup(newGroup) {
+    //   this.groups.push(newGroup);
+    //   this.showModal = false;
+    // },  
+  },
+  async mounted() {
+    try {
+      const response = await axios.get('/groups');
+      console.log(response.data);
+      this.groups = response.data.groups;
+      this.members = response.data.members;
+      this.goals = response.data.goals.count;
+    } catch (error) {
+      console.error('Error fetching groups:', error);
     }
-  }
+  },
 };
 </script>
