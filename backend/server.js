@@ -655,6 +655,29 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     }
 });
 
+// Fetch all goals from a specific group
+app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
+    try {
+      const { groupId } = req.params;
+  
+      if (!mongoose.Types.ObjectId.isValid(groupId)) {
+        return res.status(400).json({ message: 'Invalid group ID format.' });
+      }
+  
+      const group = await GroupModel.findById(groupId);
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      res.status(200).json({ goals: group.goals });
+    } catch (error) {
+      console.error('Error fetching group goals:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
+
 // GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
     try {
@@ -795,7 +818,7 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         const copiedGoal = {
             ...copiedGoalObj,
             sourceGroupId: groupId,
-            group: group.name,
+            group: group._id,
             progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
             remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
             progress: 0
@@ -815,6 +838,23 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.delete('/groups/:groupId/goal/:goalId', authenticateToken, async (req, res) => {
+    const { groupId, goalId } = req.params;
+    try {
+        const group = await GroupModel.findById(groupId);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        group.goals = group.goals.filter(g => g._id.toString() !== goalId);
+        await group.save();
+
+        res.status(200).json({ message: 'Group goal deleted' });
+    } catch (error) {
+        console.error('Error deleting group goal:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 // GET ALL USER MEALS
 app.get('/meals', authenticateToken, async (req, res) => {
