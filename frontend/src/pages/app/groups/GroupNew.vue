@@ -8,9 +8,7 @@
   
         <label class="block mb-2 text-sm">Members (comma-separated)</label>
         <input v-model="members" type="text" class="input input-bordered w-full mb-4" placeholder="e.g. John, Sarah, Mike" />
-  
-        <label class="block mb-2 text-sm">Goal (optional)</label>
-        <input v-model="goal" type="text" class="input input-bordered w-full mb-6" placeholder="e.g. Team Success" />
+
   
         <div class="flex justify-end gap-2">
           <button class="btn btn-sm" @click="$emit('close')">Cancel</button>
