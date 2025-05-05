@@ -14,8 +14,8 @@
                     <input v-model.number="form.height" type="number" class="input input-bordered w-full" required />
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">Age</label>
-                    <input v-model.number="form.age" type="number" class="input input-bordered w-full" required />
+                    <label class="block text-sm mb-1">Date of Birth</label>
+                    <input v-model="form.date_of_birth" type="date" class="input input-bordered w-full" required />
                 </div>
                 <div>
                     <label class="block text-sm mb-1">Gender</label>
@@ -78,7 +78,7 @@ export default {
     data() {
         return {
             form: {
-                age: null,
+                date_of_birth: '',
                 gender: '',
                 weight: null,
                 height: null,
@@ -89,43 +89,49 @@ export default {
     },
     methods: {
         submitForm() {
-  if (!this.isFormValid) {
-    console.warn("Form has validation errors.");
-    return;
-  }
+            if (!this.isFormValid) {
+                console.warn("Form has validation errors.");
+                return;
+            }
 
-  const payload = { ...this.form };
-  payload.gender = payload.gender === 'Male';
-  const heightMeters = payload.height / 100;
-  payload.bmi = payload.weight / (heightMeters * heightMeters);
+            const payload = { ...this.form };
+            payload.gender = payload.gender === 'Male';
+            const heightMeters = payload.height / 100;
+            payload.bmi = payload.weight / (heightMeters * heightMeters);
 
-  const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token');
 
-  axios.put('/users/firstLogin', payload, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  .then(res => {
-    console.log("User updated:", res.data);
+            axios.put('/users/firstLogin', payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(res => {
+                    console.log("User updated:", res.data);
 
-    // this.$emit('save', res.data.user);
+                    // this.$emit('save', res.data.user);
 
-    window.location.reload(); //reload so that view dissapears when firstLogin is set to false by server
-  })
-  .catch(err => {
-    console.error("API error:", err);
-  });
-}
+                    window.location.reload(); //reload so that view dissapears when firstLogin is set to false by server
+                })
+                .catch(err => {
+                    console.error("API error:", err);
+                });
+        }
 
     },
     computed: {
         isFormValid() {
-            const { age, gender, weight, height, targetWeight } = this.form;
+            const { date_of_birth, gender, weight, height, targetWeight } = this.form;
             this.formErrors = [];
 
-            if (!age || age < 0 || age > 120) {
-                this.formErrors.push("Please enter a valid age (0–120).");
+            if (!date_of_birth) {
+                this.formErrors.push("Please enter your date of birth.");
+            } else {
+                const dob = new Date(date_of_birth);
+                const age = new Date().getFullYear() - dob.getFullYear();
+                if (age < 0 || age > 120) {
+                    this.formErrors.push("Please enter a valid date of birth.");
+                }
             }
 
             if (gender !== 'Male' && gender !== 'Female') {

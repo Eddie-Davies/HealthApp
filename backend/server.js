@@ -289,7 +289,7 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log(`Incoming request to /login: username: ${ username }`);
+        console.log(`Incoming request to /login: username: ${username}`);
 
         // Check if user exists
         const user = await UserModel.findOne({ username });
@@ -322,7 +322,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         const userId = req.user.id;
 
         const {
-            age,
+            date_of_birth,
             gender,
             weight,
             height,
@@ -332,7 +332,13 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
 
         const errors = [];
 
-        if (!age || age < 0 || age > 120) errors.push("Invalid age.");
+        if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
+            errors.push("Invalid date of birth.");
+        } else {
+            const age = new Date().getFullYear() - new Date(date_of_birth).getFullYear();
+            if (age < 0 || age > 120) errors.push("Date of birth results in invalid age.");
+        }
+
         if (typeof gender !== "boolean") errors.push("Gender must be a boolean.");
         if (!weight || weight < 0) errors.push("Invalid weight.");
         if (!height || height < 0) errors.push("Invalid height.");
@@ -346,7 +352,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         const updatedUser = await UserModel.findByIdAndUpdate(
             userId,
             {
-                age,
+                date_of_birth: new Date(date_of_birth),
                 gender,
                 weight,
                 height,
