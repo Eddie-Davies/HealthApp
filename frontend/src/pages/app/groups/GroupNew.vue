@@ -8,7 +8,11 @@
   
         <label class="block mb-2 text-sm">Members (comma-separated)</label>
         <input v-model="members" type="text" class="input input-bordered w-full mb-4" placeholder="e.g. John, Sarah, Mike" />
-
+        
+        <div class="flex justify-center mb-4" >
+          <button class="btn btn-sm" @click="$emit('close')">Add Member</button>
+        </div>
+  
   
         <div class="flex justify-end gap-2">
           <button class="btn btn-sm" @click="$emit('close')">Cancel</button>
