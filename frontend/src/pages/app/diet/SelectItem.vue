@@ -28,7 +28,8 @@
     </div>
   </div>
 
-  <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+  <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
+    class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
     <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
       <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
       <p>Are you sure you want to delete this item?</p>
@@ -42,6 +43,7 @@
 
 <script>
 import axios from 'axios';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 export default {
   name: 'SelectItem',
   props: ['type', 'mealId'],
@@ -102,7 +104,11 @@ export default {
         this.newItem.calories = '';
       } catch (err) {
         console.error('Error adding food item:', err.response?.data || err.message);
-        console.log('Sending food:', newEntry);
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
       }
     },
     async deleteItem(id) {
