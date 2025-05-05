@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen overflow-y-auto bg-base-100 px-4">
+  <div class="min-h-screen overflow-y-auto bg-base-100 px-4 pb-16">
     <PageHeader :title="$route.meta.title" />
     
     <div class="mt-20 pb-16 flex flex-col items-center">

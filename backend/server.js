@@ -485,31 +485,40 @@ app.put('/groupsPage/deleteGroup', authenticateToken, async (req, res) => {
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
-        const { name, membersByID } = req.body;
-        console.log(name)
-        if (!name || typeof name !== 'string') {
-            return res.status(400).json({ message: 'Group name is required and must be a string.' });
-        }
-
-        const existingGroup = await GroupModel.findOne({ name });
-
-        if (existingGroup) {
-            return res.status(409).json({ message: 'Group name already exists.' });
-        }
-
-        const newGroup = new GroupModel({
-            name,
-            membersByID
-        });
-
-        await newGroup.save();
-
-        res.status(201).json({ message: 'Group created successfully', group: newGroup });
+      const { name } = req.body;
+  
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ message: 'Group name is required and must be a string.' });
+      }
+  
+      const existingGroup = await GroupModel.findOne({ name });
+      if (existingGroup) {
+        return res.status(409).json({ message: 'Group name already exists.' });
+      }
+  
+      const user = await UserModel.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'Authenticated user not found.' });
+      }
+  
+      const newGroup = new GroupModel({
+        name,
+        membersByID: [user._id] // Add creator as first member
+      });
+  
+      await newGroup.save();
+  
+      // Add group to user's groups list
+      user.groups.push(newGroup._id);
+      await user.save();
+  
+      res.status(201).json({ message: 'Group created successfully', group: newGroup });
     } catch (error) {
-        console.error('Error creating group:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error('Error creating group:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-});
+  });
+  
 
 // CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {

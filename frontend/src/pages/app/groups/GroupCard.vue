@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 flex flex-col gap-3">
+  <div class="card bg-base-300 rounded-box p-4 flex flex-col gap-3 mb-4">
     <!-- Top Row: Family Name and Members Count -->
     <div class="flex justify-between items-center">
       <h1 class="text-lg font-semibold text-neutral/80">{{ groupName }}</h1>

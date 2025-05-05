@@ -3,15 +3,32 @@
     <div class="bg-base-200 rounded-2xl shadow-xl p-6 w-full max-w-md">
       <h3 class="text-lg font-semibold mb-4">Create New Group</h3>
 
+      <!-- Group Name -->
       <label class="block mb-2 text-sm">Group Name</label>
-      <input v-model="name" type="text" class="input input-bordered w-full mb-4" placeholder="Enter group name" />
+      <input
+        v-model="name"
+        type="text"
+        class="input input-bordered w-full mb-4"
+        placeholder="Enter group name"
+      />
 
-      <label class="block mb-2 text-sm">Members</label>
-      <input v-model="newMember" type="text" class="input input-bordered w-full mb-4" placeholder="e.g. John, Sarah, Mike" />
+      <!-- Add Member -->
+      <label class="block mb-2 text-sm">Add Member by Username</label>
+      <input
+        v-model="newMember"
+        type="text"
+        class="input input-bordered w-full mb-4"
+        placeholder="e.g. blossomUser123"
+      />
 
-      <div v-if="showMembers" class="max-h-32 overflow-y-auto mb-4 rounded p-2">
+      <!-- Member List -->
+      <div v-if="members.length" class="max-h-32 overflow-y-auto mb-4 rounded p-2 bg-base-100">
         <ul>
-          <li v-for="(member, index) in members" :key="index" class="mb-2">
+          <li
+            v-for="(member, index) in members"
+            :key="index"
+            class="mb-2"
+          >
             <div class="flex justify-between items-center">
               <span>{{ member }}</span>
               <button @click="removeMember(index)" class="text-white hover:text-gray-300">&minus;</button>
@@ -21,10 +38,15 @@
         </ul>
       </div>
 
+      <!-- Add Button -->
       <div class="flex justify-center mb-4">
         <button class="btn btn-sm" @click="addMember">Add Member</button>
       </div>
 
+      <!-- Error -->
+      <div v-if="errorMessage" class="text-error text-sm mb-2 text-center">{{ errorMessage }}</div>
+
+      <!-- Action Buttons -->
       <div class="flex justify-end gap-2">
         <button class="btn btn-sm" @click="$emit('close')">Cancel</button>
         <button class="btn btn-sm btn-primary" @click="createGroup">Create</button>
@@ -34,6 +56,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'NewGroupModal',
   data() {
@@ -41,32 +65,51 @@ export default {
       name: '',
       newMember: '',
       members: [],
-      showMembers: false,
-      goal: ''
+      errorMessage: ''
     };
   },
   methods: {
     addMember() {
-      if (this.newMember.trim()) {
-        this.members.push(this.newMember.trim());
-        this.newMember = ''; // Clear input after adding
-        this.showMembers = true; // Show the members list
+      const trimmed = this.newMember.trim();
+      if (trimmed && !this.members.includes(trimmed)) {
+        this.members.push(trimmed);
+        this.newMember = '';
       }
     },
     removeMember(index) {
-      this.members.splice(index, 1); // Remove the member from the list
-      if (this.members.length === 0) {
-        this.showMembers = false; // Hide the members list if empty
-      }
+      this.members.splice(index, 1);
     },
-    createGroup() {
-      if (!this.name || !this.members.length) return;
-      const newGroup = {
-        name: this.name.trim(),
-        members: this.members,
-        goal: this.goal.trim() || undefined
-      };
-      this.$emit('create', newGroup);
+    async createGroup() {
+      this.errorMessage = '';
+
+      if (!this.name.trim()) {
+        this.errorMessage = 'Group name is required';
+        return;
+      }
+
+      try {
+        // Create group (creator is added by backend via token)
+        const res = await axios.post('/groups/new', { name: this.name.trim() });
+        const groupId = res.data.group._id;
+
+        // Invite additional members
+        for (const username of this.members) {
+          try {
+            await axios.put('/groupsPage/addMember', {
+              groupId,
+              newMemberUsername: username
+            });
+          } catch (err) {
+            console.warn(`❌ Failed to invite ${username}:`, err.response?.data?.message || err);
+          }
+        }
+
+        this.$emit('close');
+        window.location.reload();
+      } catch (err) {
+        console.error('Group creation failed:', err);
+        this.errorMessage = err.response?.data?.message || 'Error creating group';
+      }
     }
   }
 };
