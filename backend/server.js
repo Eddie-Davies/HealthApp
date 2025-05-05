@@ -140,81 +140,81 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
-// admin Tools
+// admin Tools -- redundant
 
 // deleteUser (not authed)
 // This route is for deleting a user by email. It does not require authentication.
 //Example use: http://localhost:5000/deleteUser/test@example.com
-app.delete('/deleteUser/:email', async (req, res) => {
-    try {
-        const email = req.params.email;
+// app.delete('/deleteUser/:email', async (req, res) => {
+//     try {
+//         const email = req.params.email;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required in URL parameter' });
-        }
+//         if (!email) {
+//             return res.status(400).json({ message: 'Email is required in URL parameter' });
+//         }
 
-        const deletedUser = await UserModel.findOneAndDelete({ email: email.toLowerCase().trim() });
+//         const deletedUser = await UserModel.findOneAndDelete({ email: email.toLowerCase().trim() });
 
-        if (!deletedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+//         if (!deletedUser) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
-        console.log(`User with email ${email} deleted.`);
-        res.json({ message: 'User deleted successfully', user: deletedUser });
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+//         console.log(`User with email ${email} deleted.`);
+//         res.json({ message: 'User deleted successfully', user: deletedUser });
+//     } catch (error) {
+//         console.error('Error deleting user:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 
 // deleteAllUsers (not authed)
 // This route is for deleting all users from the database. It does not require authentication.
-app.get('/deleteAllUsers', async (req, res) => {
-    try {
-        const result = await UserModel.deleteMany({});
-        console.log(`All users deleted. Count: ${result.deletedCount}`);
-        res.json({ message: 'All users deleted successfully', deletedCount: result.deletedCount });
-    } catch (error) {
-        console.error('Error deleting all users:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+// app.get('/deleteAllUsers', async (req, res) => {
+//     try {
+//         const result = await UserModel.deleteMany({});
+//         console.log(`All users deleted. Count: ${result.deletedCount}`);
+//         res.json({ message: 'All users deleted successfully', deletedCount: result.deletedCount });
+//     } catch (error) {
+//         console.error('Error deleting all users:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 
 // Fetch Users (not authed)
 // This route is for fetching all users. It does not require authentication.
-app.get("/getUsers", async (req, res) => {
-    try {
-        const users = await UserModel.find({});
-        res.json(users);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
+// app.get("/getUsers", async (req, res) => {
+//     try {
+//         const users = await UserModel.find({});
+//         res.json(users);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// });
 
 // Fetch User by Email (not authed)
 // This route is for fetching a user by email. It does not require authentication.
 // Example use: http://localhost:5000/getUserByEmail?email=test@example.com
-app.get('/getUserByEmail', async (req, res) => {
-    try {
-        const { email } = req.query;
+// app.get('/getUserByEmail', async (req, res) => {
+//     try {
+//         const { email } = req.query;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
-        }
+//         if (!email) {
+//             return res.status(400).json({ message: 'Email is required' });
+//         }
 
-        const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+//         const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
-        res.json(user);
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+//         res.json(user);
+//     } catch (error) {
+//         console.error('Error fetching user:', error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 
 //--------------------------------------------------------------------------------------------------------------------
 
