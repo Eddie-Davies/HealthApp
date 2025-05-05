@@ -1,39 +1,68 @@
 <template>
-  <div v-if="isLoaded" class="flex flex-col items-center justify-center px-4 pb-16 w-full max-w-md mx-auto">
-    <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
-      class="input input-ghost text-xl font-semibold" />
+<div v-if="isLoaded" class="w-full max-w-md mx-auto pb-16">
+  <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
+    class="input input-primary input-ghost text-3xl font-semibold rounded-xl w-full" />
 
-    <div class="mt-8">
+  <div class="flex flex-col items-center justify-center mt-8">
+    <div class="text-base-content/70">
       Total Calories: {{ totalCalories }} kcal
     </div>
+  
 
-    <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
-      <h3 class="font-bold">Food</h3>
-      <div v-for="(food, index) in foodOnly" :key="index" class="food-item">
-        <span>{{ food.name }}</span> <span>{{ food.calories }} kcal</span>
-        <span>
-          <button class="btn btn-error m-3" @click="deleteItem(index)">Delete</button>
-        </span>
+    <div class="bg-base-200 rounded-box p-6 mt-4 flex border-2 border-secondary/70 flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
+  <h3 class="font-bold text-xl mb-5">Food</h3>
+  <div
+    v-for="(food, index) in foodOnly"
+    :key="index"
+    class="food-item w-full mb-5 flex items-center justify-between"
+  >
+    <div class="flex flex-col flex-grow pr-2">
+      <div class="flex justify-between text-base-content/95">
+        <span>{{ food.name }}</span>
+        <span class="font-semibold">{{ food.calories }} kcal</span>
       </div>
-      <button class="btn btn-md m-3" @click="goToSelect('food')">Add Food</button>
+      <div class="border-b-1 border-neutral/30 mt-1"></div>
     </div>
-
-    <div class="bg-base-300 rounded-xl p-6 mt-8 flex flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
-      <h3 class="font-bold">Drinks</h3>
-      <div v-for="(drink, index) in drinkOnly" :key="index" class="drink-item">
-        <span>{{ drink.name }}</span> <span>{{ drink.calories }} kcal</span>
-        <span>
-          <button class="btn btn-error m-3" @click="deleteItem(index, true)">Delete</button>
-        </span>
-      </div>
-      <button class="btn btn-md m-3" @click="goToSelect('drink')">Add Drink</button>
-    </div>
-
-    <button class="btn mt-8 btn-success m-3" @click="saveMeal">Save Meal</button>
-    <button v-if="!isNew" class="btn m-3 btn-error" @click="deleteMeal">Delete Meal</button>
-    <button class="btn m-3 btn-outline" @click="cancelEdit">Cancel</button>
-
+    <button class="btn btn-xs btn-error btn-soft ml-3" @click="deleteItem(index)">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
   </div>
+  <button class="btn btn-neutral btn-soft btn-md rounded-xl mt-7" @click="goToSelect('food')">Add Food</button>
+</div>
+
+
+
+
+<div class="bg-base-200 rounded-box p-6 mt-4 flex border-2 border-secondary/70 flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
+  <h3 class="font-bold text-xl mb-5">Drinks</h3>
+  <div
+    v-for="(drink, index) in drinkOnly"
+    :key="index"
+    class="drink-item w-full mb-5 flex items-center justify-between"
+  >
+    <div class="flex flex-col flex-grow pr-2">
+      <div class="flex justify-between text-base-content/95">
+        <span>{{ drink.name }}</span>
+        <span class="font-semibold">{{ drink.calories }} kcal</span>
+      </div>
+      <div class="border-b-1 border-neutral/30 mt-1"></div>
+    </div>
+    <button class="btn btn-xs btn-error btn-soft ml-3" @click="deleteItem(index, true)">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <button class="btn btn-neutral btn-soft btn-md rounded-xl mt-7" @click="goToSelect('drink')">Add Drink</button>
+</div>
+
+
+    <div class="mt-10 flex w-full space-x-3">
+  <button class="btn btn-error flex-1" @click="cancelEdit">Cancel</button>
+  <button class="btn btn-success flex-2" @click="saveMeal">Save Meal</button>
+</div>
+
+    <button v-if="!isNew" class="btn m-20 btn-error btn-soft w-full rounded-xl" @click="deleteMeal"><i class="fa-solid fa-xmark"></i>Delete Meal</button>
+  </div>
+</div>
 
   <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
     <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
