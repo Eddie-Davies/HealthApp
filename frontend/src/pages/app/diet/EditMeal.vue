@@ -1,5 +1,5 @@
 <template>
-<div v-if="isLoaded" class="w-full max-w-md mx-auto pb-16">
+<div v-if="isLoaded" class="w-full max-w-md mx-auto pb-16 px-2">
   <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
     class="input input-primary input-ghost text-3xl font-semibold rounded-xl w-full" />
 
