@@ -25,7 +25,7 @@ export default {
       this.$emit('view-members');
     },
     leaveGroup(){
-        
+      
     }
   }
 }

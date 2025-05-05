@@ -1,30 +1,33 @@
 <template>
   <PageHeader :title="$route.meta.title" />
   <div class="mt-20 px-4 pb-16 flex flex-col items-center">
-    <div class="w-full max-w-md space-y-4">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold">Your Groups</h2>
-        <button class="btn btn-sm btn-primary" @click="showModal = true">
-          + New Group
-        </button>
-      </div>
-
-      <FamilyCard
-        v-for="(group, index) in groups"
-        :key="index"
-        :groupName="group.name"
-        :members="group.members.map(m => `${m.first_name} ${m.last_name}`)"
-        :goalsCount="group.goals?.length || 0"
-      />
+    <div class="flex items-center justify-center py-4">
+          <button class="btn btn-neutral" @click="showModal = true">Create a Group</button>
     </div>
-
-    <!-- New Group Modal -->
-    <NewGroupModal 
-      v-if="showModal" 
-      @close="showModal = false" 
-      @create="addGroup"
-    />
+    <div class="mt-16 w-full max-w-md">
+        <div v-if="groups.length > 0">
+          <h2 class="text-xl font-semibold mb-4">Your Groups</h2>
+          <FamilyCard
+          v-for="(group, index) in groups"
+          :key="index"
+          :family-name="group.name"
+          :members="group.members"
+          :goals-title="group.goal || 'Goals'"
+        />
+          <NewGroupModal 
+          v-if="showModal" 
+          @close="showModal = false" 
+          @create="addGroup"
+        />
+        </div>
+        <div v-else class="tooltip flex justify-center items-center" data-tip="Click the button above :)">
+          <button class="btn">Create a new group to start tracking!</button>
+        </div>
+    </div>
   </div>
+    
+  
+  
 </template>
 
 <script>
