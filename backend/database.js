@@ -56,7 +56,7 @@ const GoalSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    date_of_birth: { type: Date, required: true },
+    date_of_birth: { type: Date},
     email: { type: String, unique: true, required: true },
     username: { type: String, unique: true, required: true },
     password_hash: { type: String, required: true },
