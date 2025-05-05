@@ -1,5 +1,5 @@
 <template>
-    <div class="card bg-base-200 rounded-xl lg:rounded-3xl border-2 border-secondary h-40 w-84 mb-30 lg:h-84 lg:w-174">
+    <div class="card bg-base-200 rounded-xl lg:rounded-3xl border-2 border-secondary h-40 w-84 lg:h-84 lg:w-174">
         <div class="text-center">
             <p class="font-semibold text-xl mt-5 lg:mt-15">{{ title }}</p>
             <CounterNumber class="mt-3 font-bold text-4xl text-primary lg:text-7xl lg:mt-10" :display-number="
