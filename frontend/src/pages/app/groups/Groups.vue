@@ -8,12 +8,12 @@
         <div v-if="groups.length > 0">
           <h2 class="text-xl font-semibold mb-4">Your Groups</h2>
           <FamilyCard
-          v-for="(group, index) in groups"
-          :key="index"
-          :family-name="group.name"
-          :members="group.members"
-          :goals-title="group.goal || 'Goals'"
-        />
+            v-for="(group, index) in groups"
+            :key="index"
+            :groupName="group.name"
+            :members="group.membersByID.map(m => m.username)"
+            :goalsCount="group.goals?.length || 0"
+          />
           <NewGroupModal 
           v-if="showModal" 
           @close="showModal = false" 
@@ -59,7 +59,7 @@ export default {
   },
   async mounted() {
     try {
-      const response = await axios.get('/groups');
+      const response = await axios.get('/groupsPage');
       console.log(response.data);
       this.groups = response.data.groups;
       this.members = response.data.members;

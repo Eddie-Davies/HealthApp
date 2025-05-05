@@ -313,6 +313,25 @@ app.get('/groups', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/groupsPage', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const groups = await GroupModel.find({ _id: { $in: user.groups } })
+        .populate('membersByID', 'username')
+  
+      res.json({ groups });
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
         const { name, membersByID } = req.body;

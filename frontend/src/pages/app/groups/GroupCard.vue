@@ -26,7 +26,7 @@
               :key="idx"
               class="whitespace-nowrap"
             >
-              {{ member.first_name }} {{ member.last_name }}
+              {{ member }}
             </span>
           </div>
         </div>
