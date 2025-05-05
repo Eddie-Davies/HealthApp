@@ -1,7 +1,10 @@
 <template>
   <div v-if="isLoaded" class="flex flex-col items-center justify-center px-4 pb-16 w-full max-w-md mx-auto">
-    <input type="text" v-model="mealName" :placeholder="mealName ? '' : 'Meal Name'"
-      class="input input-ghost text-xl font-semibold" />
+    <input type="text" v-model="mealName" class="input validator text-xl font-semibold" required pattern=".{1,30}"
+      minlength="1" maxlength="30" placeholder="Meal Name" title="Meal name must be between 1 and 30 characters" />
+    <p class="validator-hint">
+      Must be between 1 and 30 characters long
+    </p>
 
     <div class="mt-8">
       Total Calories: {{ totalCalories }} kcal
@@ -35,7 +38,8 @@
 
   </div>
 
-  <div v-if="showDeleteModal" @click.self="showDeleteModal = false" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+  <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
+    class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
     <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
       <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
       <p>Are you sure you want to delete this meal?</p>
