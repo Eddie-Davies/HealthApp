@@ -28,6 +28,11 @@
                 placeholder="Last Name" minlength="2" pattern="^[a-zA-Z]{2,30}$" class="input validator w-full" />
               <div v-if="errors.last_name" class="validator-hint">{{ errors.last_name }}</div>
 
+              <label class="fieldset-label">Username</label>
+              <input v-model="username" @input="validateField('username')" type="text" required placeholder="Username"
+                minlength="4" pattern="[a-zA-Z0-9]{4,16}$" class="input validator w-full" />
+              <div v-if="errors.username" class="validator-hint">{{ errors.username }}</div>
+
               <label class="fieldset-label">Email</label>
               <label class="input validator w-full">
                 <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -75,7 +80,8 @@
 
       <ul v-if="errors.length" role="alert" class="alert alert-warning mt-4">
         <li v-for="(err, index) in errors" :key="index" class="flex items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none"
+            viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -100,12 +106,14 @@ export default {
       first_name: '',
       last_name: '',
       email: '',
+      username: '',
       password: '',
       errorMessage: '', // Store error message
 
       errors: {
         first_name: null,
         last_name: null,
+        username: null,
         email: null,
         password: null,
       },
@@ -145,21 +153,30 @@ export default {
           this.errors.password = null;
         }
       }
+
+      if (field === "username") {
+        if (!this.username.match(/^[a-zA-Z0-9]{4,16}$/)) {
+          this.errors.username = "Username must be 4–16 characters and contain only letters and numbers.";
+        }
+      } else {
+        this.errors.username = null;
+      }
     },
 
     async handleSubmit() {
       this.errorMessage = "";
       this.errors = [];
-      
-      if (!this.first_name || !this.last_name || !this.email || !this.password) {
+
+      if (!this.first_name || !this.last_name || !this.username || !this.email || !this.password) {
         this.errorMessage = "All fields are required.";
         return;
       }
-    
+
       try {
         const response = await axios.post('/signup', {
           first_name: this.first_name,
           last_name: this.last_name,
+          username: this.username,
           email: this.email,
           password: this.password,
         });

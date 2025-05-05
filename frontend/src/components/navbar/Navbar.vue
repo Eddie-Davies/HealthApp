@@ -12,9 +12,14 @@
 
 <script>
 import NavbarLink from './NavbarLink.vue';
-
 export default {
-    name: 'Navbar',
-    components: { NavbarLink }
+  name: 'Navbar',
+  components: { NavbarLink },
+  props: {
+    hideNavbar: {
+      type: Boolean,
+      default: false
+    }
+  }
 };
 </script>
