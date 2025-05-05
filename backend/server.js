@@ -647,9 +647,6 @@ app.get('/recent-calories', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
     try {
@@ -843,6 +840,23 @@ app.get('/weights', authenticateToken, async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: 'Error fetching weights', error: err });
 }});
+
+app.get('/height', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user.id;
+  
+      const user = await UserModel.findById(userId).select('height');
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      return res.status(200).json(user.height);
+    } catch (err) {
+      console.error('Error fetching height:', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });  
 
 app.post('/weight', authenticateToken, async (req, res) => {
     try {

@@ -38,6 +38,11 @@
                 title="Age"
                 :displayNumber="age"
                 :message="`${daysUntilBirthday} days until your next birthday`"/>
+            <!-- Bottom Wide Card pt 2-->
+            <ProfileCardMed 
+                title="BMI"
+                :displayNumber="bmi.toFixed(2)"
+                :message="`Your BMI is ${bmi.toFixed(2)} – ${bmiStatus}`" class="mb-30"/>
         </div>
     </div>
 </template>
@@ -63,6 +68,7 @@ export default {
             weight: 0,
             targetWeight: 0,
             calories: 0,
+            height: 0,
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
             memberSince: '04/05/2025' // default to date this was implemented instead of 00/00/0000.
@@ -103,6 +109,13 @@ export default {
         } catch (err) {
             console.error('Error fetching weight(s):', err.response?.data);
         }
+        try {
+            const res = await axios.get('/height');
+            this.height = res.data
+            console.log(this.height)
+        } catch (err) {
+            console.error('Error fetching height:', err.response?.data);
+        }
     },
     computed: {
         // Convert date of birth into current age.
@@ -124,11 +137,30 @@ export default {
             if (birthdayThisYear < today) {
                 birthdayThisYear.setFullYear(today.getFullYear() + 1);
             }
-
             const diffDays = Math.ceil((birthdayThisYear - today) / (1000 * 60 * 60 * 24));
             return diffDays;
-        }
-
+        },
+        // Convert weight to BMI
+        bmi() {
+            const heightMeters = this.height / 100;
+            const bmi = this.weight / (heightMeters * heightMeters);
+            return bmi;
+        },
+        bmiStatus() {
+            const bmi = this.bmi;
+            if (!bmi) return '';
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 24.9) return 'Normal weight';
+            if (bmi < 29.9) return 'Overweight';
+            return 'Obese';
+        },
+        bmiStatusClass() {
+            const status = this.bmiStatus;
+            if (status === 'Normal weight') return 'text-success';
+            if (status === 'Underweight' || status === 'Overweight') return 'text-warning';
+            if (status === 'Obese') return 'text-error';
+            return '';
+        },
     }
 }
 </script>
