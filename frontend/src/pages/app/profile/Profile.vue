@@ -37,7 +37,7 @@
             <ProfileCardMed 
                 title="Age"
                 :displayNumber="age"
-                message="119 days until your next birthday"/>
+                :message="`${daysUntilBirthday} days until your next birthday`"/>
         </div>
     </div>
 </template>
@@ -74,7 +74,7 @@ export default {
         try {
             const res = await axios.get('/recent-calories');
             this.calories = res.data
-            console.log(this.calories)
+            // console.log(this.calories)
         } catch (err) {
             console.error('Error fetching last 24hr calories:', err.response?.data);
         }
@@ -99,15 +99,36 @@ export default {
             const res = await axios.get('/weights');
             this.weight = res.data.weight
             this.targetWeight = res.data.targetWeight
-            console.log(this.weight, this.targetWeight)
+            // console.log(this.weight, this.targetWeight)
         } catch (err) {
             console.error('Error fetching weight(s):', err.response?.data);
         }
     },
     computed: {
-        age() { // simulate converting dob to age.
-            return this.dob;
+        // Convert date of birth into current age.
+        age() {
+            const today = new Date();
+            const dob = new Date(this.dob);
+            const age = today.getFullYear() - dob.getFullYear();
+            const hasHadBirthday =
+                today.getMonth() > dob.getMonth() ||
+                (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+            return hasHadBirthday ? age : age - 1;
+        },
+        // Convert dob to days until next birthday
+        daysUntilBirthday() {
+            const today = new Date();
+            const dob = new Date(this.dob);
+            const birthdayThisYear = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+
+            if (birthdayThisYear < today) {
+                birthdayThisYear.setFullYear(today.getFullYear() + 1);
+            }
+
+            const diffDays = Math.ceil((birthdayThisYear - today) / (1000 * 60 * 60 * 24));
+            return diffDays;
         }
+
     }
 }
 </script>

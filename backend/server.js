@@ -813,7 +813,8 @@ app.get('/dob', authenticateToken, async(req, res) => {
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user.age);
+    console.log(user.date_of_birth)
+    res.json(user.date_of_birth);
 
 });
 
