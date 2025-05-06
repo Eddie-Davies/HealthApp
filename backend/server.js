@@ -1054,7 +1054,7 @@ app.delete('/meals/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// GET FOOD
+// GET FOODS
 app.get('/foods', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
@@ -1249,6 +1249,68 @@ app.delete('/exercises/:id', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to delete exercise' });
+    }
+});
+
+// GET ACTIVITIES
+app.get('/activities', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ activities: user.activities });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching activities', error: err });
+    }
+});
+
+// POST ACTIVITY
+app.post('/activity', authenticateToken, async (req, res) => {
+    const { activityType, quantity, unit } = req.body;
+
+    if (!activityType) {
+        return res.status(400).json({ message: 'activityType required' });
+    }
+    if (!unit) {
+        return res.status(400).json({ message: 'Unit required' });
+    }
+    if (typeof quantity !== 'number' || quantity < 0) {
+        return res.status(400).json({ message: 'quantity must be a number' });
+    }
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newActivity = { activityType, quantity, unit };
+        user.activities.push(newActivity)
+        await user.save()
+
+    } catch (err) {
+        res.status(500).json({ message: 'Error saving activity', error: err });
+    }
+});
+
+// DELETE /activity/:id - Delete an activity by ID
+app.delete('/activity/:id', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const activityID = req.params.id;
+
+        await UserModel.updateOne(
+            { _id: userId },
+            { $pull: { activities: { _id: new ObjectId(activityID) } } }
+        );
+
+        res.status(200).json({ message: "Activity deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete activity" });
     }
 });
 
