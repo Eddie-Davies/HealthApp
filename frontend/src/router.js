@@ -9,7 +9,7 @@ import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
 import Profile from './pages/app/profile/Profile.vue';
 import Groups from './pages/app/groups/Groups.vue';
-import Exercise from './pages/app/Exercise.vue';
+import Exercise from './pages/app/exercise/Exercise.vue';
 
 import Diet from './pages/app/diet/Diet.vue';
 

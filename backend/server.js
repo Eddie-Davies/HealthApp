@@ -25,7 +25,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-
 const app = express();
 const port = 8000;
 
@@ -316,119 +315,392 @@ app.get('/groups', authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/groups/new', authenticateToken, async (req, res) => {
+app.get('/groupsPage', authenticateToken, async (req, res) => {
     try {
-        const { name, membersByID } = req.body;
-        console.log(name)
-        if (!name || typeof name !== 'string') {
-            return res.status(400).json({ message: 'Group name is required and must be a string.' });
-        }
-
-        const existingGroup = await GroupModel.findOne({ name });
-
-        if (existingGroup) {
-            return res.status(409).json({ message: 'Group name already exists.' });
-        }
-
-        const newGroup = new GroupModel({
-            name,
-            membersByID
-        });
-
-        await newGroup.save();
-
-        res.status(201).json({ message: 'Group created successfully', group: newGroup });
+      const user = await UserModel.findOne({ email: req.user.email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const groups = await GroupModel.find({ _id: { $in: user.groups } })
+        .populate('membersByID', 'username')
+  
+      res.json({ groups });
     } catch (error) {
-        console.error('Error creating group:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error('Error fetching user groups:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groups
+        user.groups = user.groups.filter(group => group.toString() !== groupId);
+        await user.save();
+
+        // Remove the user from the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $pull: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully left the group' });
+    } catch (error) {
+        console.error('Error leaving group:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Add the group to the user's groups
+        user.groups.push(groupId);
+        await user.save();
+
+        // Add the user to the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $addToSet: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully joined the group' });
+    } catch (error) {
+        console.error('Error joining group:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+);
+
+app.get('/groupInvites', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email }).populate({
+        path: 'groupInvites',
+        populate: { path: 'membersByID', select: 'username' }
+      });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.json({ invites: user.groupInvites });
+    } catch (error) {
+      console.error('Error fetching group invites:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });  
+
+  app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
+    try {
+      const user = await UserModel.findOne({ email: req.user.email });
+      const { groupId, newMemberUsername } = req.body;
+  
+      if (!user) {
+        return res.status(404).json({ message: 'Requesting user not found' });
+      }
+  
+      const newMember = await UserModel.findOne({ username: newMemberUsername });
+  
+      if (!newMember) {
+        return res.status(404).json({ message: 'User not found by username' });
+      }
+  
+      // Check if already invited
+      if (newMember.groupInvites.includes(groupId)) {
+        return res.status(400).json({ message: 'User already invited to this group' });
+      }
+  
+      await UserModel.updateOne(
+        { _id: newMember._id },
+        { $addToSet: { groupInvites: groupId } }
+      );
+  
+      // Get group name for the email
+      const group = await GroupModel.findById(groupId);
+      const groupName = group ? group.name : 'a group';
+  
+      // Send email inviitation
+      try {
+        await transporter.sendMail({
+            from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
+            to: newMember.email,
+            subject: "You've been invited to join a group on Blossom!",
+            text: `Hi ${newMember.first_name},
+          
+          You've been invited to join the group "${groupName}" on Blossom.
+          
+          Log in to accept or decline the invitation.
+          
+          – The Blossom Team`,
+            html: `
+              <p>Hi ${newMember.first_name},</p>
+              <p>You've been invited to join the group <strong>"${groupName}"</strong> on Blossom.</p>
+              <p><a href="http://localhost:3000/home/groups" target="_blank">Log in to accept or decline the invitation.</a></p>
+              <p>– The Blossom Team</p>
+            `
+          });
+      } catch (emailErr) {
+        console.error('Error sending invitation email:', emailErr);
+        return res.status(500).json({ message: 'User invited, but email failed to send.' });
+      }
+  
+      return res.status(200).json({ message: 'User successfully invited and notified via email.' });
+    } catch (error) {
+      console.error('Error processing invite:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+app.put('/groupsPage/deleteGroup', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Check if the group has only one member
+        if (group.membersByID.length > 1) {
+            return res.status(400).json({ message: 'Group can only be deleted if there is one member left.' });
+        }
+
+        user.groups = user.groups.filter(group => group.toString() !== groupId);
+        await user.save();
+
+        await GroupModel.findByIdAndDelete(groupId);
+
+        res.status(200).json({ message: 'Group deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting group:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/acceptInvite', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groupInvites
+        user.groupInvites = user.groupInvites.filter(invite => invite.toString() !== groupId);
+        await user.save();
+
+        // Add the group to the user's groups
+        user.groups.push(groupId);
+        await user.save();
+
+        // Add the user to the group's membersByID
+        await GroupModel.updateOne(
+            { _id: groupId },
+            { $addToSet: { membersByID: user._id } }
+        );
+
+        res.status(200).json({ message: 'Successfully accepted the group invite' });
+    } catch (error) {
+        console.error('Error accepting group invite:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/declineInvite', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        const groupId = req.body.groupId;
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove the group from the user's groupInvites
+        user.groupInvites = user.groupInvites.filter(invite => invite.toString() !== groupId);
+        await user.save();
+
+        res.status(200).json({ message: 'Successfully declined the group invite' });
+    } catch (error) {
+        console.error('Error declining group invite:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.post('/groups/new', authenticateToken, async (req, res) => {
+    try {
+      const { name } = req.body;
+  
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ message: 'Group name is required and must be a string.' });
+      }
+  
+      const existingGroup = await GroupModel.findOne({ name });
+      if (existingGroup) {
+        return res.status(409).json({ message: 'Group name already exists.' });
+      }
+  
+      const user = await UserModel.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'Authenticated user not found.' });
+      }
+  
+      const newGroup = new GroupModel({
+        name,
+        membersByID: [user._id] // Add creator as first member
+      });
+  
+      await newGroup.save();
+  
+      // Add group to user's groups list
+      user.groups.push(newGroup._id);
+      await user.save();
+  
+      res.status(201).json({ message: 'Group created successfully', group: newGroup });
+    } catch (error) {
+      console.error('Error creating group:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
 
 // CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
-        const { groupId } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(groupId)) {
-            return res.status(400).json({ message: 'Invalid group ID format.' });
+      const { groupId } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(groupId)) {
+        return res.status(400).json({ message: 'Invalid group ID format.' });
+      }
+  
+      const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
+      const user = await UserModel.findOne({ email: req.user.email });
+      const createdBy = user._id;
+  
+      if (!description || typeof description !== 'string' || description.length < 1 || description.length > 60) {
+        return res.status(400).json({ message: 'Description must be a string between 1 and 60 characters.' });
+      }
+      if (target == null || unit == null || typeof sport !== 'boolean' || !date) {
+        return res.status(400).json({ message: 'Missing required goal fields.' });
+      }
+  
+      const group = await GroupModel.findById(groupId);
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found.' });
+      }
+  
+      const newGoal = {
+        description,
+        target,
+        unit,
+        sport,
+        date,
+        createdBy
+      };
+  
+      if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
+        newGoal.progressLabel = progressLabel;
+      }
+  
+      if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
+        newGoal.remainingLabel = remainingLabel;
+      }
+  
+      group.goals.push(newGoal);
+      await group.save();
+  
+      const addedGoal = group.goals[group.goals.length - 1];
+  
+      //emial
+      const memberUsers = await UserModel.find({
+        _id: { $in: group.membersByID },
+        _id: { $ne: createdBy } // exclude creator
+      });
+  
+      const recipientEmails = memberUsers.map(member => member.email);
+  
+      if (recipientEmails.length > 0) {
+        try {
+          await transporter.sendMail({
+            from: `"Group Goal Alert" <${EMAIL_ADDRESS}>`,
+            to: recipientEmails,
+            subject: `New Goal in Group "${group.name}"`,
+            text: `Hi there!
+
+            A new goal "${description}" has been added to your group "${group.name}".
+
+            View it here:
+            http://localhost:3000/home/groups
+
+            Log in to view or subscribe to it!
+
+            – The Blossom Team`,
+            html: `
+                <p>Hi there!</p>
+                <p>A new goal <strong>"${description}"</strong> has been added to your group <strong>"${group.name}"</strong>.</p>
+                <p><a href="http://localhost:3000/home/groups" target="_blank">Click here to view and subscribe to the goal</a>.</p>
+                <p>– The Blossom Team</p>
+            `
+          });
+        } catch (emailErr) {
+          console.error('❌ Error sending goal notification email:', emailErr);
+          // Still succeed but warn the frontend
+          return res.status(200).json({
+            message: 'Goal added, but failed to send email notifications.',
+            goal: addedGoal
+          });
         }
-
-        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
-        const user = await UserModel.findOne({ email: req.user.email });
-        const createdBy = user._id
-
-        //validation
-
-        // Validate description
-        if (!description) {
-            return res.status(400).json({ message: 'Description is required.' });
-        }
-        if (typeof description !== 'string') {
-            return res.status(400).json({ message: 'Description must be a string.' });
-        }
-        if (description.length < 1 || description.length > 60) {
-            return res.status(400).json({ message: 'Description must be between 1 and 60 characters long.' });
-        }
-
-        // Validate target
-        if (target == null) {
-            return res.status(400).json({ message: 'Target is required.' });
-        }
-
-        // Validate unit
-        if (unit == null) {
-            return res.status(400).json({ message: 'Unit is required.' });
-        }
-
-        // Validate sport
-        if (typeof sport !== 'boolean') {
-            return res.status(400).json({ message: 'Sport must be a boolean.' });
-        }
-
-        // Validate date
-        if (date == null) {
-            return res.status(400).json({ message: 'Date is required.' });
-        }
-
-        // Validate createdBy
-        if (createdBy == null) {
-            return res.status(400).json({ message: 'CreatedBy is required.' });
-        }
-
-        const group = await GroupModel.findById(groupId);
-        if (!group) {
-            return res.status(404).json({ message: 'Group not found.' });
-        }
-
-        const newGoal = {
-            description,
-            target,
-            unit,
-            sport,
-            date,
-            createdBy
-        };
-
-        // Conditionally include optional labels
-        if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
-            newGoal.progressLabel = progressLabel;
-        }
-
-        if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
-            newGoal.remainingLabel = remainingLabel;
-        }
-
-
-        group.goals.push(newGoal);
-        await group.save();
-
-        const addedGoal = group.goals[group.goals.length - 1];
-
-        res.status(201).json({ message: 'Group goal added successfully', goal: addedGoal });
+      }
+  
+      res.status(201).json({ message: 'Group goal added and members notified.', goal: addedGoal });
     } catch (error) {
-        console.error('Error adding group goal:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error('Error adding group goal:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-});
+  });
+  
+
+// Fetch all goals from a specific group
+app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
+    try {
+      const { groupId } = req.params;
+  
+      if (!mongoose.Types.ObjectId.isValid(groupId)) {
+        return res.status(400).json({ message: 'Invalid group ID format.' });
+      }
+  
+      const group = await GroupModel.findById(groupId);
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+  
+      res.status(200).json({ goals: group.goals });
+    } catch (error) {
+      console.error('Error fetching group goals:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
 
 // GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
@@ -570,7 +842,7 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         const copiedGoal = {
             ...copiedGoalObj,
             sourceGroupId: groupId,
-            group: group.name,
+            group: group._id,
             progressLabel: copiedGoalObj.progressLabel?.trim() || "Progress",
             remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
             progress: 0
@@ -590,6 +862,23 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.delete('/groups/:groupId/goal/:goalId', authenticateToken, async (req, res) => {
+    const { groupId, goalId } = req.params;
+    try {
+        const group = await GroupModel.findById(groupId);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        group.goals = group.goals.filter(g => g._id.toString() !== goalId);
+        await group.save();
+
+        res.status(200).json({ message: 'Group goal deleted' });
+    } catch (error) {
+        console.error('Error deleting group goal:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 // GET ALL USER MEALS
 app.get('/meals', authenticateToken, async (req, res) => {
@@ -681,7 +970,16 @@ app.post('/meals', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        if (!mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (mealName.length < 1 || mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
+        }
+        
         const newMeal = { mealName, foods, date };
         user.meals.push(newMeal);
         await user.save();
@@ -704,6 +1002,15 @@ app.put('/meals/update/:id', authenticateToken, async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+        if (!updatedMeal.mealName) {
+            return res.status(400).json({ message: 'Meal name is required' });
+        }
+        if (typeof updatedMeal.mealName !== 'string') {
+            return res.status(400).json({ message: 'Meal name must be a string.' });
+        }
+        if (updatedMeal.mealName.length < 1 || updatedMeal.mealName.length > 30) {
+            return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
         }
 
         // Find the meal in the user's meals by id
@@ -766,14 +1073,21 @@ app.get('/foods', authenticateToken, async (req, res) => {
 app.post('/food', authenticateToken, async (req, res) => {
     const { name, calories, isDrink } = req.body;
 
-    if (
-        typeof name !== 'string' || name.trim() === '' ||
-        typeof calories !== 'number' || calories < 0 ||
-        typeof isDrink !== 'boolean'
-    ) {
-        return res.status(400).json({ message: 'Invalid or missing required fields' });
+    if (!name) {
+        return res.status(400).json({ message: 'Food name required' });
     }
-
+    if (typeof name !== 'string') {
+        return res.status(400).json({ message: 'Food name must be a string' });
+    }
+    if (name.length < 1 || name.length > 30) {
+        return res.status(400).json({ message: 'Food name must be between 1 and 30 characters long.' });
+    }
+    if (typeof calories !== 'number' || calories < 0) {
+        return res.status(400).json({ message: 'calories must be a number' });
+    }
+    if (typeof isDrink !== 'boolean') {
+        return res.status(400).json({ message: 'isDrink name must be a boolean' });
+    }
     try {
         const user = await UserModel.findOne({ email: req.user.email });
 
