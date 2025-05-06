@@ -198,7 +198,7 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10)
 
 
-        user = { first_name, last_name, username, email, password_hash: hashedPassword, foods: defaultFoods} // password: hashedpassword keeps the correct label.
+        user = { first_name, last_name, username, email, password_hash: hashedPassword, foods: defaultFoods } // password: hashedpassword keeps the correct label.
 
         const newUser = await UserModel.create(user);
 
@@ -317,23 +317,23 @@ app.get('/groups', authenticateToken, async (req, res) => {
 
 app.get('/groupsPage', authenticateToken, async (req, res) => {
     try {
-      const user = await UserModel.findOne({ email: req.user.email });
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      const groups = await GroupModel.find({ _id: { $in: user.groups } })
-        .populate('membersByID', 'username')
-  
-      res.json({ groups });
-    } catch (error) {
-      console.error('Error fetching user groups:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+        const user = await UserModel.findOne({ email: req.user.email });
 
-  app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const groups = await GroupModel.find({ _id: { $in: user.groups } })
+            .populate('membersByID', 'username')
+
+        res.json({ groups });
+    } catch (error) {
+        console.error('Error fetching user groups:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.user.email });
         const groupId = req.body.groupId;
@@ -388,82 +388,82 @@ app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
 
 app.get('/groupInvites', authenticateToken, async (req, res) => {
     try {
-      const user = await UserModel.findOne({ email: req.user.email }).populate({
-        path: 'groupInvites',
-        populate: { path: 'membersByID', select: 'username' }
-      });
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      res.json({ invites: user.groupInvites });
-    } catch (error) {
-      console.error('Error fetching group invites:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });  
+        const user = await UserModel.findOne({ email: req.user.email }).populate({
+            path: 'groupInvites',
+            populate: { path: 'membersByID', select: 'username' }
+        });
 
-  app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ invites: user.groupInvites });
+    } catch (error) {
+        console.error('Error fetching group invites:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+app.put('/groupsPage/addMember', authenticateToken, async (req, res) => {
     try {
-      const user = await UserModel.findOne({ email: req.user.email });
-      const { groupId, newMemberUsername } = req.body;
-  
-      if (!user) {
-        return res.status(404).json({ message: 'Requesting user not found' });
-      }
-  
-      const newMember = await UserModel.findOne({ username: newMemberUsername });
-  
-      if (!newMember) {
-        return res.status(404).json({ message: 'User not found by username' });
-      }
-  
-      // Check if already invited
-      if (newMember.groupInvites.includes(groupId)) {
-        return res.status(400).json({ message: 'User already invited to this group' });
-      }
-  
-      await UserModel.updateOne(
-        { _id: newMember._id },
-        { $addToSet: { groupInvites: groupId } }
-      );
-  
-      // Get group name for the email
-      const group = await GroupModel.findById(groupId);
-      const groupName = group ? group.name : 'a group';
-  
-      // Send email inviitation
-      try {
-        await transporter.sendMail({
-            from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
-            to: newMember.email,
-            subject: "You've been invited to join a group on Blossom!",
-            text: `Hi ${newMember.first_name},
+        const user = await UserModel.findOne({ email: req.user.email });
+        const { groupId, newMemberUsername } = req.body;
+
+        if (!user) {
+            return res.status(404).json({ message: 'Requesting user not found' });
+        }
+
+        const newMember = await UserModel.findOne({ username: newMemberUsername });
+
+        if (!newMember) {
+            return res.status(404).json({ message: 'User not found by username' });
+        }
+
+        // Check if already invited
+        if (newMember.groupInvites.includes(groupId)) {
+            return res.status(400).json({ message: 'User already invited to this group' });
+        }
+
+        await UserModel.updateOne(
+            { _id: newMember._id },
+            { $addToSet: { groupInvites: groupId } }
+        );
+
+        // Get group name for the email
+        const group = await GroupModel.findById(groupId);
+        const groupName = group ? group.name : 'a group';
+
+        // Send email inviitation
+        try {
+            await transporter.sendMail({
+                from: `"Group Invitation" <${EMAIL_ADDRESS}>`,
+                to: newMember.email,
+                subject: "You've been invited to join a group on Blossom!",
+                text: `Hi ${newMember.first_name},
           
           You've been invited to join the group "${groupName}" on Blossom.
           
           Log in to accept or decline the invitation.
           
           – The Blossom Team`,
-            html: `
+                html: `
               <p>Hi ${newMember.first_name},</p>
               <p>You've been invited to join the group <strong>"${groupName}"</strong> on Blossom.</p>
               <p><a href="http://localhost:3000/home/groups" target="_blank">Log in to accept or decline the invitation.</a></p>
               <p>– The Blossom Team</p>
             `
-          });
-      } catch (emailErr) {
-        console.error('Error sending invitation email:', emailErr);
-        return res.status(500).json({ message: 'User invited, but email failed to send.' });
-      }
-  
-      return res.status(200).json({ message: 'User successfully invited and notified via email.' });
+            });
+        } catch (emailErr) {
+            console.error('Error sending invitation email:', emailErr);
+            return res.status(500).json({ message: 'User invited, but email failed to send.' });
+        }
+
+        return res.status(200).json({ message: 'User successfully invited and notified via email.' });
     } catch (error) {
-      console.error('Error processing invite:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+        console.error('Error processing invite:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-  });
+});
 
 app.put('/groupsPage/deleteGroup', authenticateToken, async (req, res) => {
     try {
@@ -549,102 +549,102 @@ app.put('/groupsPage/declineInvite', authenticateToken, async (req, res) => {
 
 app.post('/groups/new', authenticateToken, async (req, res) => {
     try {
-      const { name } = req.body;
-  
-      if (!name || typeof name !== 'string') {
-        return res.status(400).json({ message: 'Group name is required and must be a string.' });
-      }
-  
-      const existingGroup = await GroupModel.findOne({ name });
-      if (existingGroup) {
-        return res.status(409).json({ message: 'Group name already exists.' });
-      }
-  
-      const user = await UserModel.findById(req.user.id);
-      if (!user) {
-        return res.status(404).json({ message: 'Authenticated user not found.' });
-      }
-  
-      const newGroup = new GroupModel({
-        name,
-        membersByID: [user._id] // Add creator as first member
-      });
-  
-      await newGroup.save();
-  
-      // Add group to user's groups list
-      user.groups.push(newGroup._id);
-      await user.save();
-  
-      res.status(201).json({ message: 'Group created successfully', group: newGroup });
+        const { name } = req.body;
+
+        if (!name || typeof name !== 'string') {
+            return res.status(400).json({ message: 'Group name is required and must be a string.' });
+        }
+
+        const existingGroup = await GroupModel.findOne({ name });
+        if (existingGroup) {
+            return res.status(409).json({ message: 'Group name already exists.' });
+        }
+
+        const user = await UserModel.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Authenticated user not found.' });
+        }
+
+        const newGroup = new GroupModel({
+            name,
+            membersByID: [user._id] // Add creator as first member
+        });
+
+        await newGroup.save();
+
+        // Add group to user's groups list
+        user.groups.push(newGroup._id);
+        await user.save();
+
+        res.status(201).json({ message: 'Group created successfully', group: newGroup });
     } catch (error) {
-      console.error('Error creating group:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error creating group:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-  });
-  
+});
+
 
 // CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
-      const { groupId } = req.params;
-      if (!mongoose.Types.ObjectId.isValid(groupId)) {
-        return res.status(400).json({ message: 'Invalid group ID format.' });
-      }
-  
-      const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
-      const user = await UserModel.findOne({ email: req.user.email });
-      const createdBy = user._id;
-  
-      if (!description || typeof description !== 'string' || description.length < 1 || description.length > 60) {
-        return res.status(400).json({ message: 'Description must be a string between 1 and 60 characters.' });
-      }
-      if (target == null || unit == null || typeof sport !== 'boolean' || !date) {
-        return res.status(400).json({ message: 'Missing required goal fields.' });
-      }
-  
-      const group = await GroupModel.findById(groupId);
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found.' });
-      }
-  
-      const newGoal = {
-        description,
-        target,
-        unit,
-        sport,
-        date,
-        createdBy
-      };
-  
-      if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
-        newGoal.progressLabel = progressLabel;
-      }
-  
-      if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
-        newGoal.remainingLabel = remainingLabel;
-      }
-  
-      group.goals.push(newGoal);
-      await group.save();
-  
-      const addedGoal = group.goals[group.goals.length - 1];
-  
-      //emial
-      const memberUsers = await UserModel.find({
-        _id: { $in: group.membersByID },
-        _id: { $ne: createdBy } // exclude creator
-      });
-  
-      const recipientEmails = memberUsers.map(member => member.email);
-  
-      if (recipientEmails.length > 0) {
-        try {
-          await transporter.sendMail({
-            from: `"Group Goal Alert" <${EMAIL_ADDRESS}>`,
-            to: recipientEmails,
-            subject: `New Goal in Group "${group.name}"`,
-            text: `Hi there!
+        const { groupId } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: 'Invalid group ID format.' });
+        }
+
+        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
+        const user = await UserModel.findOne({ email: req.user.email });
+        const createdBy = user._id;
+
+        if (!description || typeof description !== 'string' || description.length < 1 || description.length > 60) {
+            return res.status(400).json({ message: 'Description must be a string between 1 and 60 characters.' });
+        }
+        if (target == null || unit == null || typeof sport !== 'boolean' || !date) {
+            return res.status(400).json({ message: 'Missing required goal fields.' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        const newGoal = {
+            description,
+            target,
+            unit,
+            sport,
+            date,
+            createdBy
+        };
+
+        if (progressLabel && typeof progressLabel === 'string' && progressLabel.trim() !== '') {
+            newGoal.progressLabel = progressLabel;
+        }
+
+        if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
+            newGoal.remainingLabel = remainingLabel;
+        }
+
+        group.goals.push(newGoal);
+        await group.save();
+
+        const addedGoal = group.goals[group.goals.length - 1];
+
+        //emial
+        const memberUsers = await UserModel.find({
+            _id: { $in: group.membersByID },
+            _id: { $ne: createdBy } // exclude creator
+        });
+
+        const recipientEmails = memberUsers.map(member => member.email);
+
+        if (recipientEmails.length > 0) {
+            try {
+                await transporter.sendMail({
+                    from: `"Group Goal Alert" <${EMAIL_ADDRESS}>`,
+                    to: recipientEmails,
+                    subject: `New Goal in Group "${group.name}"`,
+                    text: `Hi there!
 
             A new goal "${description}" has been added to your group "${group.name}".
 
@@ -654,53 +654,53 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             Log in to view or subscribe to it!
 
             – The Blossom Team`,
-            html: `
+                    html: `
                 <p>Hi there!</p>
                 <p>A new goal <strong>"${description}"</strong> has been added to your group <strong>"${group.name}"</strong>.</p>
                 <p><a href="http://localhost:3000/home/groups" target="_blank">Click here to view and subscribe to the goal</a>.</p>
                 <p>– The Blossom Team</p>
             `
-          });
-        } catch (emailErr) {
-          console.error('❌ Error sending goal notification email:', emailErr);
-          // Still succeed but warn the frontend
-          return res.status(200).json({
-            message: 'Goal added, but failed to send email notifications.',
-            goal: addedGoal
-          });
+                });
+            } catch (emailErr) {
+                console.error('❌ Error sending goal notification email:', emailErr);
+                // Still succeed but warn the frontend
+                return res.status(200).json({
+                    message: 'Goal added, but failed to send email notifications.',
+                    goal: addedGoal
+                });
+            }
         }
-      }
-  
-      res.status(201).json({ message: 'Group goal added and members notified.', goal: addedGoal });
+
+        res.status(201).json({ message: 'Group goal added and members notified.', goal: addedGoal });
     } catch (error) {
-      console.error('Error adding group goal:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error adding group goal:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-  });
-  
+});
+
 
 // Fetch all goals from a specific group
 app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
     try {
-      const { groupId } = req.params;
-  
-      if (!mongoose.Types.ObjectId.isValid(groupId)) {
-        return res.status(400).json({ message: 'Invalid group ID format.' });
-      }
-  
-      const group = await GroupModel.findById(groupId);
-  
-      if (!group) {
-        return res.status(404).json({ message: 'Group not found' });
-      }
-  
-      res.status(200).json({ goals: group.goals });
+        const { groupId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: 'Invalid group ID format.' });
+        }
+
+        const group = await GroupModel.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        res.status(200).json({ goals: group.goals });
     } catch (error) {
-      console.error('Error fetching group goals:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+        console.error('Error fetching group goals:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-  });
-  
+});
+
 
 // GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
@@ -920,7 +920,7 @@ app.get('/recent-calories', authenticateToken, async (req, res) => {
             if (!isMealRecent) {
                 continue;
             }
-            
+
             // Work out calories for this meal
             let caloriesInThisMeal = 0;
             // Sum all calories from each food in meal
@@ -929,7 +929,7 @@ app.get('/recent-calories', authenticateToken, async (req, res) => {
                 const foodCalories = food.calories || 0;
                 caloriesInThisMeal += foodCalories;
             }
-            
+
             recentCalories += caloriesInThisMeal;
         }
         res.status(200).json(recentCalories);
@@ -979,7 +979,7 @@ app.post('/meals', authenticateToken, async (req, res) => {
         if (mealName.length < 1 || mealName.length > 30) {
             return res.status(400).json({ message: 'Meal name must be between 1 and 30 characters long.' });
         }
-        
+
         const newMeal = { mealName, foods, date };
         user.meals.push(newMeal);
         await user.save();
@@ -1124,8 +1124,136 @@ app.delete('/food/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// GET ALL USER EXERCISES
+app.get('/exercises', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ exercises: user.mealexercises });
+    } catch (error) {
+        console.error('Error fetching exercises:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// GET EXERCISE BY ID
+app.get('/exercises/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const exerciseId = req.params.id;
+        const exercise = user.exercises.find(m => m._id.toString() === exerciseId);
+
+        if (!exercise) {
+            return res.status(404).json({ message: 'Exercise not found' });
+        }
+
+        res.status(200).json({ exercise });
+    } catch (error) {
+        console.error('Error fetching exercise:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// SAVE EXERCISE TO USER
+app.post('/exercises', authenticateToken, async (req, res) => {
+    const { exerciseName, activities, durationMs, date } = req.body;
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (!exerciseName) {
+            return res.status(400).json({ message: 'Exercise name is required' });
+        }
+        if (typeof exerciseName !== 'string') {
+            return res.status(400).json({ message: 'Exercise name must be a string.' });
+        }
+        if (exerciseName.length < 1 || exerciseName.length > 30) {
+            return res.status(400).json({ message: 'Exercise name must be between 1 and 30 characters long.' });
+        }
+
+        const newexercise = { exerciseName, activities, durationMs, date };
+        user.exercises.push(newexercise);
+        await user.save();
+
+        res.status(201).json({ message: 'Exercise saved successfully', exercise: newexercise });
+    } catch (err) {
+        console.error('Error saving exercise:', err);
+        res.status(500).json({ error: 'Failed to create exercise' });
+    }
+});
+
+// UPDATE EXERCISE BY ID
+app.put('/exercises/update/:id', authenticateToken, async (req, res) => {
+    try {
+        const exerciseId = req.params.id;
+        const updatedExercise = req.body;
+
+        // Find the user by the email in the token
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (!updatedExercise.exerciseName) {
+            return res.status(400).json({ message: 'Exercise name is required' });
+        }
+        if (typeof updatedExercise.exerciseName !== 'string') {
+            return res.status(400).json({ message: 'Exercise name must be a string.' });
+        }
+        if (updatedExercise.exerciseName.length < 1 || updatedExercise.exerciseName.length > 30) {
+            return res.status(400).json({ message: 'Exercise name must be between 1 and 30 characters long.' });
+        }
+
+        // Find the exercise in the user's exercises by id
+        const exerciseIndex = user.exercises.findIndex(exercise => exercise._id.toString() === exerciseId);
+
+        if (exerciseIndex === -1) {
+            return res.status(404).json({ message: 'Exercise not found' });
+        }
+
+        // Update exercise fields with the updated data
+        user.exercises[exerciseIndex] = { ...user.exercises[exerciseIndex]._doc, ...updatedExercise };
+
+        // Save the updated user object with the updated exercise
+        await user.save();
+
+        // Respond with success and the updated exercise
+        res.status(200).json({ message: 'Exercise updated successfully', exercise: user.exercises[exerciseIndex] });
+    } catch (error) {
+        console.error('Error updating exercise:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// DELETE EXERCISE BY ID
+app.delete('/exercises/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const exerciseId = req.params.id;
+        await UserModel.updateOne(
+            { _id: user._id },
+            { $pull: { exercises: { _id: new ObjectId(exerciseId) } } }
+        );
+        res.status(200).json({ message: 'Exercise deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete exercise' });
+    }
+});
+
 // GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
-app.get('/dob', authenticateToken, async(req, res) => {
+app.get('/dob', authenticateToken, async (req, res) => {
     const user = await UserModel.findOne({ email: req.user.email });
 
     if (!user) {
@@ -1160,24 +1288,25 @@ app.get('/weights', authenticateToken, async (req, res) => {
         res.json({ weight: user.weight, targetWeight: user.targetWeight });
     } catch (err) {
         res.status(500).json({ message: 'Error fetching weights', error: err });
-}});
+    }
+});
 
 app.get('/height', authenticateToken, async (req, res) => {
     try {
-      const userId = req.user.id;
-  
-      const user = await UserModel.findById(userId).select('height');
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      return res.status(200).json(user.height);
+        const userId = req.user.id;
+
+        const user = await UserModel.findById(userId).select('height');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json(user.height);
     } catch (err) {
-      console.error('Error fetching height:', err);
-      return res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching height:', err);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-  });  
+});
 
 app.post('/weight', authenticateToken, async (req, res) => {
     try {
