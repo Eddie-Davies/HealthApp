@@ -1269,13 +1269,10 @@ app.get('/activities', authenticateToken, async (req, res) => {
 
 // POST ACTIVITY
 app.post('/activity', authenticateToken, async (req, res) => {
-    const { activityType, quantity, unit } = req.body;
+    const { activityType, quantity } = req.body;
 
     if (!activityType) {
         return res.status(400).json({ message: 'activityType required' });
-    }
-    if (!unit) {
-        return res.status(400).json({ message: 'Unit required' });
     }
     if (typeof quantity !== 'number' || quantity < 0) {
         return res.status(400).json({ message: 'quantity must be a number' });
@@ -1287,7 +1284,7 @@ app.post('/activity', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const newActivity = { activityType, quantity, unit };
+        const newActivity = { activityType, quantity };
         user.activities.push(newActivity)
         await user.save()
 
@@ -1311,6 +1308,74 @@ app.delete('/activity/:id', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to delete activity" });
+    }
+});
+
+// GET ACTIVITY TYPES
+app.get('/activityTypes', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ activityTypes: user.activityTypes });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching activityTypes', error: err });
+    }
+});
+
+// POST ACTIVITY TYPE
+app.post('/activityType', authenticateToken, async (req, res) => {
+    const { name, unit } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ message: 'Activity type is required' });
+    }
+    if (typeof name !== 'string') {
+        return res.status(400).json({ message: 'Activity type must be a string.' });
+    }
+    if (name.length < 1 || name.length > 30) {
+        return res.status(400).json({ message: 'Activity type name must be between 1 and 30 characters long.' });
+    }
+    if (!unit) {
+        return res.status(400).json({ message: 'Unit required' });
+    }
+    if (typeof name !== 'string') {
+        return res.status(400).json({ message: 'Unit must be a string.' });
+    }
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const newactivityType = { name, unit };
+        user.activityTypes.push(newactivityType)
+        await user.save()
+
+    } catch (err) {
+        res.status(500).json({ message: 'Error saving activity type', error: err });
+    }
+});
+
+// DELETE /activityType/:id - Delete an activityType by ID
+app.delete('/activityType/:id', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const activityTypeID = req.params.id;
+
+        await UserModel.updateOne(
+            { _id: userId },
+            { $pull: { activityTypes: { _id: new ObjectId(activityTypeID) } } }
+        );
+
+        res.status(200).json({ message: "Activity type deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete activity type" });
     }
 });
 

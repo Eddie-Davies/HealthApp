@@ -38,7 +38,6 @@ const ActivityTypeSchema = new mongoose.Schema({
 const ActivitySchema = new mongoose.Schema({
     activityType: [ActivityTypeSchema],
     quantity: Number,
-    unit: String
 });
 
 // Exercise Schema
@@ -85,7 +84,7 @@ const UserSchema = new mongoose.Schema({
     foods: [FoodSchema],
     exercises: [ExerciseSchema],
     activities: [ActivitySchema],
-    activityType: [ActivityTypeSchema],
+    activityTypes: [ActivityTypeSchema],
     goals: [GoalSchema],
     accountCreationDate: { type: Date, required: true, default: Date.now },
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
