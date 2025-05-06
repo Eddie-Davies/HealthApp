@@ -1,30 +1,59 @@
 <template>
-  <div v-if="isLoaded" class="p-4 space-y-4">
-    <h1 class="text-2xl font-semibold">Select {{ capitalizedType }}</h1>
-
-    <input v-model="searchQuery" type="text" placeholder="Search..." class="input input-bordered w-full" />
-
-    <div class="divide-y border rounded mt-2">
-      <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4"
-        data-tip="Fill out a new food item below :)">
-        <button class="btn">Add a new food item to start tracking!</button>
+  <div class="flex justify-center min-h-screen items-start pt-10">
+    <div v-if="isLoaded" class="px-4 max-w-md w-full">
+      <h1 class="text-2xl font-semibold mb-10 text-center">Select {{ capitalizedType }}</h1>
+      <div class="flex justify-center">
+        <input v-model="searchQuery" type="text" placeholder="Search my list..." class="input input-bordered w-2/3" />
       </div>
-      <div v-for="item in filteredItems" :key="item._id"
-        class="flex justify-between items-center p-3 hover:bg-gray-100">
-        <div @click="selectItem(item)" class="flex-1 cursor-pointer">
-          <span>{{ item.name }}</span> <span>{{ item.calories }} kcal</span>
+      <div class="mt-5 rounded-2xl">
+
+        <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4"
+          data-tip="Fill out a new food item below :)">
+          <div class="btn cursor-default">Add a new food item to start tracking!</div>
         </div>
-        <button class="btn btn-sm btn-error ml-2 p-3" @click.stop="deleteItem(item._id)">Delete</button>
-      </div>
-    </div>
+        <!-- Table Headings -->
+        <div v-if="filteredItems.length !== 0" class="flex justify-between items-center px-3 py-2 font-semibold text-base-content/50">
+          <div class="flex-1 flex justify-between mr-3">
+            <span class="">{{ capitalizedType }}</span>
+            <span class="mr-15">Calories</span>
+          </div>
+        </div>
 
-    <div class="mt-6 border-t pt-4">
-      <h2 class="font-semibold mb-2">Add new {{ capitalizedType }}:</h2>
-      <input v-model="newItem.name" placeholder="Name" class="input input-bordered w-full mb-2" />
-      <input v-model="newItem.calories" placeholder="Calories" type="number" class="input input-bordered w-full mb-4" />
-      <button class="btn btn-primary w-full" @click="addItem">
-        Add to {{ capitalizedType }} List
-      </button>
+        <div v-for="item in filteredItems" :key="item._id"
+          class="flex justify-between items-center p-3 hover:bg-base-200/50 bg-base-200 cursor-pointer rounded-full mb-2"
+          @click="selectItem(item)">
+          <div class="flex-1 flex justify-between mr-3 text-base-content/95">
+            <span class="ml-3">{{ item.name }}</span>
+            <span class="font-semibold">{{ item.calories }} kcal</span>
+          </div>
+          <button class="btn btn-sm btn-error btn-soft btn-ghost btn-outline p-3 text-error hover:text-base-content"
+            @click.stop="deleteItem(item._id)">Delete</button>
+        </div>
+
+      </div>
+
+
+      <div class="mt-6 border-t border-neutral/50 pt-4">
+        <h2 class="text-2xl font-semibold mb-5">Add new {{ capitalizedType }}:</h2>
+        
+        <div class="flex flex-col lg:flex-row justify-between">
+          <div class="flex flex-col lg:flex-row gap-4 mb-5 w-full ">
+            <div class="flex flex-col justify-start space-y-2">
+              <label class="block text-sm text-base-content/70 font-semibold">Name of {{ capitalizedType }}:</label>
+              <input v-model="newItem.name" :placeholder="capitalizedType === 'Drink' ? 'Cappuccino' : 'Sandwich'" class="input input-bordered w-full lg:w-auto" />
+            </div>
+            <div class="flex flex-col lg:ml-6 space-y-2">
+              <label class="block text-sm text-base-content/70 font-semibold">Calories:</label>
+              <input v-model="newItem.calories" :placeholder="capitalizedType === 'Drink' ? '40 kcal' : '650 kcal'" type="number" class="input  w-full lg:w-auto" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-full mb-3" @click="addItem">
+          Add to {{ capitalizedType }} List
+        </button>
+      <button class="btn w-full btn-error btn-soft mb-25" @click="$router.push(this.$route.path.split('/select')[0])">Back</button>
+      </div>
     </div>
   </div>
 
