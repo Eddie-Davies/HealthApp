@@ -3,9 +3,13 @@
   <div class="mt-20 px-4 pb-16 flex flex-col items-center">
     <NewMeal />
 
-    <div class="mt-16 w-full max-w-md">
+    <div class="mt-16 w-full max-w-md mb-20">
       <div v-if="meals.length > 0">
-        <h2 class="text-xl font-semibold mb-4">Previous Meals</h2>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold">Previous Meals</h2>
+          <p class="text text-right text-base-content/50 cursor-default">Tap to edit</p>
+        </div>
+
         <MealCard v-for="(meal, index) in meals" :key="index" :name="meal.mealName"
           :food="meal.foods.filter(f => !f.isDrink)" :drinks="meal.foods.filter(f => f.isDrink)" :date="meal.date"
           :id="meal._id" />
