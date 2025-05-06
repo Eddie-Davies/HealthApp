@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const defaultFoods = require('./defaultFoods');
+const defaultActivityTypes = require('./defaultActivityTypes');
 require('dotenv').config({ path: __dirname + '/../.env' });
 
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
@@ -198,7 +199,7 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10)
 
 
-        user = { first_name, last_name, username, email, password_hash: hashedPassword, foods: defaultFoods } // password: hashedpassword keeps the correct label.
+        user = { first_name, last_name, username, email, password_hash: hashedPassword, foods: defaultFoods, activityTypes: defaultActivityTypes } // password: hashedpassword keeps the correct label.
 
         const newUser = await UserModel.create(user);
 
