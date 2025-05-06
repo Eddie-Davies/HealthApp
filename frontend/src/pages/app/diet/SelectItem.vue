@@ -5,7 +5,6 @@
       <div class="flex justify-center">
         <input v-model="searchQuery" type="text" placeholder="Search my list..." class="input input-bordered w-2/3" />
       </div>
-
       <div class="mt-5 rounded-2xl">
 
         <div v-if="filteredItems.length === 0" class="tooltip flex justify-center items-center p-4"
@@ -53,9 +52,11 @@
         </div>
 
 
-        <button class="btn btn-primary w-full mb-25" @click="addItem">
+        <button class="btn btn-primary w-full mb-3" @click="addItem">
           Add to {{ capitalizedType }} List
         </button>
+      <button class="btn w-full btn-error btn-soft mb-25" @click="$router.push(this.$route.path.split('/select')[0])">Back</button>
+
       </div>
     </div>
 
