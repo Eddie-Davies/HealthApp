@@ -6,4 +6,3 @@ module.exports = [
     { name: 'Water (250ml)', calories: 0, isDrink: true },
     { name: 'Orange Juice (250ml)', calories: 112, isDrink: true },
   ];
-  
