@@ -1,5 +1,5 @@
 <template>
-  <PageHeader :title="$route.meta.title" v-if="!showTrack"/>
+  <PageHeader :title="$route.meta.title" v-if="!showTrack" />
   <div class="mt-10 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise -->
     <div v-if="!showTrack">
@@ -10,31 +10,18 @@
       </div>
     </div>
     <!-- Workout in progress -->
-    <ExerciseTrack
-      v-if="showTrack"
-      @workoutFinished="handleWorkoutFinished"
-    />
+    <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
     <div class="mt-10 w-full max-w-md">
       <div v-if="!showTrack">
-        
+
         <!-- Only show limited exercises or all based on showAll toggle -->
-        <ExerciseCard
-          v-for="(exercise, index) in displayedExercises"
-          :key="index"
-          :title="exercise.title"
-          :activity="exercise.activity"
-          :value="exercise.value"
-          :time="exercise.time"
-          :activitiesDetails="exercise.activitiesDetails || []"
-          :isMultiActivity="Boolean(exercise.isMultiActivity)"
-          @delete="deleteExercise(index)"
-        />
+        <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :title="exercise.title"
+          :activity="exercise.activity" :value="exercise.value" :time="exercise.time"
+          :activitiesDetails="exercise.activitiesDetails || []" :isMultiActivity="Boolean(exercise.isMultiActivity)"
+          @delete="deleteExercise(index)" />
         <!-- Show more/less button -->
-        <div v-if="exercises.length > 5" class="flex justify-center mt-6 mb-15">
-          <button
-            @click="showAll = !showAll"
-            class="btn btn-outline btn-neutral"
-          >
+        <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
+          <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
             {{ showAll ? 'Show Recent' : 'Show All' }}
           </button>
         </div>
@@ -44,6 +31,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import ExerciseTrack from './ExerciseTrack.vue';
 import ExerciseCard from './ExerciseCard.vue';
 import ExerciseNew from './ExerciseNew.vue';
@@ -54,8 +42,8 @@ export default {
   data() {
     return {
       showTrack: false,
-      exercises: [],
-      showAll: false
+      showAll: false,
+      exercises: []
     };
   },
   computed: {
@@ -68,25 +56,39 @@ export default {
       }
     }
   },
+  created() {
+    this.fetchExercises();
+  },
   methods: {
+    async fetchExercises() {
+      try {
+        const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
+        this.exercises = res?.data?.exercises || [];
+      } catch (err) {
+        console.error('Failed to fetch exercises:', err);
+      }
+    },
     startExercise() {
       this.showTrack = true;
     },
     handleWorkoutFinished(workout) {
       if (workout) {
-        console.log('Received workout in parent:', workout);
-        // Ensure workout has all required properties for ExerciseCard
-        const processedWorkout = {
+        this.exercises.unshift({
           ...workout,
-          isMultiActivity: Boolean(workout.isMultiActivity),
-          activitiesDetails: workout.activitiesDetails || []
-        };
-        this.exercises.unshift(processedWorkout);
+          isMultiActivity: workout.activities.length > 1,
+          activitiesDetails: workout.activities
+        });
       }
       this.showTrack = false;
     },
-    deleteExercise(index) {
-      this.exercises.splice(index, 1);
+    async deleteExercise(index) {
+      const idToDelete = this.exercises[index]._id;
+      try {
+        await axios.delete(`/exercises/${idToDelete}`, { withCredentials: true });
+        this.exercises.splice(index, 1);
+      } catch (err) {
+        console.error('Failed to delete exercise:', err);
+      }
     }
   }
 };
