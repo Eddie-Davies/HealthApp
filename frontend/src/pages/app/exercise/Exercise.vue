@@ -2,7 +2,7 @@
   <PageHeader :title="$route.meta.title" />
   <div class="mt-10 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise -->
-    <div >
+    <div>
       <ExerciseNew @start="startExercise" />
       <!-- Exercise Summary -->
       <div class="mt-10 flex justify-between items-center w-full max-w-md">
@@ -60,10 +60,25 @@ export default {
     this.fetchExercises();
   },
   methods: {
+    formatTime(ms) {
+      if (!ms || typeof ms !== 'number') return '00:00.00';
+      const minutes = Math.floor(ms / 60000);
+      const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+      return `${String(minutes).padStart(2, '0')}:${seconds}`;
+    },
     async fetchExercises() {
       try {
         const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
-        this.exercises = res?.data?.exercises || [];
+        this.exercises = res?.data?.exercises.map(workout => ({
+          ...workout,
+          isMultiActivity: workout.activities.length > 1,
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
+        })) || [];
       } catch (err) {
         console.error('Failed to fetch exercises:', err);
       }
@@ -76,7 +91,12 @@ export default {
         this.exercises.unshift({
           ...workout,
           isMultiActivity: workout.activities.length > 1,
-          activitiesDetails: workout.activities
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
         });
       }
       this.showTrack = false;

@@ -85,17 +85,69 @@ export default {
       timer: 0,  // This will now track milliseconds
       timerInterval: null,
       isRunning: false,
-      newTitle: ''
+      newTitle: '',
+      exerciseId: this.$route.params.id,
+      isLoaded: false
     };
   },
+  computed: {
+    isNew() {
+      return this.exerciseId === undefined || this.exerciseId === 'new';
+    },
+    storageKey() {
+      return this.isNew ? 'tempNewExercise' : `tempEditExercise_${this.exerciseId}`;
+    }
+  },
+  watch: {
+    newTitle() {
+      this.saveToLocalStorage();
+    }
+  },
   methods: {
+    saveToLocalStorage() {
+      localStorage.setItem(
+        this.storageKey,
+        JSON.stringify({
+          title: this.newTitle,
+          exercises: this.exercises,
+          timer: this.timer
+        })
+      );
+    },
+    async mounted() {
+      const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
+      if (tempExercise) {
+        this.newTitle = tempExercise.title || '';
+        this.exercises = tempExercise.exercises || [];
+        this.timer = tempExercise.timer || 0;
+      } else if (!this.isNew) {
+        try {
+          const res = await axios.get(`/exercises/${this.exerciseId}`);
+          const workout = res.data.exercise;
+
+          this.newTitle = workout.exerciseName;
+          this.exercises = workout.activities.map((a, index) => ({
+            id: index + 1,
+            title: `Activity ${index + 1}`,
+            activity: a.activity,
+            integer: a.integer,
+            unit: a.unit
+          }));
+          this.timer = workout.durationMs || 0;
+          this.nextId = this.exercises.length + 1;
+        } catch (err) {
+          console.error('Failed to load exercise:', err);
+        }
+      }
+      this.isLoaded = true;
+    },
     startTimer() {
       if (!this.isRunning) {
         this.isRunning = true;
-        // Update every 10ms instead of 1000ms
         this.timerInterval = setInterval(() => {
-          this.timer += 10;  // Add 10ms each tick
-        }, 10);
+          this.timer += 10;
+          this.saveToLocalStorage();
+        }, 1000);
       }
     },
     pauseTimer() {
@@ -103,6 +155,7 @@ export default {
         this.isRunning = false;
         clearInterval(this.timerInterval);
         this.timerInterval = null;
+        this.saveToLocalStorage();
       }
     },
     formatTime(milliseconds) {
@@ -117,35 +170,40 @@ export default {
       const newActivity = {
         id: this.nextId,
         title: `Activity ${this.nextId}`,
-        activity: 'Run',
-        integer: '0',
-        unit: 'km'
+        activity: '',
+        integer: '',
+        unit: ''
       };
       this.exercises.push(newActivity);
       this.nextId++;
+      this.saveToLocalStorage();
     },
     updateInteger({ title, integer }) {
-      console.log('Updating integer for:', title, 'to:', integer);
       const ex = this.exercises.find((e) => e.title === title);
       if (ex) {
         ex.integer = integer;
-        console.log('Updated exercises:', JSON.stringify(this.exercises));
+        this.saveToLocalStorage();
       }
     },
     updateUnit({ title, unit }) {
       const ex = this.exercises.find((e) => e.title === title);
-      if (ex) ex.unit = unit;
+      if (ex) {
+        ex.unit = unit;
+        this.saveToLocalStorage();
+      }
     },
     updateActivity({ title, activity }) {
       const ex = this.exercises.find((e) => e.title === title);
-      if (ex) ex.activity = activity;
+      if (ex) {
+        ex.activity = activity;
+        this.saveToLocalStorage();
+      }
     },
     async finishWorkout() {
       this.pauseTimer();
       const activitiesDetails = this.exercises.map(ex => ({
-        activity: ex.activity,
-        integer: ex.integer,
-        unit: ex.unit
+        activityType: [{ name: ex.activity, unit: ex.unit }],
+        quantity: Number(ex.integer)
       }));
       const completedWorkout = {
         exerciseName: this.newTitle || 'Untitled Workout',
@@ -154,11 +212,15 @@ export default {
         date: new Date()
       };
       try {
-        const res = await axios.post('/exercises', completedWorkout, { withCredentials: true });
-        this.$emit('workoutFinished', res.data.exercise);
+        if (this.isNew) {
+          await axios.post('/exercises', completedWorkout);
+        } else {
+          await axios.put(`/exercises/update/${this.exerciseId}`, completedWorkout);
+        }
+        localStorage.removeItem(this.storageKey);
         this.$router.push('/home/exercise');
       } catch (err) {
-        console.error('Failed to save workout:', err);
+        console.error('Failed to save workout:', err.response?.data || err);
       }
     }
   }

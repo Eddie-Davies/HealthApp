@@ -114,7 +114,6 @@ export default {
             try {
                 const res = await axios.get('/activityTypes');
                 this.types = res.data.activityTypes;
-                console.log(res.data)
             } catch (err) {
                 console.error('Error fetching activity type list:', err.response?.data || err.message);
             }

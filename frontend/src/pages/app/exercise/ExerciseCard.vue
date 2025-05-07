@@ -2,7 +2,7 @@
   <div class="card bg-base-300 rounded-box p-4 mb-4 ">
     <!-- Title and delete button -->
     <div class="flex justify-between items-center w-full">
-      <h3 class="text-lg font-semibold">{{ title }}</h3>
+      <h3 class="text-lg font-semibold">{{ exerciseName }}</h3>
       <button 
         @click="handleDelete" 
         class="btn btn-sm btn-neutral"
@@ -14,12 +14,16 @@
     <!-- Single activity display -->
     <div v-if="shouldShowSingleActivity" class="flex justify-between mt-4">
       <div class="text-base-content/80">
-        <div class="text-sm opacity-60">Activity</div>
-        <div>{{ activity }}</div>
+        <div class="text-sm opacity-60">Activities</div>
+        <div>{{ activities }}</div>
       </div>
       <div class="text-base-content/80">
         <div class="text-sm opacity-60">Value</div>
         <div>{{ value }}</div>
+      </div>
+      <div class="text-base-content/80">
+        <div class="text-sm opacity-60">Unit</div>
+        <div>{{ unit }}</div>
       </div>
       <div class="text-base-content/80">
         <div class="text-sm opacity-60">Time</div>
@@ -99,12 +103,5 @@ export default {
       this.$emit('delete');
     }
   },
-  mounted() {
-    // Debug: Log props when component mounts
-    console.log('ExerciseCard mounted with props:', {
-      isMultiActivity: this.isMultiActivity,
-      activitiesDetails: this.activitiesDetails
-    });
-  }
 };
 </script>
