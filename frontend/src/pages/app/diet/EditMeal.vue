@@ -157,7 +157,7 @@ export default {
       );
       if (actualIndex !== -1) this.foodItems.splice(actualIndex, 1);
       localStorage.setItem(
-        this.st,
+        this.storageKey,
         JSON.stringify({
           name: this.mealName,
           foodItems: this.foodItems,
