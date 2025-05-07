@@ -132,4 +132,5 @@ export default {
         this.isLoaded = true;
     }
 };
+// TO DO!!!! newly added items to not get added until page is reloaded
 </script>

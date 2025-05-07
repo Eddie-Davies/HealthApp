@@ -142,23 +142,21 @@ export default {
     },
     async finishWorkout() {
       this.pauseTimer();
-
       const activitiesDetails = this.exercises.map(ex => ({
         activity: ex.activity,
         integer: ex.integer,
         unit: ex.unit
       }));
-
       const completedWorkout = {
         exerciseName: this.newTitle || 'Untitled Workout',
         activities: activitiesDetails,
         durationMs: this.timer,
         date: new Date()
       };
-
       try {
         const res = await axios.post('/exercises', completedWorkout, { withCredentials: true });
         this.$emit('workoutFinished', res.data.exercise);
+        this.$router.push('/home/exercise');
       } catch (err) {
         console.error('Failed to save workout:', err);
       }

@@ -10,6 +10,7 @@ import Goals from './pages/app/goals/Goals.vue';
 import Profile from './pages/app/profile/Profile.vue';
 import Groups from './pages/app/groups/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
+import ExerciseTrack from './pages/app/exercise/ExerciseTrack.vue'
 import EditActivityTypes from './pages/app/exercise/EditActivityTypes.vue';
 
 import Diet from './pages/app/diet/Diet.vue';
@@ -30,8 +31,8 @@ const routes = [
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
       { path: "profile", component: Profile, meta: {title: 'My Profile'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
-      { path: '/home/exercise/new', component: EditMeal },
-      { path: '/home/exercise/:id', component: EditMeal},
+      { path: '/home/exercise/new', component: ExerciseTrack },
+      { path: '/home/exercise/:id', component: ExerciseTrack},
       { path: '/home/exercise/:exerciseId/editActivityType', component: EditActivityTypes},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },

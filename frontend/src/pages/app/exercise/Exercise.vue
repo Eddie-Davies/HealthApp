@@ -1,9 +1,9 @@
 <template>
-  <PageHeader :title="$route.meta.title" v-if="!showTrack" />
+  <PageHeader :title="$route.meta.title" />
   <div class="mt-10 px-4 pb-16 flex flex-col items-center">
     <!-- Start Exercise -->
-    <div v-if="!showTrack">
-      <ExerciseNew v-if="!showTrack" @start="startExercise" />
+    <div >
+      <ExerciseNew @start="startExercise" />
       <!-- Exercise Summary -->
       <div class="mt-10 flex justify-between items-center w-full max-w-md">
         <h2 class="text-2xl font-semibold">Previous Exercise</h2>
@@ -12,7 +12,7 @@
     <!-- Workout in progress -->
     <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
     <div class="mt-10 w-full max-w-md">
-      <div v-if="!showTrack">
+      <div>
 
         <!-- Only show limited exercises or all based on showAll toggle -->
         <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :title="exercise.title"
@@ -69,7 +69,7 @@ export default {
       }
     },
     startExercise() {
-      this.showTrack = true;
+      this.$router.push('/home/exercise/new');
     },
     handleWorkoutFinished(workout) {
       if (workout) {
