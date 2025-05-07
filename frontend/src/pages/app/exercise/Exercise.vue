@@ -15,7 +15,7 @@
       <div>
 
         <!-- Only show limited exercises or all based on showAll toggle -->
-        <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :title="exercise.title"
+        <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :exerciseName="exercise.exerciseName"
           :activity="exercise.activity" :value="exercise.value" :time="exercise.time"
           :activitiesDetails="exercise.activitiesDetails || []" :isMultiActivity="Boolean(exercise.isMultiActivity)"
           :createdAt="exercise.date" :exerciseId="exercise._id"

@@ -70,7 +70,7 @@ export default {
     },
     exerciseName: {
       type: String,
-      default: 'Workout'
+      required: true
     },
     activity: {
       type: String,
