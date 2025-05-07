@@ -12,7 +12,29 @@
                   Change Username
                 </div>
                 <div class="collapse-content text-sm">
-                  Click the "Sign Up" button in the top right corner and follow the registration process.
+                <form class="space-y-4">
+                    <div class="form-control">
+                    <label class="label font-semibold text-neutral-content mb-2 ml-2">Current Username</label>
+                    <input
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="JohnDoe"
+                        required
+                    />
+                    </div>
+                    <div class="form-control ">
+                    <label class="label font-semibold text-neutral-content mb-2 ml-2">New Username</label>
+                    <input
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="JaneDoe"
+                        required
+                    />
+                    </div>
+                    <div class="flex justify-center mt-10 mb-5">
+                        <button type="submit" class="btn btn-primary ">Update Username</button>
+                    </div>
+                </form>
                 </div>
               </div>
   
@@ -23,7 +45,29 @@
                   Change Email
                 </div>
                 <div class="collapse-content text-sm">
-                  Click on "Forgot Password" on the login page and follow the instructions sent to your email.
+                <form class="space-y-4">
+                    <div class="form-control">
+                    <label class="label font-semibold text-neutral-content mb-2 ml-2">Current Email</label>
+                    <input
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="JohnDoe@example.com"
+                        required
+                    />
+                    </div>
+                    <div class="form-control ">
+                    <label class="label font-semibold text-neutral-content mb-2 ml-2">New Email</label>
+                    <input
+                        type="text"
+                        class="input input-bordered w-full"
+                        placeholder="JaneDoe@example.com"
+                        required
+                    />
+                    </div>
+                    <div class="flex justify-center mt-10 mb-5">
+                        <button type="submit" class="btn btn-primary ">Update Email</button>
+                    </div>
+                </form>
                 </div>
               </div>
   
@@ -34,7 +78,7 @@
                   Change Password
                 </div>
                 <div class="collapse-content text-sm">
-                  Go to "My Account" settings and select "Edit Profile" to make changes.
+                    <div><a @click="$router.push('/forgotpassword')" class="link link-hover">Change password?</a></div>
                 </div>
               </div>
   
@@ -48,7 +92,7 @@
 
                     <div class="border-l-4 border-secondary pl-4">
                     <p class="font-bold text-lg text-secondary">Q. Is my health data private?</p>
-                    <p class="text-neutral">A. Absolutely. We use end-to-end encryption and follow GDPR guidelines to ensure your data is stored securely and is never shared without your consent.</p>
+                    <p class="text-neutral">A. Absolutely. We use encryption and follow GDPR guidelines to ensure your data is stored securely and is never shared without your consent.</p>
                     </div>
 
                     <div class="border-l-4 border-secondary pl-4">
