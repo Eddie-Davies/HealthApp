@@ -64,6 +64,10 @@
 export default {
   name: 'ExerciseCard',
   props: {
+    exerciseId: {
+      type: String,
+      required: true
+    },
     exerciseName: {
       type: String,
       default: 'Workout'
