@@ -45,6 +45,7 @@
 <script>
 import axios from 'axios';
 import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
+
 export default {
     name: 'EditActivityTypes',
     props: ['exerciseId'],

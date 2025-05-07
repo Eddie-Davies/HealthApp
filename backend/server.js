@@ -1181,6 +1181,9 @@ app.post('/exercises', authenticateToken, async (req, res) => {
         if (exerciseName.length < 1 || exerciseName.length > 30) {
             return res.status(400).json({ message: 'Exercise name must be between 1 and 30 characters long.' });
         }
+        if (!activities) {
+            return res.status(400).json({ message: 'Activities are required' });
+        }
 
         const newexercise = { exerciseName, activities, durationMs, date };
         user.exercises.push(newexercise);

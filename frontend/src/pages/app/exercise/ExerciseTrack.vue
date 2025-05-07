@@ -1,5 +1,10 @@
 <template>
   <div class="flex flex-col items-center w-full px-4">
+
+    <button class="btn btn-ghost" @click="goBack">
+      ← Back
+    </button>
+
     <!-- Wrapper to constrain width and align children to left -->
     <div class="w-full max-w-md flex flex-col items-start">
       <!-- Title Input - Left aligned within container -->
@@ -65,6 +70,7 @@ import ExerciseNew from './ExerciseNew.vue';
 import ExercisePause from './ExercisePause.vue';
 import ExercisePlay from './ExercisePlay.vue';
 import ExerciseTrackCard from './ExerciseTrackCard.vue';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 
 export default {
   name: 'ExerciseTrack',
@@ -105,6 +111,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      this.$router.push('/home/exercise');
+    },
     saveToLocalStorage() {
       localStorage.setItem(
         this.storageKey,
@@ -140,7 +149,12 @@ export default {
           this.timer = workout.durationMs || 0;
           this.nextId = this.exercises.length + 1;
         } catch (err) {
-          console.error('Failed to load exercise:', err);
+          console.error('Failed to load exercise:', err.response?.data || err);
+          if (err.response?.data?.message) {
+            globalErrorMessage.value = err.response.data.message;
+          } else {
+            globalErrorMessage.value = 'Something went wrong.';
+          }
         }
       }
       this.isLoaded = true;
@@ -215,7 +229,7 @@ export default {
       });
 
       const completedWorkout = {
-        exerciseName: this.newTitle || 'Untitled Workout',
+        exerciseName: this.newTitle,
         activities: activitiesDetails,
         durationMs: this.timer,
         date: new Date()
@@ -231,6 +245,11 @@ export default {
         this.$router.push('/home/exercise');
       } catch (err) {
         console.error('Failed to save workout:', err.response?.data || err);
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
       }
     }
 
