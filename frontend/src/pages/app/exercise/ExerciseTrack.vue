@@ -87,7 +87,8 @@ export default {
       isRunning: false,
       newTitle: '',
       exerciseId: this.$route.params.id,
-      isLoaded: false
+      isLoaded: false,
+      activityTypes: []
     };
   },
   computed: {
@@ -115,6 +116,8 @@ export default {
       );
     },
     async mounted() {
+      const res = await axios.get('/activitytypes');
+      this.activityTypes = res.data;
       const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
       if (tempExercise) {
         this.newTitle = tempExercise.title || '';
@@ -201,16 +204,22 @@ export default {
     },
     async finishWorkout() {
       this.pauseTimer();
-      const activitiesDetails = this.exercises.map(ex => ({
-        activityType: [{ name: ex.activity, unit: ex.unit }],
-        quantity: Number(ex.integer)
-      }));
+
+      const activitiesDetails = this.exercises.map(ex => {
+        const activityType = this.activityTypes.find(type => type._id === ex.activity);
+        return {
+          activityType: activityType?.name || ex.activity,  // fallback to the string if not found
+          quantity: Number(ex.integer)
+        };
+      });
+
       const completedWorkout = {
         exerciseName: this.newTitle || 'Untitled Workout',
         activities: activitiesDetails,
         durationMs: this.timer,
         date: new Date()
       };
+
       try {
         if (this.isNew) {
           await axios.post('/exercises', completedWorkout);
@@ -223,6 +232,7 @@ export default {
         console.error('Failed to save workout:', err.response?.data || err);
       }
     }
+
   }
 };
 </script>
