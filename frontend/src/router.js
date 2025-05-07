@@ -32,6 +32,9 @@ const routes = [
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
       { path: "profile", component: Profile, meta: {title: 'My Profile'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
+      { path: '/home/exercise/new', component: EditMeal },
+      { path: '/home/exercise/:id', component: EditMeal},
+      // { path: '/home/exercise/:exerciseId/selectActivityType', component: SelectActivityType, props: true }
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },
       { path: '/home/diet/:id', component: EditMeal},
