@@ -10,13 +10,11 @@ import Goals from './pages/app/goals/Goals.vue';
 import Profile from './pages/app/profile/Profile.vue';
 import Groups from './pages/app/groups/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
+import EditActivityTypes from './pages/app/exercise/EditActivityTypes.vue';
 
 import Diet from './pages/app/diet/Diet.vue';
-
-
 import EditMeal from './pages/app/diet/EditMeal.vue'
 import SelectItem from './pages/app/diet/SelectItem.vue'
-
 
 const routes = [
   { path: "/", component: Landing },
@@ -34,7 +32,7 @@ const routes = [
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
       { path: '/home/exercise/new', component: EditMeal },
       { path: '/home/exercise/:id', component: EditMeal},
-      // { path: '/home/exercise/:exerciseId/selectActivityType', component: SelectActivityType, props: true }
+      { path: '/home/exercise/:exerciseId/editActivityType', component: EditActivityTypes},
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },
       { path: '/home/diet/:id', component: EditMeal},

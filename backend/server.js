@@ -1328,7 +1328,7 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
 });
 
 // POST ACTIVITY TYPE
-app.post('/activityType', authenticateToken, async (req, res) => {
+app.post('/activityTypes', authenticateToken, async (req, res) => {
     const { name, unit } = req.body;
 
     if (!name) {
@@ -1343,7 +1343,7 @@ app.post('/activityType', authenticateToken, async (req, res) => {
     if (!unit) {
         return res.status(400).json({ message: 'Unit required' });
     }
-    if (typeof name !== 'string') {
+    if (typeof unit !== 'string') {
         return res.status(400).json({ message: 'Unit must be a string.' });
     }
     try {
