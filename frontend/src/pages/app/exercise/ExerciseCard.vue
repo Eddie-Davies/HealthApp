@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     shouldShowSingleActivity() {
-      return !this.isMultiActivity || !this.activitiesDetails || this.activitiesDetails.length === 0;
+      return this.activitiesDetails.length === 0 && !this.isMultiActivity;
     },
     displayActivities() {
       return this.activitiesDetails?.length
