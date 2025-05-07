@@ -116,6 +116,7 @@ export default {
       );
     },
     async mounted() {
+      const exerciseId = this.$route.params.id;
       const res = await axios.get('/activitytypes');
       this.activityTypes = res.data;
       const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));

@@ -18,13 +18,16 @@
         <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :title="exercise.title"
           :activity="exercise.activity" :value="exercise.value" :time="exercise.time"
           :activitiesDetails="exercise.activitiesDetails || []" :isMultiActivity="Boolean(exercise.isMultiActivity)"
-          @delete="deleteExercise(index)" />
-        <!-- Show more/less button -->
-        <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
-          <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
-            {{ showAll ? 'Show Recent' : 'Show All' }}
-          </button>
-        </div>
+          :createdAt="exercise.date" :exerciseId="exercise._id"
+          @delete="deleteExercise(index)"
+          />
+
+          <!-- Show more/less button -->
+          <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
+            <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
+              {{ showAll ? 'Show Recent' : 'Show All' }}
+            </button>
+          </div>
       </div>
     </div>
   </div>
