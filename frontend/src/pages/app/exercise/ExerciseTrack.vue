@@ -97,6 +97,41 @@ export default {
       activityTypes: []
     };
   },
+  async mounted() {
+    const exerciseId = this.$route.params.id;
+    const res = await axios.get('/activitytypes');
+    this.activityTypes = res.data.activityTypes || res.data || [];
+    const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
+    if (tempExercise) {
+      this.newTitle = tempExercise.title || '';
+      this.exercises = tempExercise.exercises || [];
+      this.timer = tempExercise.timer || 0;
+    } else if (!this.isNew) {
+      try {
+        const res = await axios.get(`/exercises/${this.exerciseId}`);
+        const workout = res.data.exercise;
+
+        this.newTitle = workout.exerciseName;
+        this.exercises = workout.activities.map((a, index) => ({
+          id: index + 1,
+          title: `Activity ${index + 1}`,
+          activity: a.activity,
+          integer: a.integer,
+          unit: a.unit
+        }));
+        this.timer = workout.durationMs || 0;
+        this.nextId = this.exercises.length + 1;
+      } catch (err) {
+        console.error('Failed to load exercise:', err.response?.data || err);
+        if (err.response?.data?.message) {
+          globalErrorMessage.value = err.response.data.message;
+        } else {
+          globalErrorMessage.value = 'Something went wrong.';
+        }
+      }
+    }
+    this.isLoaded = true;
+  },
   computed: {
     isNew() {
       return this.exerciseId === undefined || this.exerciseId === 'new';
@@ -123,41 +158,6 @@ export default {
           timer: this.timer
         })
       );
-    },
-    async mounted() {
-      const exerciseId = this.$route.params.id;
-      const res = await axios.get('/activitytypes');
-      this.activityTypes = res.data;
-      const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
-      if (tempExercise) {
-        this.newTitle = tempExercise.title || '';
-        this.exercises = tempExercise.exercises || [];
-        this.timer = tempExercise.timer || 0;
-      } else if (!this.isNew) {
-        try {
-          const res = await axios.get(`/exercises/${this.exerciseId}`);
-          const workout = res.data.exercise;
-
-          this.newTitle = workout.exerciseName;
-          this.exercises = workout.activities.map((a, index) => ({
-            id: index + 1,
-            title: `Activity ${index + 1}`,
-            activity: a.activity,
-            integer: a.integer,
-            unit: a.unit
-          }));
-          this.timer = workout.durationMs || 0;
-          this.nextId = this.exercises.length + 1;
-        } catch (err) {
-          console.error('Failed to load exercise:', err.response?.data || err);
-          if (err.response?.data?.message) {
-            globalErrorMessage.value = err.response.data.message;
-          } else {
-            globalErrorMessage.value = 'Something went wrong.';
-          }
-        }
-      }
-      this.isLoaded = true;
     },
     startTimer() {
       if (!this.isRunning) {
