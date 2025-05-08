@@ -101,14 +101,20 @@ export default {
     const exerciseId = this.$route.params.id;
     const res = await axios.get('/activitytypes');
     this.activityTypes = res.data.activityTypes || res.data || [];
-    const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
-    if (tempExercise) {
-      this.newTitle = tempExercise.title || '';
-      this.exercises = tempExercise.exercises || [];
-      this.timer = tempExercise.timer || 0;
-    } else if (!this.isNew) {
+
+    if (this.isNew) {
+      // For new workouts, try to load from localStorage
+      const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
+      if (tempExercise) {
+        this.newTitle = tempExercise.title || '';
+        this.exercises = tempExercise.exercises || [];
+        this.timer = tempExercise.timer || 0;
+        this.nextId = this.exercises.length + 1;
+      }
+    } else {
+      // Always load from backend for existing exercises
       try {
-        const res = await axios.get(`/exercises/${this.exerciseId}`);
+        const res = await axios.get(`/exercises/${exerciseId}`);
         const workout = res.data.exercise;
 
         this.newTitle = workout.exerciseName;
@@ -123,13 +129,10 @@ export default {
         this.nextId = this.exercises.length + 1;
       } catch (err) {
         console.error('Failed to load exercise:', err.response?.data || err);
-        if (err.response?.data?.message) {
-          globalErrorMessage.value = err.response.data.message;
-        } else {
-          globalErrorMessage.value = 'Something went wrong.';
-        }
+        globalErrorMessage.value = err.response?.data?.message || 'Something went wrong.';
       }
     }
+
     this.isLoaded = true;
   },
   computed: {
@@ -240,6 +243,7 @@ export default {
           await axios.post('/exercises', completedWorkout);
         } else {
           await axios.put(`/exercises/update/${this.exerciseId}`, completedWorkout);
+          localStorage.removeItem(this.storageKey);
         }
         localStorage.removeItem(this.storageKey);
         this.$router.push('/home/exercise');
