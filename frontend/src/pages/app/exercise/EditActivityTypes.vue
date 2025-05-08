@@ -66,7 +66,7 @@ export default {
     computed: {
         filteredTypes() {
             return this.types.filter(type =>
-            type.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+                type.name.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
         },
     },
@@ -83,18 +83,15 @@ export default {
                 unit: this.newType.unit
             };
             try {
-                await axios.post('/activityTypes', newEntry);
-                await this.fetchTypes();
+                const response = await axios.post('/activityTypes', newEntry);
+                // Test this code even without reload
                 this.newType.name = '';
                 this.newType.unit = '';
+                await this.fetchTypes();
             } catch (err) {
-                console.error('Error adding activity type:', err.response?.data || err.message);
-                if (err.response?.data?.message) {
-                    globalErrorMessage.value = err.response.data.message;
-                } else {
-                    globalErrorMessage.value = 'Something went wrong.';
-                }
+                console.error('Error occurred during POST:', err?.message || err);
             }
+
         },
         async deleteType(id) {
             this.typeToDeleteId = id;

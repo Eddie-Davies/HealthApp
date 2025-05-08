@@ -1291,7 +1291,7 @@ app.post('/activity', authenticateToken, async (req, res) => {
         const newActivity = { activityType, quantity };
         user.activities.push(newActivity)
         await user.save()
-
+        
     } catch (err) {
         res.status(500).json({ message: 'Error saving activity', error: err });
     }
@@ -1359,7 +1359,7 @@ app.post('/activityTypes', authenticateToken, async (req, res) => {
         const newactivityType = { name, unit };
         user.activityTypes.push(newactivityType)
         await user.save()
-
+        res.status(201).json({ message: 'Activity type saved successfully', activityType: newactivityType });
     } catch (err) {
         res.status(500).json({ message: 'Error saving activity type', error: err });
     }
