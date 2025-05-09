@@ -28,14 +28,27 @@ const MealSchema = new mongoose.Schema({
     }
 });
 
+// Activity Type Schema
+const ActivityTypeSchema = new mongoose.Schema({
+    name: String,
+    unit: String,
+});
+
+// Activity Schema
+const ActivitySchema = new mongoose.Schema({
+    activityType: [ActivityTypeSchema],
+    quantity: Number,
+});
+
 // Exercise Schema
 const ExerciseSchema = new mongoose.Schema({
-    title: String,
-    type: String,
-    quantity: Number,
-    unit: String,
-    date: Date,
-    time: Date
+    exerciseName: String,
+    activities: [ActivitySchema],
+    durationMs: Number,
+    date: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 // Goal Schema
@@ -56,22 +69,24 @@ const GoalSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    date_of_birth: { type: Date},
+    date_of_birth: { type: Date },
     email: { type: String, unique: true, required: true },
     username: { type: String, unique: true, required: true },
     password_hash: { type: String, required: true },
     firstLogin: { type: Boolean, default: true },
     gender: Boolean,
     weight: Number,
-    bmi : Number,
-    height : Number,
+    bmi: Number,
+    height: Number,
     targetWeight: Number,
     recoveryCode: String,
     meals: [MealSchema],
     foods: [FoodSchema],
-    exercise: [ExerciseSchema],
+    exercises: [ExerciseSchema],
+    activities: [ActivitySchema],
+    activityTypes: [ActivityTypeSchema],
     goals: [GoalSchema],
-    accountCreationDate: {type: Date, required: true, default: Date.now},
+    accountCreationDate: { type: Date, required: true, default: Date.now },
     groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
     groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
@@ -98,20 +113,22 @@ const GroupSchema = new mongoose.Schema({
 });
 
 
-
 // Models
 const FoodModel = mongoose.model("Food", FoodSchema);
 const MealModel = mongoose.model("Meal", MealSchema);
+const ActivityTypeModel = mongoose.model("ActivityType", ActivityTypeSchema)
+const ActivityModel = mongoose.model("Activity", ActivitySchema);
 const ExerciseModel = mongoose.model("Exercise", ExerciseSchema);
 const GoalModel = mongoose.model("Goal", GoalSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const GroupModel = mongoose.model("Group", GroupSchema);
 const GroupGoal = mongoose.model("GroupGoal", GroupGoalSchema);
 
-
 module.exports = {
     FoodModel,
     MealModel,
+    ActivityTypeModel,
+    ActivityModel,
     ExerciseModel,
     GoalModel,
     UserModel,
