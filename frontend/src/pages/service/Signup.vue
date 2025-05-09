@@ -16,7 +16,7 @@
 
       <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
         <div class="card-body">
-          <form @submit.prevent="handleSubmit">
+          <form ref="form" @submit.prevent="handleSubmit">
             <fieldset class="fieldset">
               <label class="fieldset-label">First Name</label>
               <input v-model="first_name" @input="validateField('first_name')" type="text" required
@@ -45,7 +45,7 @@
                 <input v-model="email" @input="validateField('email')" type="email" placeholder="mail@site.com" required
                   class="w-full" />
               </label>
-              <div v-if="errors.email" class="validator-hint hidden">{{ errors.email }}</div>
+              <div v-if="errors.email" class="validator-hint">{{ errors.email }}</div>
 
               <label class="fieldset-label">Password</label>
               <label class="input validator w-full">
@@ -63,13 +63,30 @@
                   title="Must be more than 8 characters, including number, lowercase letter, uppercase letter" />
               </label>
               <div v-if="errors.password" class="validator-hint">{{ errors.password }}</div>
+
+              <label class="fieldset-label">Confirm Password</label>
+              <label class="input validator w-full">
+                <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none"
+                    stroke="currentColor">
+                    <path
+                      d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z">
+                    </path>
+                    <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                  </g>
+                </svg>
+                <input v-model="confirmPassword" @input="validateField('confirmPassword')" type="password" required
+                  placeholder="Re-enter Password" class="w-full" />
+              </label>
+              <div v-if="errors.confirmPassword" class="validator-hint">{{ errors.confirmPassword }}</div>
+
               <button class="btn btn-neutral mt-4 w-full">Sign up</button>
               <div><a @click="$router.push('/login')" class="link link-hover">Already have an account?</a></div>
             </fieldset>
           </form>
-
         </div>
       </div>
+
       <div v-if="errorMessage" role="alert" class="alert alert-warning mt-12">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -93,7 +110,6 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 export default {
@@ -105,6 +121,7 @@ export default {
       email: '',
       username: '',
       password: '',
+      confirmPassword: '',
       errorMessage: '',
 
       errors: {
@@ -113,50 +130,43 @@ export default {
         username: null,
         email: null,
         password: null,
+        confirmPassword: null,
       },
     }
   },
   methods: {
-
     validateField(field) {
       if (field === "first_name") {
-        if (!this.first_name.match(/^[a-zA-Z]{2,30}$/)) {
-          this.errors.first_name = "First name must be 2-30 letters";
-        } else {
-          this.errors.first_name = null;
-        }
+        this.errors.first_name = /^[a-zA-Z]{2,30}$/.test(this.first_name) ? null : "First name must be 2-30 letters";
       }
 
       if (field === "last_name") {
-        if (!this.last_name.match(/^[a-zA-Z]{2,30}$/)) {
-          this.errors.last_name = "Last name must be 2-30 letters";
-        } else {
-          this.errors.last_name = null;
-        }
+        this.errors.last_name = /^[a-zA-Z]{2,30}$/.test(this.last_name) ? null : "Last name must be 2-30 letters";
       }
 
       if (field === "email") {
-        if (!this.email.match(/^[\w.-]+@[\w.-]+\.(com)$/)) {
-          this.errors.email = "Enter a valid email address";
-        } else {
-          this.errors.email = null;
-        }
-      }
-
-      if (field === "password") {
-        if (!this.password.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/)) {
-          this.errors.password = "Password must be 8+ characters, including 1 number, 1 uppercase, and 1 lowercase letter";
-        } else {
-          this.errors.password = null;
-        }
+        this.errors.email = /^[\w.-]+@[\w.-]+\.(com)$/.test(this.email) ? null : "Enter a valid email address";
       }
 
       if (field === "username") {
-        if (!this.username.match(/^[a-zA-Z0-9]{4,16}$/)) {
-          this.errors.username = "Username must be 4–16 characters and contain only letters and numbers.";
+        this.errors.username = /^[a-zA-Z0-9]{4,16}$/.test(this.username)
+          ? null
+          : "Username must be 4–16 characters and contain only letters and numbers.";
+      }
+
+      if (field === "password") {
+        this.errors.password = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/.test(this.password)
+          ? null
+          : "Password must be 8+ characters, including 1 number, 1 uppercase, and 1 lowercase letter";
+        if (this.confirmPassword && this.confirmPassword !== this.password) {
+          this.errors.confirmPassword = "Passwords do not match.";
         } else {
-          this.errors.username = null;
+          this.errors.confirmPassword = null;
         }
+      }
+
+      if (field === "confirmPassword") {
+        this.errors.confirmPassword = this.confirmPassword === this.password ? null : "Passwords do not match.";
       }
     },
 
@@ -164,8 +174,14 @@ export default {
       this.errorMessage = "";
       this.errors = [];
 
-      if (!this.first_name || !this.last_name || !this.username || !this.email || !this.password) {
-        this.errorMessage = "All fields are required.";
+      // Native HTML5 constraint check
+      if (!this.$refs.form.checkValidity()) {
+        this.$refs.form.reportValidity();
+        return;
+      }
+
+      if (this.password !== this.confirmPassword) {
+        this.errorMessage = "Passwords do not match.";
         return;
       }
 
@@ -184,7 +200,6 @@ export default {
 
       } catch (error) {
         console.error("Signup failed:", error.response?.data || error.message);
-
         if (error.response?.status === 400 && error.response?.data?.errors) {
           this.errors = error.response.data.errors;
         } else {
