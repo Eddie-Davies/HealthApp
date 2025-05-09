@@ -39,12 +39,13 @@
 
     </div>
 
-    <!-- Activity Cards - Centered on page, but content left-aligned -->
     <div class="mt-8 xs:mt-4 w-full max-w-md">
       <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id" :title="exercise.title"
         :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit" @updateActivity="updateActivity"
         @updateInteger="updateInteger" @updateUnit="updateUnit" />
+      <pre>{{ JSON.stringify(exercises, null, 2) }}</pre>
     </div>
+
 
     <!-- Add Activity Button - Centered -->
     <div class="w-full max-w-md flex justify-center mt-4 xs:mt-2">
@@ -121,10 +122,11 @@ export default {
         this.exercises = workout.activities.map((a, index) => ({
           id: index + 1,
           title: `Activity ${index + 1}`,
-          activity: a.activity,
-          integer: a.integer,
-          unit: a.unit
+          activity: a.activityType,
+          integer: a.quantity?.toString() || '',
+          unit: a.activityType?.unit || ''
         }));
+
         this.timer = workout.durationMs || 0;
         this.nextId = this.exercises.length + 1;
       } catch (err) {
