@@ -7,21 +7,16 @@
 
     <!-- Wrapper to constrain width and align children to left -->
     <div class="w-full max-w-md flex flex-col items-start">
-      <!-- Title Input - Left aligned within container -->
       <textarea v-model="newTitle"
         class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
         placeholder="Afternoon Run" rows="1"></textarea>
 
-      <!-- Timer Section  -->
+      <!-- Timer Section -->
       <div class="flex justify-between items-start mt-4 ml-1">
-        <!-- Elapsed section -->
         <div class="flex flex-col items-start">
           <span class="text-xl font-semibold text-base-content/95">Elapsed</span>
           <div class="flex items-center gap-3 mt-1">
-            <div class="text-lg text-neutral/85">
-              {{ formatTime(timer) }}
-            </div>
-            <!-- Status indicator -->
+            <div class="text-lg text-neutral/85">{{ formatTime(timer) }}</div>
             <div class="inline-grid *:[grid-area:1/1]">
               <div class="status status-error animate-ping"></div>
               <div class="status status-error"></div>
@@ -29,32 +24,27 @@
           </div>
         </div>
 
-        <!-- Activities section -->
         <div class="flex flex-col ml-10">
           <span class="text-xl font-semibold text-base-content/95">Activities</span>
           <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
         </div>
       </div>
-
-
     </div>
 
     <div class="mt-8 xs:mt-4 w-full max-w-md">
       <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id" :title="exercise.title"
-        :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit" @updateActivity="updateActivity"
-        @updateInteger="updateInteger" @updateUnit="updateUnit" />
-      <pre>{{ JSON.stringify(exercises, null, 2) }}</pre>
+        :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
+        :activityInstanceId="exercise._id" @updateActivity="updateActivity" @updateInteger="updateInteger"
+        @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
     </div>
 
 
-    <!-- Add Activity Button - Centered -->
     <div class="w-full max-w-md flex justify-center mt-4 xs:mt-2">
       <button @click="addNewActivity" class="btn btn-primary">
         + Add Activity
       </button>
     </div>
 
-    <!-- Control Buttons - Centered -->
     <div class="flex flex-wrap items-center justify-center w-full mt-10 gap-4">
       <ExercisePlay @play="startTimer" :disabled="isRunning" />
       <ExerciseFinish @finishWorkout="finishWorkout" />
@@ -85,11 +75,9 @@ export default {
   },
   data() {
     return {
-      exercises: [
-        { id: 1, title: 'Activity 1', activity: 'Run', integer: '0', unit: 'km' }
-      ],
-      nextId: 2,
-      timer: 0,  // This will now track milliseconds
+      exercises: [],
+      nextId: 1,
+      timer: 0,
       timerInterval: null,
       isRunning: false,
       newTitle: '',
@@ -104,7 +92,6 @@ export default {
     this.activityTypes = res.data.activityTypes || res.data || [];
 
     if (this.isNew) {
-      // For new workouts, try to load from localStorage
       const tempExercise = JSON.parse(localStorage.getItem(this.storageKey));
       if (tempExercise) {
         this.newTitle = tempExercise.title || '';
@@ -113,7 +100,6 @@ export default {
         this.nextId = this.exercises.length + 1;
       }
     } else {
-      // Always load from backend for existing exercises
       try {
         const res = await axios.get(`/exercises/${exerciseId}`);
         const workout = res.data.exercise;
@@ -121,6 +107,7 @@ export default {
         this.newTitle = workout.exerciseName;
         this.exercises = workout.activities.map((a, index) => ({
           id: index + 1,
+          _id: a._id, // ✅ instance _id
           title: `Activity ${index + 1}`,
           activity: a.activityType,
           integer: a.quantity?.toString() || '',
@@ -182,11 +169,9 @@ export default {
       }
     },
     formatTime(milliseconds) {
-      // Calculate minutes, seconds and milliseconds
       const mins = Math.floor(milliseconds / 60000).toString().padStart(2, '0');
       const secs = Math.floor((milliseconds % 60000) / 1000).toString().padStart(2, '0');
       const ms = Math.floor((milliseconds % 1000) / 10).toString().padStart(2, '0');
-
       return `${mins}:${secs}.${ms}`;
     },
     addNewActivity() {
@@ -201,6 +186,22 @@ export default {
       this.nextId++;
       this.saveToLocalStorage();
     },
+    async deleteActivity(instanceIdToDelete) {
+  try {
+    console.log('Deleting activity instance _id:', instanceIdToDelete);
+
+    await axios.post('/exercises/delete-activity-instance', {
+      exerciseId: this.exerciseId,
+      activityId: instanceIdToDelete
+    }, { withCredentials: true });
+
+    // Remove from local list for UI update
+    this.exercises = this.exercises.filter(ex => ex._id !== instanceIdToDelete);
+    this.saveToLocalStorage();
+  } catch (err) {
+    console.error('Failed to delete activity:', err.response?.data || err);
+  }
+},
     updateInteger({ title, integer }) {
       const ex = this.exercises.find((e) => e.title === title);
       if (ex) {
@@ -224,11 +225,10 @@ export default {
     },
     async finishWorkout() {
       this.pauseTimer();
-
       const activitiesDetails = this.exercises.map(ex => {
         const activityType = this.activityTypes.find(type => type._id === ex.activity);
         return {
-          activityType: activityType?.name || ex.activity,  // fallback to the string if not found
+          activityType: activityType?.name || ex.activity,
           quantity: Number(ex.integer)
         };
       });
@@ -251,14 +251,9 @@ export default {
         this.$router.push('/home/exercise');
       } catch (err) {
         console.error('Failed to save workout:', err.response?.data || err);
-        if (err.response?.data?.message) {
-          globalErrorMessage.value = err.response.data.message;
-        } else {
-          globalErrorMessage.value = 'Something went wrong.';
-        }
+        globalErrorMessage.value = err.response?.data?.message || 'Something went wrong.';
       }
     }
-
   }
 };
 </script>
