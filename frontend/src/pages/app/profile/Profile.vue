@@ -12,41 +12,23 @@
         <!-- Main Card Layout -->
         <div class="mt-10 grid justify-items-center space-y-6">
             <!-- Top Centered Card -->
-            <ProfileCard
-                title="Current Weight"
-                :displayNumber="weight"
-                :secondaryNumber="targetWeight"
-                unit="kg"
-                />
+            <ProfileCard title="Current Weight" :displayNumber="weight" :secondaryNumber="targetWeight" unit="kg" />
             <!-- Two Side-by-Side Cards -->
             <div class="grid grid-cols-2 gap-6">
-                <ProfileCardSmall
-                    title="Calorie Intake"
-                    :displayNumber ="calories"
-                    unit="kcal"
-                    note="(last 24hrs)"
-                    />
-                <ProfileCardSmall
-                    title="Recent Exercise"
-                    :displayNumber="exercise"
-                    unit="minutes"
-                    note="(last 24hrs)"
-                    />
+                <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
+                <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
+                    note="(last 24hrs)" />
             </div>
             <!-- Bottom Wide Card -->
-            <ProfileCardMed 
-                title="Age"
-                :displayNumber="age"
-                :message="`${daysUntilBirthday} days until your next birthday`"/>
+            <ProfileCardMed title="Age" :displayNumber="age"
+                :message="`${daysUntilBirthday} days until your next birthday`" />
             <!-- Bottom Wide Card pt 2-->
-            <ProfileCardMed 
-                title="BMI"
-                :displayNumber="bmi.toFixed(2)"
-                :message="`Your BMI is ${bmi.toFixed(2)} – ${bmiStatus}`" class="mb-30"/>
+            <ProfileCardMed title="BMI" :displayNumber="bmi.toFixed(2)"
+                :message="`Your BMI is ${bmi.toFixed(2)} – ${bmiStatus}`" class="mb-30" />
         </div>
     </div>
 </template>
-  
+
 
 <script>
 import axios from 'axios';
@@ -63,7 +45,7 @@ export default {
         ProfileCardSmall,
         ProfileCardMed
     },
-    data(){
+    data() {
         return {
             weight: 0,
             targetWeight: 0,
@@ -71,8 +53,8 @@ export default {
             height: 0,
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
-            memberSince: '04/05/2025' // default to date this was implemented instead of 00/00/0000.
-
+            memberSince: '04/05/2025', // default to date this was implemented instead of 00/00/0000.
+            gender: null,
         }
     },
     async mounted() {
@@ -116,6 +98,14 @@ export default {
         } catch (err) {
             console.error('Error fetching height:', err.response?.data);
         }
+        try {
+            const res = await axios.get('/gender');
+            this.gender = res.data.gender;
+            console.log(this.gender);
+        } catch (err) {
+            console.error('Error fetching gender:', err.response?.data);
+        }
+
     },
     computed: {
         // Convert date of birth into current age.
@@ -148,11 +138,23 @@ export default {
         },
         bmiStatus() {
             const bmi = this.bmi;
-            if (!bmi) return '';
-            if (bmi < 18.5) return 'Underweight';
-            if (bmi < 24.9) return 'Normal weight';
-            if (bmi < 29.9) return 'Overweight';
-            return 'Obese';
+            const gender = this.gender;
+
+            if (!bmi || gender === null) return '';
+
+            if (gender === true) { // male
+                if (bmi < 18.5) return 'Underweight';
+                if (bmi < 25.0) return 'Normal weight';
+                if (bmi < 30.0) return 'Overweight';
+                return 'Obese';
+            } else if (gender === false) { // female
+                if (bmi < 18.0) return 'Underweight';
+                if (bmi < 24.0) return 'Normal weight';
+                if (bmi < 29.0) return 'Overweight';
+                return 'Obese';
+            }
+
+            return '';
         },
         bmiStatusClass() {
             const status = this.bmiStatus;

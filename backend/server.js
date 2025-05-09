@@ -1330,6 +1330,22 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
     }
 });
 
+// returns gender
+app.get('/gender', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        console.log(user.gender);
+        res.status(200).json({ gender: user.gender }); // returns true or false
+    } catch (err) {
+        console.error('Error fetching gender:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 // POST ACTIVITY TYPE
 app.post('/activityTypes', authenticateToken, async (req, res) => {
     const { name, unit } = req.body;
