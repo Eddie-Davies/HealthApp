@@ -4,18 +4,32 @@
     <div class="flex text-center mt-5 gap-5 xs:gap-2">
       <div class="pr-2 xs:pr-1">
         <p class="text-neutral-400 mb-2">Activity</p>
-        <select
-          v-model="editedActivityId"
-          @change="handleActivityChange"
-          class="select font-medium text-neutral bg-base-100 rounded-2xl px-3 text-center"
-        >
-          <option disabled :value="null">Select an activity</option>
-          <option v-for="(activity, index) in activityOptions" :key="activity._id" :value="activity._id">
-            {{ activity.name }}
-          </option>
-          <option value="__custom__">➕ Make your own</option>
-        </select>
+
+        <!-- Activity dropdown + clear button -->
+        <div class="flex items-center gap-2">
+          <select
+            v-model="editedActivityId"
+            @change="handleActivityChange"
+            class="select font-medium text-neutral bg-base-100 rounded-2xl px-3 text-center"
+          >
+            <option disabled :value="null">Select an activity</option>
+            <option v-for="(activity, index) in activityOptions" :key="activity._id" :value="activity._id">
+              {{ activity.name }}
+            </option>
+            <option value="__custom__">➕ Make your own</option>
+          </select>
+
+          <button
+            v-if="editedActivityId && editedActivity.name !== '__custom__'"
+            @click="clearActivity"
+            class="btn btn-xs btn-outline text-error px-2"
+          >
+            ✕
+          </button>
+        </div>
       </div>
+
+      <!-- Quantity input -->
       <div class="pr-2 xs:pr-1">
         <p class="text-neutral-400 mb-2">Quantity</p>
         <input
@@ -26,6 +40,8 @@
           @keyup.enter="emitChanges"
         />
       </div>
+
+      <!-- Unit display -->
       <div
         v-if="editedActivity && editedActivity.unit && editedActivity.name !== '__custom__'"
         class="flex items-center pr-2"
@@ -61,7 +77,7 @@ export default {
   },
   methods: {
     syncWithProps() {
-      this.editedActivity = this.activity?.[0] || {}; // if it's an array
+      this.editedActivity = this.activity?.[0] || this.activity || {};
       this.editedActivityId = this.editedActivity._id || null;
       this.editedInteger = this.integer;
     },
@@ -79,11 +95,13 @@ export default {
       try {
         const res = await axios.get('/activityTypes', { withCredentials: true });
         const types = res.data.activityTypes || [];
-        this.activityOptions = types;
+        this.activityOptions = types.map((a) => ({
+          ...a,
+          _id: a._id.toString()
+        }));
 
-        // If editedActivityId is already set, resolve it now
         if (this.editedActivityId) {
-          const match = this.activityOptions.find(a => a._id === this.editedActivityId);
+          const match = this.activityOptions.find(a => a._id === this.editedActivityId.toString());
           if (match) {
             this.editedActivity = match;
           }
@@ -100,6 +118,11 @@ export default {
         this.editedActivity = selected || {};
         this.emitChanges();
       }
+    },
+    clearActivity() {
+      this.editedActivityId = null;
+      this.editedActivity = {};
+      this.emitChanges();
     }
   },
   watch: {
