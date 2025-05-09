@@ -118,9 +118,9 @@ export default {
         },
         goBack() {
             if (this.activityId) {
-                this.$router.push(`/home/exercise/${this.exerciseId}`);
+                this.$router.push(`/home/exercise`);
             } else {
-                this.$router.push('/home/exercise/new');
+                this.$router.push('/home/exercise');
             }
         }
     },
