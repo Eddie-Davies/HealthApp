@@ -160,12 +160,23 @@ export default {
             return weight / (heightMeters * heightMeters);
         },
         bmiStatus() {
-            if (!this.bmi) return '';
+            if (!this.bmi || !this.form.gender) return '';
             const bmi = this.bmi;
-            if (bmi < 18.5) return 'Underweight';
-            if (bmi < 24.9) return 'Normal weight';
-            if (bmi < 29.9) return 'Overweight';
-            return 'Obese';
+            const gender = this.form.gender;
+
+            if (gender === 'Male') {
+                if (bmi < 18.5) return 'Underweight';
+                if (bmi < 25.0) return 'Normal weight';
+                if (bmi < 30.0) return 'Overweight';
+                return 'Obese';
+            } else if (gender === 'Female') {
+                if (bmi < 18.0) return 'Underweight';
+                if (bmi < 24.0) return 'Normal weight';
+                if (bmi < 29.0) return 'Overweight';
+                return 'Obese';
+            }
+
+            return '';
         },
         bmiStatusClass() {
             const status = this.bmiStatus;
@@ -177,12 +188,24 @@ export default {
         //healthy range calculation reference: https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html
         healthyRange() {
             const h = this.form.height;
-            if (!h) return { min: null, max: null };
+            const gender = this.form.gender;
+            if (!h || !gender) return { min: null, max: null };
+
             const meters = h / 100;
-            return {
-                min: 18.5 * meters * meters,
-                max: 24.9 * meters * meters,
-            };
+
+            if (gender === 'Male') {
+                return {
+                    min: 18.5 * meters * meters,
+                    max: 24.9 * meters * meters,
+                };
+            } else if (gender === 'Female') {
+                return {
+                    min: 18.0 * meters * meters,
+                    max: 23.9 * meters * meters,
+                };
+            }
+
+            return { min: null, max: null };
         },
         isTargetHealthy() {
             const { targetWeight } = this.form;
