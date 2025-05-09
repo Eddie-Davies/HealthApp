@@ -1388,46 +1388,33 @@ app.delete('/activityType/:id', authenticateToken, async (req, res) => {
 app.post('/exercises/delete-activity-instance', authenticateToken, async (req, res) => {
     const { exerciseId, activityId } = req.body;
   
-    console.log('🔍 Request received to delete activity instance');
-    console.log('➡️  exerciseId:', exerciseId);
-    console.log('➡️  activityId:', activityId);
-  
     if (!mongoose.Types.ObjectId.isValid(exerciseId) || !mongoose.Types.ObjectId.isValid(activityId)) {
-      console.log('❌ Invalid IDs');
+      console.log('Invalid IDs');
       return res.status(400).json({ message: 'Invalid exerciseId or activityId' });
     }
   
     try {
       const user = await UserModel.findOne({ email: req.user.email });
       if (!user) {
-        console.log('❌ User not found');
         return res.status(404).json({ message: 'User not found' });
       }
   
-      console.log('✅ User loaded:', user.email);
       const exerciseIndex = user.exercises.findIndex(ex => ex._id.toString() === exerciseId);
   
       if (exerciseIndex === -1) {
-        console.log('❌ Exercise not found in user.exercises');
         return res.status(404).json({ message: 'Exercise not found' });
       }
   
       const exercise = user.exercises[exerciseIndex];
-      console.log('🎯 Exercise found:', exercise.exerciseName);
-      console.log('🧮 Activities before deletion:', exercise.activities.map(a => a._id.toString()));
   
       // Filter out the activity
       exercise.activities = exercise.activities.filter(
         act => act._id.toString() !== activityId
       );
-  
-      console.log('🧹 Activities after deletion:', exercise.activities.map(a => a._id.toString()));
-  
+    
       user.markModified('exercises');
-      console.log('📌 Marked "exercises" as modified');
   
       await user.save();
-      console.log('✅ User document saved with updated exercises');
   
       return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
@@ -1435,36 +1422,6 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
       return res.status(500).json({ message: 'Internal server error' });
     }
   });
-
-
-// Delete activity type from user
-// app.post('/activityTypes/delete', authenticateToken, async (req, res) => {
-//     const { activityTypeId } = req.body;
-  
-//     if (!mongoose.Types.ObjectId.isValid(activityTypeId)) {
-//       return res.status(400).json({ message: 'Invalid activityTypeId' });
-//     }
-  
-//     try {
-//       const user = await UserModel.findOne({ email: req.user.email });
-  
-//       if (!user) {
-//         return res.status(404).json({ message: 'User not found' });
-//       }
-  
-//       // Remove activityType with matching ID
-//       user.activityTypes = user.activityTypes.filter(
-//         at => at._id.toString() !== activityTypeId
-//       );
-  
-//       await user.save();
-//       res.status(200).json({ message: 'Activity type deleted successfully' });
-//     } catch (err) {
-//       console.error('❌ Error deleting activity type:', err);
-//       res.status(500).json({ message: 'Error deleting activity type', error: err });
-//     }
-//   });
-  
 
 // GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
 app.get('/dob', authenticateToken, async (req, res) => {
