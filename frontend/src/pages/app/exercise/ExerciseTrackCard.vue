@@ -121,7 +121,7 @@ export default {
     },
     deleteActivity() {
       console.log('Emitting delete for activity instance _id:', this.activityInstanceId);
-      this.$emit('deleteActivity', this.activityInstanceId);
+      this.$emit('deleteActivity', this.activityInstanceId || this.id || null);
     }
   },
   watch: {

@@ -187,6 +187,13 @@ export default {
       this.saveToLocalStorage();
     },
     async deleteActivity(instanceIdToDelete) {
+  // Check if this is a local-only activity (no _id assigned yet)
+  if (!instanceIdToDelete) {
+    this.exercises = this.exercises.filter(ex => ex._id !== undefined); // safety: remove all unsaved
+    this.saveToLocalStorage();
+    return;
+  }
+
   try {
     console.log('Deleting activity instance _id:', instanceIdToDelete);
 
