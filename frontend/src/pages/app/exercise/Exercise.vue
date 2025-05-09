@@ -1,6 +1,6 @@
 <template>
   <PageHeader :title="$route.meta.title" />
-  <div class="mt-10 px-4 pb-16 flex flex-col items-center">
+  <div class="mt-10 px-4 pb-32 flex flex-col items-center">
     <!-- Start Exercise -->
     <div>
       <ExerciseNew @start="startExercise" />

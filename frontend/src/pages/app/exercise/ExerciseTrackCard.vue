@@ -6,11 +6,12 @@
     </button>
 
     <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
-    <div class="flex text-center mt-5 gap-5 xs:gap-2">
+
+    <!-- Aligned activity row -->
+    <div class="flex items-end mt-5 gap-5 xs:gap-2">
+      <!-- Activity dropdown -->
       <div class="pr-2 xs:pr-1">
         <p class="text-neutral-400 mb-2">Activity</p>
-
-        <!-- Activity dropdown + clear button -->
         <div class="flex items-center gap-2">
           <select v-model="editedActivityId" @change="handleActivityChange"
             class="select font-medium text-neutral bg-base-100 rounded-2xl px-3 text-center">
@@ -38,7 +39,7 @@
 
       <!-- Unit display -->
       <div v-if="editedActivity && editedActivity.unit && editedActivity.name !== '__custom__'"
-        class="flex items-center pr-2">
+        class="flex items-center pr-2 self-center mt-6">
         <p class="text-neutral font-medium">{{ editedActivity.unit }}</p>
       </div>
     </div>
@@ -55,7 +56,7 @@ export default {
     title: { type: String, default: 'New Exercise' },
     integer: { type: String, default: '0' },
     unit: { type: String, default: '' },
-    activityInstanceId: { type: String, required: true }  // ✅ NEW
+    activityInstanceId: { type: String, required: true }
   },
   data() {
     return {

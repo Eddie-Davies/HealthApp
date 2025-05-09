@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center w-full px-4">
+  <div class="flex flex-col items-center w-full px-4 pb-32">
 
     <button class="btn btn-ghost" @click="goBack">
       ← Back
