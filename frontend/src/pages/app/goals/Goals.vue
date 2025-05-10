@@ -440,7 +440,7 @@ export default {
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',
-        sport: false,
+        type: 'custom',
         group: groupId,
         date: new Date()
       };

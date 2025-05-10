@@ -593,14 +593,14 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, sport, date } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, type, date } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id;
 
         if (!description || typeof description !== 'string' || description.length < 1 || description.length > 60) {
             return res.status(400).json({ message: 'Description must be a string between 1 and 60 characters.' });
         }
-        if (target == null || unit == null || typeof sport !== 'boolean' || !date) {
+        if (target == null || unit == null || !type || !date) {
             return res.status(400).json({ message: 'Missing required goal fields.' });
         }
 
@@ -613,7 +613,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             description,
             target,
             unit,
-            sport,
+            type,
             date,
             createdBy
         };
@@ -740,14 +740,14 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // ADD NEW GOAL
 app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { target, progress, progressLabel, remainingLabel, unit, sport, date, group } = req.body;
+        const { target, progress, progressLabel, remainingLabel, unit, type, date, group } = req.body;
 
         // Validate input
         if (
             typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
             typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
             typeof unit !== 'string' || unit.trim() === '' ||
-            typeof sport !== 'boolean' ||
+            typeof type !== 'string' ||
             !date
         ) {
             return res.status(400).json({
@@ -762,7 +762,7 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         }
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, progressLabel, remainingLabel, unit, sport, date, group };
+        const newGoal = { target, progress, progressLabel, remainingLabel, unit, type, date, group };
         user.goals.push(newGoal);
         await user.save();
 

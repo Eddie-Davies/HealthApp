@@ -1,5 +1,62 @@
 <template>
-    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
+  <div v-if="goal.sport" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
+    
+    <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
+      <h2 class="text-lg font-semibold mb-4"></h2>
+      <div class="flex flex-col gap-4">
+        <!-- Adjust Goal Label -->
+        <p>{{ calorieConfig.label }}</p>
+
+        <!-- Value Display -->
+        <div class="flex justify-center items-center gap-2">
+          <span class="text-sm opacity-70">Value:</span>
+          <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
+        </div>
+
+        <!-- Reasonable Calorie Goal -->
+        <div class="collapse bg-base-100 border border-base-300">
+          <input type="radio" name="my-accordion-1" checked="checked" />
+          <div class="collapse-title font-semibold flex items-center">Reasonable Calorie Goal:</div>
+          <div class="collapse-content text-sm">
+            <input type="range" :min="calorieConfig.min" :max="calorieConfig.max" v-model.number="sliderValue"
+              class="w-full" />
+          </div>
+        </div>
+        <div class="collapse bg-base-100 border border-base-300">
+          <input type="radio" name="my-accordion-1" />
+          <div class="collapse-title font-semibold flex items-center">Custom Figure:</div>
+          <div class="collapse-content text-sm"><input type="number" min="0" max="200" v-model.number="sliderDisplay"
+              class="input input-bordered w-20" /></div>
+        </div>
+<!-- 
+        <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
+          <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+          <div v-else class="text-sm">Deadline currently set to:</div>
+          <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+        </div> -->
+        <!-- <label class="block text-sm mb-2 pt-11">Override Deadline:</label>
+        <input v-model="date" type="date" class="input input-bordered w-full mb-2"> -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-x-3 mt-4">
+        <button @click="$emit('cancel')" class="btn w-1/4 btn-error btn-soft">
+          Back
+        </button>
+        <button class="btn w-2/4 btn-success">Confirm</button>
+      </div>
+    </div>
+  </div>
+  
+    
+  
+  
+  
+  
+  
+  
+  
+  <div v-else class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
         <div class="bg-base-200 p-6 rounded-xl w-80">
             <h2 class="text-lg font-semibold mb-4 text-center">{{ goalTitle }}</h2>
             <div class="min-h-65">
@@ -28,14 +85,7 @@
                 <input v-model="editableGoal.remainingLabel" type="text" placeholder="Remaining Label (e.g. Left)"
                     class="input input-bordered w-full mb-10" />
 
-                <div class="flex place-items-center justify-center">
-                    <label class="text-sm mr-5">Sport/Activity Focused?</label>
-                    <label class="toggle toggle-neutral text-base-content relative cursor-pointer">
-                        <input v-model="editableGoal.sport" type="checkbox" class="peer hidden" />
-                        <i class="p-1 text-sm fa-solid fa-flag transition-colors duration-300 peer-checked:text-primary"></i>
-                        <i class="p-1 ml-0.5 text-sm fa-solid fa-person-running transition-colors duration-300 peer-checked:text-primary"></i>
-                    </label>
-                </div>
+                
             </div>
             <div v-if="page === 3" class="pt-7">
                 <!-- Page 3: Date -->
@@ -99,6 +149,8 @@
       return {
         editableGoal: { ...this.goal }, // clone to allow canceling
         page: 1,
+        sliderValue: 0,
+        date: null
       };
       
     },
@@ -114,6 +166,56 @@
     },
 
     computed: {
+      sliderDisplay: {
+      get() {
+        return Math.round(this.sliderValue + this.calorieConfig.startingVal);
+      },
+      set(newValue) {
+        this.sliderValue = newValue - this.calorieConfig.startingVal;
+      }
+    },
+
+    calorieConfig() {
+      const normalizedChoice = 'eat less calories'
+
+      if (normalizedChoice === 'eat less calories') {
+        return {
+          min: -1000,
+          max: 0,
+          label: 'Configure calorie deficit',
+          startingVal: 2200
+        };
+      } else if (normalizedChoice === 'eat more calories') {
+        return {
+          min: 0,
+          max: 1000,
+          label: 'Configure calorie surplus',
+          startingVal: 2200
+        };
+
+      } else if (normalizedChoice === 'lose weight') {
+        return {
+          min: -60,
+          max: 0,
+          label: 'Configure Weight Loss Target',
+          startingVal: 60 //! TODO: change to current weight
+        };
+      } else if (normalizedChoice === 'gain weight') {
+        return {
+          min: 0,
+          max: 100,
+          label: 'Configure Weight Gain Target',
+          startingVal: 60 //! TODO: change to current weight
+        };
+      }
+      else {
+        return {
+          min: 0,
+          max: 1000,
+          label: 'Adjust goal'
+        };
+      }
+    },
         goalTitle() {
             if (this.isNew) {
             return this.goal.group ? 'Create New Group Goal' : 'Create New Goal';
