@@ -5,6 +5,8 @@ import Signup from './pages/service/Signup.vue';
 import ForgotPassword from './pages/service/ForgotPassword.vue';
 import ChangePassword from './pages/service/ChangePassword.vue';
 import NewPassword  from './pages/service/NewPassword.vue';
+import ForgotUsername from './pages/service/ForgotUsername.vue';
+import NewUsername from './pages/service/NewUsername.vue';
 
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
@@ -25,8 +27,10 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/signup", component: Signup },
   { path: '/forgotpassword', component: ForgotPassword },
+  { path: '/forgotusername', component: ForgotUsername },
   { path: '/changepassword', component: ChangePassword },
   { path: '/newpassword', component: NewPassword },
+  { path: '/newusername', component: NewUsername },
   {
     path: "/home",
     component: Home,
