@@ -171,6 +171,7 @@ import axios from 'axios';
         sliderValue: 0,
         weight: 0,
         targetWeight: 0,
+        targetCalories: 2200,
         date: null
       };
       
@@ -186,10 +187,18 @@ import axios from 'axios';
       } catch (err) {
         console.error('Error fetching user weight:', err.response?.data || err.message);
       }
-      this.$nextTick(() => {
-    this.sliderDisplay = this.dietConfig.startingVal; // Set the initial value for the slider
+      
+        this.$nextTick(() => {
+          if (this.isNew){
+            this.sliderDisplay = this.dietConfig.startingVal; 
+          } else {
+            this.sliderDisplay = this.editableGoal.target; 
+          }
+    // Set the initial value for the slider
     console.log('Initial sliderValue set:', this.sliderValue);
   });
+      
+       
 
       const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.overflow = 'hidden';
@@ -205,30 +214,29 @@ import axios from 'axios';
 sliderDisplay: {
     get() {
       if (this.isWeightGoal) {
-        return Math.round(this.targetWeight * 10) / 10;  // 1 d.p.
-      } else {
-        return Math.round(this.targetWeight);  // 0 d.p.
+        return Math.round(this.targetWeight * 10) / 10;  // 1 decimal point for weight goals
+      } else if (this.isCalorieGoal) {
+        return this.targetCalories; // Show total calories (no decimal for calorie goals)
       }
     },
     set(newVal) {
-      // Update the targetWeight directly when slider value changes
       if (this.isWeightGoal) {
-        this.targetWeight = Math.round(newVal * 10) / 10;  // Round to 1 d.p.
-      } else {
-        this.targetWeight = Math.round(newVal);  // Round to 0 d.p.
+        this.targetWeight = Math.round(newVal * 10) / 10; // Set with 1 decimal point for weight goals
+      } else if (this.isCalorieGoal) {
+        this.targetCalories = Math.round(newVal); // Set total calories (rounded to nearest whole number)
       }
-      
-      console.log(this.targetWeight);
-      console.log('Slider moved, new targetWeight:', this.targetWeight);
+      console.log(this.targetWeight || this.targetCalories);
     }
   },
 
-    isWeightGoal() {
-      if (this.dietConfig.goalType == 'Calorie Deficit' || this.dietConfig.goalType == 'Calorie Surplus' ){
-        return false
-      } 
-      return true
+    isCalorieGoal() {
+      return (this.dietConfig.goalType == 'Calorie Deficit' || this.dietConfig.goalType == 'Calorie Surplus')
+
     },
+    isWeightGoal() {
+      return (this.dietConfig.goalType == 'Weight Gain' || this.dietConfig.goalType == 'Weight Loss') 
+    },
+
     weightLoss() {
     return this.weight - this.targetWeight;
   },
@@ -283,7 +291,8 @@ sliderDisplay: {
         console.log('slider value:' , this.sliderValue)
         this.sliderValue = config.startingVal;
 
-        this.editableGoal.target = config.startingVal
+        // this.editableGoal.target = config.startingVal
+        this.targetCalories = config.startingVal;
 
         // Return the configuration object
         return config;
