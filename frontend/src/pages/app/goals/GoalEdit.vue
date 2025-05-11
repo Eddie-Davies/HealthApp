@@ -13,10 +13,11 @@
       </div>
 
       <div class="flex items-baseline justify-center mb-3">
-        <span class="text-sm opacity-70 mr-1">Target:</span>
+        <span class="text-sm opacity-70 mr-1">Change by:</span>
         <span class="font-semibold text-lg">{{ editableGoal.target }}</span>
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
+      <p>For a total of {{ totalDailyCals }}kcal per day</p>
 
       <p v-if="dietConfig.note" class="font-semibold text-neutral/75">{{dietConfig.note}}</p>
       <div class="flex flex-col gap-4">
@@ -39,7 +40,7 @@
           <input type="radio" name="my-accordion-1" />
           <div class="collapse-title font-semibold flex items-center">Custom Figure:</div>
           <div class="collapse-content text-sm">
-            <input type="number" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min"
+            <input type="number" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min" :max="dietConfig.max"
               v-model.number="sliderDisplay" class="input input-bordered w-20" />
           </div>
         </div>
@@ -59,7 +60,7 @@
         <button @click="$emit('cancel')" class="btn w-1/4 btn-error btn-soft">
           Back
         </button>
-        <button :disabled="isFormValid" class="btn w-2/4 btn-success"
+        <button :disabled="!isFormValid" class="btn w-2/4 btn-success"
           @click="$emit('save', editableGoal)">Confirm</button>
       </div>
     </div>
@@ -236,7 +237,15 @@ sliderDisplay: {
     isWeightGoal() {
       return (this.dietConfig.goalType == 'Weight Gain' || this.dietConfig.goalType == 'Weight Loss') 
     },
-
+      totalDailyCals() {
+        if (this.dietConfig.goalType == 'Calorie Deficit') {
+          return 2200 - this.sliderDisplay
+        }
+        else if (this.dietConfig.goalType == 'Calorie Surplus') {
+          return 2200 + this.sliderDisplay 
+        }
+        
+      },
     weightLoss() {
     return this.weight - this.targetWeight;
   },
@@ -247,11 +256,12 @@ sliderDisplay: {
         let config = {};
 
         if (dietGoalChoice === 'Eat Less Calories') {
+          console.log('calorie deficit located')
           config = {
             min: 0,
-            max: 500,
+            max: 500, // later replace with daily calories dynmaiclly loaded
             goalType: 'Calorie Deficit',
-            startingVal: 2200,
+            startingVal: 300,
             note: '(every 24hrs)'
           };
         } else if (dietGoalChoice === 'Eat More Calories') {
@@ -259,7 +269,7 @@ sliderDisplay: {
             min: 0,
             max: 500,
             goalType: 'Calorie Surplus',
-            startingVal: 2200,
+            startingVal: 300,
             note: '(every 24hrs)'
           };
         } else if (dietGoalChoice === 'Lose Weight') {
@@ -290,8 +300,10 @@ sliderDisplay: {
         this.sliderValue = config.startingVal;
         console.log('slider value:' , this.sliderValue)
         this.sliderValue = config.startingVal;
+        if (this.isNew) {
+        this.editableGoal.target = config.startingVal
 
-        // this.editableGoal.target = config.startingVal
+        }
         this.targetCalories = config.startingVal;
 
         // Return the configuration object
@@ -318,23 +330,32 @@ sliderDisplay: {
           if (this.editableGoal.type === 'diet') {
             switch (this.dietConfig.goalType) {
               case 'Weight Loss':
-                return this.editableGoal.target <= 0 && this.editableGoal.target < this.weight;
+                console.log('Editable goal target (weight loss)' , this.editableGoal.target)
+                return this.editableGoal.target > 0;
               case 'Weight Gain':
-                return this.editableGoal.target <= 0 && this.editableGoal.target < this.weight;
+                return this.editableGoal.target > 0;
+              case 'Calorie Deficit':
+              if (this.totalDailyCals <= 0) {
+                return false;
+              }
+                return this.editableGoal.target > 0;
+              case 'Calorie Surplus':
+                return this.editableGoal.target > 0 && this.totalDailyCals > 2200;
+
               default:
                 return false;
             }
           }
 
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
-          const isInt = val => Number.isInteger(val);
-          console.log(this.isWeightGoal)
-          return (
-            this.editableGoal.unit.trim() &&
-            (this.isWeightGoal || (isInt(this.editableGoal.target) && this.editableGoal.target > 0)) &&
-            (this.isWeightGoal || (isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0)) &&
-            this.editableGoal.progress <= this.editableGoal.target
-          );
+          // const isInt = val => Number.isInteger(val);
+          // console.log(this.isWeightGoal)
+          // return (
+          //   this.editableGoal.unit.trim() &&
+          //   (this.isWeightGoal || (isInt(this.editableGoal.target) && this.editableGoal.target > 0)) &&
+          //   (this.isWeightGoal || (isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0)) &&
+          //   this.editableGoal.progress <= this.editableGoal.target
+          // );
 
         },
         parsedDate() {
