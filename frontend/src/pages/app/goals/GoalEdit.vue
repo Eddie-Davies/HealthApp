@@ -14,7 +14,7 @@
 
       <div class="flex items-baseline justify-center mb-3">
         <span class="text-sm opacity-70 mr-1">Target:</span>
-        <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
+        <span class="font-semibold text-lg">{{ editableGoal.target }}</span>
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
 
@@ -32,7 +32,7 @@
           <div class="collapse-content text-sm">
             <!-- only use decimals if its a weight goal, not for calories! -->
             <input type="range" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min"
-              :max="dietConfig.max" v-model.number="sliderValue" class="w-full" />
+              :max="dietConfig.max" v-model.number="sliderDisplay" class="w-full" />
           </div>
         </div>
         <div class="collapse bg-base-100 border border-base-300">
@@ -170,6 +170,7 @@ import axios from 'axios';
         page: 1,
         sliderValue: 0,
         weight: 0,
+        targetWeight: 0,
         date: null
       };
       
@@ -185,6 +186,10 @@ import axios from 'axios';
       } catch (err) {
         console.error('Error fetching user weight:', err.response?.data || err.message);
       }
+      this.$nextTick(() => {
+    this.sliderDisplay = this.dietConfig.startingVal; // Set the initial value for the slider
+    console.log('Initial sliderValue set:', this.sliderValue);
+  });
 
       const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.overflow = 'hidden';
@@ -197,19 +202,26 @@ import axios from 'axios';
     },
 
     computed: {
-      sliderDisplay: {
-      get() {
-        if (this.isWeightGoal ) {return Math.round((this.sliderValue + this.dietConfig.startingVal) * 10) / 10;}
-        else {return Math.round((this.sliderValue + this.dietConfig.startingVal))}
-        
-      },
-      set(newValue) {
-        this.sliderValue = newValue - this.dietConfig.startingVal;
-        
-        console.log(this.editableGoal)
-      },
-      
+sliderDisplay: {
+    get() {
+      if (this.isWeightGoal) {
+        return Math.round(this.targetWeight * 10) / 10;  // 1 d.p.
+      } else {
+        return Math.round(this.targetWeight);  // 0 d.p.
+      }
     },
+    set(newVal) {
+      // Update the targetWeight directly when slider value changes
+      if (this.isWeightGoal) {
+        this.targetWeight = Math.round(newVal * 10) / 10;  // Round to 1 d.p.
+      } else {
+        this.targetWeight = Math.round(newVal);  // Round to 0 d.p.
+      }
+      
+      console.log(this.targetWeight);
+      console.log('Slider moved, new targetWeight:', this.targetWeight);
+    }
+  },
 
     isWeightGoal() {
       if (this.dietConfig.goalType == 'Calorie Deficit' || this.dietConfig.goalType == 'Calorie Surplus' ){
@@ -217,55 +229,65 @@ import axios from 'axios';
       } 
       return true
     },
+    weightLoss() {
+    return this.weight - this.targetWeight;
+  },
 
 
-    dietConfig() {
-      const dietGoalChoice = this.editableGoal.progressLabel
+      dietConfig() {
+        const dietGoalChoice = this.editableGoal.progressLabel;
+        let config = {};
 
-      if (dietGoalChoice === 'Eat Less Calories') {
-        // console.log(normalizedChoice)
-        return {
-          min: -1000,
-          max: 0,
-          goalType: 'Calorie Deficit',
-          startingVal: 2200,
-          note: '(every 24hrs)'
-        };
-      } else if (dietGoalChoice === 'Eat More Calories') {
-        return {
-          min: 0,
-          max: 1000,
-          goalType: 'Calorie Surplus',
-          startingVal: 2200,
-          note: '(every 24hrs)'
+        if (dietGoalChoice === 'Eat Less Calories') {
+          config = {
+            min: -1000,
+            max: 0,
+            goalType: 'Calorie Deficit',
+            startingVal: 2200,
+            note: '(every 24hrs)'
+          };
+        } else if (dietGoalChoice === 'Eat More Calories') {
+          config = {
+            min: 0,
+            max: 1000,
+            goalType: 'Calorie Surplus',
+            startingVal: 2200,
+            note: '(every 24hrs)'
+          };
+        } else if (dietGoalChoice === 'Lose Weight') {
+          config = {
+            min: 0,
+            max: this.weight,
+            goalType: 'Weight Loss',
+            startingVal: Math.floor(this.weight / 8)
+          };
+        } else if (dietGoalChoice === 'Gain Weight') {
+          // Present weight to be gained as target (startingVal = weight / 2)
+          config = {
+            min: 0,
+            max: Math.ceil(this.weight),
+            goalType: 'Weight Gain',
+            startingVal: Math.floor(this.weight / 8)
+          };
+        } else {
+          config = {
+            min: 0,
+            max: 1000,
+            goalType: 'INVALID',
+            startingVal: 0
+          };
+        }
 
-        };
+        // Assign the starting value to sliderValue
+        this.sliderValue = config.startingVal;
+        console.log('slider value:' , this.sliderValue)
+        this.sliderValue = config.startingVal;
 
-      } else if (dietGoalChoice === 'Lose Weight') {
-        return {
-          min: -60,
-          max: 0,
-          goalType: 'Weight Loss',
-          startingVal: 60 //! TODO: change to current weight
-        };
-      } else if (dietGoalChoice === 'Gain Weight') {
-        return {
-          min: 0,
-          max: 100,
-          goalType: 'Weight Gain',
-          startingVal: 60 //! TODO: change to current weight
-        };
-      }
-      else {
-        return {
-          min: 0,
-          max: 1000,
-          goalType: 'INVALID',
-          startingVal: 0
-        };
-      }
-      
-    },
+        this.editableGoal.target = config.startingVal
+
+        // Return the configuration object
+        return config;
+      },
         goalTitle() {
             if (this.isNew) {
             return this.goal.group ? 'Create New Group Goal' : 'Create New Goal';
@@ -287,9 +309,9 @@ import axios from 'axios';
           if (this.editableGoal.type === 'diet') {
             switch (this.dietConfig.goalType) {
               case 'Weight Loss':
-                return this.editableGoal.target > this.weight;
+                return this.editableGoal.target <= 0 && this.editableGoal.target < this.weight;
               case 'Weight Gain':
-                return this.editableGoal.target <= this.weight;
+                return this.editableGoal.target <= 0 && this.editableGoal.target < this.weight;
               default:
                 return false;
             }
