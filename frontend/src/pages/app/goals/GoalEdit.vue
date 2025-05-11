@@ -1,5 +1,7 @@
 <template>
-  <div v-if="goal.sport" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
+  <!-- DIET EDIT -->
+  <div v-if="goal.type == 'diet'" 
+  class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
     
     <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
       <h2 class="text-lg font-semibold mb-4"></h2>

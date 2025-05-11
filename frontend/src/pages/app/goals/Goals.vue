@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="mt-10 mb-40 flex flex-wrap justify-center">
-          <GoalNew :group="slide.group" @new-goal="createNewGoal(slide.group)" />
+          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group" />
         </div>
       </div>
     </swiper-slide>
@@ -58,9 +58,19 @@
   </GoalDescriptionAlert>
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
+  <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" 
+    :group="showTypeSelect"
+    @cancel="showTypeSelect = false"
+    @custom="createNewGoal"
+    @diet="createNewGoal" />
+
+  <DietGoalSelect v-if="showDietGoalSelect" 
+  @cancel="showDietGoalSelect = false; showTypeSelect = true"
+  @confirm="handleDietConfigComplete"
+  :goal="tempGoal"/>
+
   <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
-
 </template>
 
 <style>
@@ -138,15 +148,16 @@ body {
 
 <script>
 import axios from 'axios';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 
 import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
-import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
+import GoalTypeSelect from './GoalTypeSelect.vue';
 
 
 
@@ -154,6 +165,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination, Keyboard } from 'swiper/modules';
 import 'swiper/css/pagination';
 import 'swiper/css';
+import DietGoalSelect from './DietGoalSelect.vue';
 
 export default {
   name: 'Goals',
@@ -166,6 +178,8 @@ export default {
     GoalGroupAlert,
     GoalDeleteAlert,
     GoalDescriptionAlert,
+    GoalTypeSelect,
+    DietGoalSelect,
     PageHeader
   },
   setup() {
@@ -186,6 +200,10 @@ export default {
       showAlert: false,
       showDescriptionBox: false,
       goalDescription: false,
+      showTypeSelect: false,
+      showDietGoalSelect: false,
+      tempGoal: null,
+      tempGroupId: null,
       errorMessage: ''
     };
   },
@@ -268,6 +286,11 @@ export default {
       this.editingGoal = { ...this.pendingGoal };
       this.pendingGoal = null;
       this.showAlert = false;
+    },
+    handleDietConfigComplete(configuredGoal) {
+      this.showDietGoalSelect = false
+      console.log(configuredGoal)
+      this.openEditor(configuredGoal, true, this.tempGroupId);
     },
 
     openEditor(goal, isNew = false, groupId = null) {
@@ -430,21 +453,33 @@ export default {
         console.error('Error deleting goal:', err.response?.data || err);
       }
     },
-
+    
     // GOAL CREATION
-    createNewGoal(groupId = null) {
-
+    createNewGoal(groupId = null, goalType = 'custom') {
+      console.log(groupId, goalType)
+      this.showTypeSelect = false
       const newGoal = {
         target: 10,
         progress: 0,
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',
-        type: 'custom',
+        type: goalType,
         group: groupId,
         date: new Date()
       };
-      this.openEditor(newGoal, true, groupId);
+      console.log(goalType)
+      if (goalType == 'custom') {
+        console.log('custom detected')
+        this.openEditor(newGoal, true, groupId); 
+      } else if (goalType == 'diet') { 
+          this.tempGoal = { ...newGoal };
+          this.tempGroupId = groupId;
+          this.showDietGoalSelect = true;
+      } else if (goalType == 'exercise') { 
+         this.openEditor(newGoal, true, groupId); 
+      } 
+      
     }
   }
 };
