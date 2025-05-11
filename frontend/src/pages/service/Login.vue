@@ -88,7 +88,7 @@ export default {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           console.log('Token stored successfully:', response.data.token);
-          this.$router.push('/home');
+          this.$router.push('/home/profile');
         } else {
           console.error('Token not received from backend', response.data);
         }

@@ -6,7 +6,7 @@
         >
           <i class="fa-solid fa-xmark text-base-100 text-4xl"></i>
         </button>
-        <p class="pt-4 text-center text-base">Finish Run</p>
+        <p class="pt-4 text-center text-base">Finish Exercise</p>
     </div>
   </template>
   
