@@ -248,8 +248,8 @@ sliderDisplay: {
 
         if (dietGoalChoice === 'Eat Less Calories') {
           config = {
-            min: -1000,
-            max: 0,
+            min: 0,
+            max: 500,
             goalType: 'Calorie Deficit',
             startingVal: 2200,
             note: '(every 24hrs)'
@@ -257,7 +257,7 @@ sliderDisplay: {
         } else if (dietGoalChoice === 'Eat More Calories') {
           config = {
             min: 0,
-            max: 1000,
+            max: 500,
             goalType: 'Calorie Surplus',
             startingVal: 2200,
             note: '(every 24hrs)'
