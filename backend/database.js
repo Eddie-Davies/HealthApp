@@ -80,6 +80,8 @@ const UserSchema = new mongoose.Schema({
     height: Number,
     targetWeight: Number,
     recoveryCode: String,
+    emailCode: String,
+    newEmail: String,
     meals: [MealSchema],
     foods: [FoodSchema],
     exercises: [ExerciseSchema],

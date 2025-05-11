@@ -93,6 +93,38 @@ app.post('/forgotPassword', async (req, res) => {
     }
 });
 
+app.post('/forgotPassword', async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.body.email });
+        // console.log("User found:", user);
+
+        let recoveryCode = generateCode();
+        await UserModel.updateOne({ email: req.body.email }, { recoveryCode: recoveryCode });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        try {
+            const email = user.email;
+            await transporter.sendMail({
+                from: `"CHANGE PASSWORD" ${EMAIL_ADDRESS}`, // sender address
+                to: email, // list of receivers
+                subject: "CHANGE PASSWORD", // Subject line
+                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`, // plain text body
+
+            });
+        } catch (error) {
+            console.error("An error occurred while sending alert emails:", error);
+            res.status(500).send("An error occurred while sending alert emails");
+        }
+
+        res.status(200).json({ message: 'Recovery code sent to email' });
+
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 app.post('/newPassword', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.body.email });
@@ -126,6 +158,96 @@ app.post('/newPassword', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+app.post('/user/request-email-verification', authenticateToken, async (req, res) => {
+    const { newEmail } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ email: newEmail });
+
+        if (user) {
+            return res.status(409).json({ message: 'Email already in use' });
+        }
+
+        const emailCode = generateCode();
+
+        const currentUser = await UserModel.findOne({ email: req.user.email });
+        if (!currentUser) return res.status(404).json({ message: 'User not found' });
+
+        currentUser.emailCode = emailCode;
+        currentUser.newEmail = newEmail;
+        await currentUser.save();
+
+        await transporter.sendMail({
+            from: `"Blossom Email Verification" <${EMAIL_ADDRESS}>`,
+            to: req.user.email,
+            subject: "Verify your new email address",
+            text: `Here is your Blossom verification code: ${emailCode}`
+        });
+
+        res.status(200).json({ message: 'Verification code sent to new email' });
+        console.log(`Verification code sent to ${req.user.email}: ${emailCode}`);
+
+    } catch (error) {
+        console.error("Error sending email verification:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/user/confirm-email-change', authenticateToken, async (req, res) => {
+    const { code } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        console.log(req.user.email);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.emailCode !== code) {
+            return res.status(401).json({ message: 'Invalid verification code' });
+        }
+
+        const existing = await UserModel.findOne({ email: user.newEmail });
+
+        if (existing) {
+            return res.status(409).json({ message: 'Email already in use' });
+        }
+
+        user.email = user.newEmail;
+        user.newEmail = null;
+        user.emailCode = null;
+        await user.save();
+
+        res.status(200).json({ message: 'Email updated successfully' });
+
+    } catch (error) {
+        console.error("Error confirming email:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.post('/user/update-username', authenticateToken, async (req, res) => {
+    const { newUsername } = req.body;
+
+    try {
+        const existing = await UserModel.findOne({ username: newUsername });
+        if (existing) {
+            return res.status(409).json({ message: 'Username already in use' });
+        }
+
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.username = newUsername;
+        await user.save();
+
+        res.status(200).json({ message: 'Username updated successfully' });
+
+    } catch (error) {
+        console.error("Error updating username:", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
