@@ -87,7 +87,7 @@
               </div>
               <div class="collapse-content text-sm">
                 <div>
-                  <a @click="$router.push('/changepassword')" class="link link-hover">Change password?</a>
+                  <a @click="$router.push('/changepassword')" class="link link-hover text-center">Change password?</a>
                 </div>
               </div>
             </div>
