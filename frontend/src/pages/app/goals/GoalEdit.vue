@@ -7,20 +7,22 @@
       <h2 class="text-lg font-semibold mb-4"></h2>
       <div class="flex flex-col gap-4">
         <!-- Adjust Goal Label -->
-        <p>{{ calorieConfig.label }}</p>
+        <p>{{ editableGoal.progressLabel }}</p>
 
         <!-- Value Display -->
         <div class="flex justify-center items-center gap-2">
           <span class="text-sm opacity-70">Value:</span>
           <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
         </div>
+        <p>{{dietConfig.note}}</p>
+
 
         <!-- Reasonable Calorie Goal -->
         <div class="collapse bg-base-100 border border-base-300">
           <input type="radio" name="my-accordion-1" checked="checked" />
           <div class="collapse-title font-semibold flex items-center">Reasonable Calorie Goal:</div>
           <div class="collapse-content text-sm">
-            <input type="range" :min="calorieConfig.min" :max="calorieConfig.max" v-model.number="sliderValue"
+            <input type="range" :min="dietConfig.min" :max="dietConfig.max" v-model.number="sliderValue"
               class="w-full" />
           </div>
         </div>
@@ -30,14 +32,15 @@
           <div class="collapse-content text-sm"><input type="number" min="0" max="200" v-model.number="sliderDisplay"
               class="input input-bordered w-20" /></div>
         </div>
-<!-- 
-        <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
-          <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
-          <div v-else class="text-sm">Deadline currently set to:</div>
-          <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
-        </div> -->
-        <!-- <label class="block text-sm mb-2 pt-11">Override Deadline:</label>
-        <input v-model="date" type="date" class="input input-bordered w-full mb-2"> -->
+
+        <!-- Date Selector and Display -->
+          <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100">
+            <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+            <div v-else class="text-sm">Deadline currently set to:</div>
+            <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+          </div>
+        <label class="block text-sm mb-2 pt-11">Override Deadline:</label>
+        <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-2">
       </div>
 
       <!-- Action Buttons -->
@@ -170,39 +173,43 @@
     computed: {
       sliderDisplay: {
       get() {
-        return Math.round(this.sliderValue + this.calorieConfig.startingVal);
+        return Math.round(this.sliderValue + this.dietConfig.startingVal);
       },
       set(newValue) {
-        this.sliderValue = newValue - this.calorieConfig.startingVal;
+        this.sliderValue = newValue - this.dietConfig.startingVal;
       }
     },
 
-    calorieConfig() {
-      const normalizedChoice = 'eat less calories'
+    dietConfig() {
+      const dietGoalChoice = this.editableGoal.progressLabel
 
-      if (normalizedChoice === 'eat less calories') {
+      if (dietGoalChoice === 'Eat Less Calories') {
+        // console.log(normalizedChoice)
         return {
           min: -1000,
           max: 0,
           label: 'Configure calorie deficit',
-          startingVal: 2200
+          startingVal: 2200,
+          note: '(every 24hrs)'
         };
-      } else if (normalizedChoice === 'eat more calories') {
+      } else if (dietGoalChoice === 'Eat More Calories') {
         return {
           min: 0,
           max: 1000,
           label: 'Configure calorie surplus',
-          startingVal: 2200
+          startingVal: 2200,
+          note: '(every 24hrs)'
+
         };
 
-      } else if (normalizedChoice === 'lose weight') {
+      } else if (dietGoalChoice === 'Lose Weight') {
         return {
           min: -60,
           max: 0,
           label: 'Configure Weight Loss Target',
           startingVal: 60 //! TODO: change to current weight
         };
-      } else if (normalizedChoice === 'gain weight') {
+      } else if (dietGoalChoice === 'Gain Weight') {
         return {
           min: 0,
           max: 100,
@@ -214,9 +221,11 @@
         return {
           min: 0,
           max: 1000,
-          label: 'Adjust goal'
+          label: 'Adjust goal',
+          startingVal: 0
         };
       }
+      
     },
         goalTitle() {
             if (this.isNew) {

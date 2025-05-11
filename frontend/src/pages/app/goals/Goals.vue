@@ -290,7 +290,9 @@ export default {
     handleDietConfigComplete(configuredGoal) {
       this.showDietGoalSelect = false
       console.log(configuredGoal)
-      this.openEditor(configuredGoal, true, this.tempGroupId);
+      // TODO: REVERT BACK TO THE LINE BELOW IF IT BREAKS LATER
+      // this.openEditor(configuredGoal, true, this.tempGroupId);
+      this.openEditor(configuredGoal, true, configuredGoal.group);
     },
 
     openEditor(goal, isNew = false, groupId = null) {
