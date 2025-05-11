@@ -1,4 +1,3 @@
-// Import Express and userModel from database.js
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -11,7 +10,7 @@ const defaultFoods = require('./defaultFoods');
 const defaultActivityTypes = require('./defaultActivityTypes');
 require('dotenv').config({ path: __dirname + '/../.env' });
 
-const SECRET_KEY = process.env.JWT_SECRET || "default_secret"; // Ensure JWT secret exists
+const SECRET_KEY = process.env.JWT_SECRET || "default_secret";
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
 const EMAIL_PASSWORD = process.env.EMAIL_NODEMAILER_PASSWORD
 
@@ -35,7 +34,7 @@ const corsOptions = {
     origin: [
         'http://localhost:3000',
         allowedOrigin
-    ].filter(Boolean), // removes null if allowed origin is missing
+    ].filter(Boolean),
     credentials: true
 };
 
@@ -49,14 +48,14 @@ function generateCode() {
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Get token from headers.
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) return res.status(401).json({ message: 'Unauthorized: No token provided' });
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) return res.status(403).json({ message: 'Forbidden: Invalid token' });
 
-        req.user = user; // Add user data to request
+        req.user = user;
         next();
     });
 };
@@ -64,7 +63,6 @@ const authenticateToken = (req, res, next) => {
 app.post('/forgotPassword', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.body.email });
-        // console.log("User found:", user);
 
         let recoveryCode = generateCode();
         await UserModel.updateOne({ email: req.body.email }, { recoveryCode: recoveryCode });
@@ -74,10 +72,10 @@ app.post('/forgotPassword', async (req, res) => {
         try {
             const email = user.email;
             await transporter.sendMail({
-                from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`, // sender address
-                to: email, // list of receivers
-                subject: "RESET PASSWORD", // Subject line
-                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`, // plain text body
+                from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`,
+                to: email,
+                subject: "RESET PASSWORD",
+                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`,
 
             });
         } catch (error) {
@@ -93,10 +91,9 @@ app.post('/forgotPassword', async (req, res) => {
     }
 });
 
-app.post('/forgotPassword', async (req, res) => {
+app.post('/forgotUsername', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.body.email });
-        // console.log("User found:", user);
 
         let recoveryCode = generateCode();
         await UserModel.updateOne({ email: req.body.email }, { recoveryCode: recoveryCode });
@@ -106,10 +103,10 @@ app.post('/forgotPassword', async (req, res) => {
         try {
             const email = user.email;
             await transporter.sendMail({
-                from: `"CHANGE PASSWORD" ${EMAIL_ADDRESS}`, // sender address
-                to: email, // list of receivers
-                subject: "CHANGE PASSWORD", // Subject line
-                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`, // plain text body
+                from: `"CHANGE Username" ${EMAIL_ADDRESS}`,
+                to: email, 
+                subject: "CHANGE Username", 
+                text: `Here is your recovery code to change username: ${recoveryCode}. Sincerely the Blossom Dev team.`,
 
             });
         } catch (error) {
@@ -135,8 +132,6 @@ app.post('/newPassword', async (req, res) => {
 
         recoveryCode = user.recoveryCode;
 
-        console.log(reqCode, " ", recoveryCode);
-
         if (reqCode == recoveryCode) {
             newPassword = await bcrypt.hash(reqnewpassword, 10);
             await UserModel.updateOne({ email: req.body.email }, { password_hash: newPassword });
@@ -158,6 +153,41 @@ app.post('/newPassword', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+app.post('/newUsername', async (req, res) => {
+  try {
+    const user = await UserModel.findOne({ email: req.body.email });
+    const reqCode = req.body.code;
+    const reqNewUsername = req.body.newUsername;
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const recoveryCode = user.recoveryCode;
+
+    if (reqCode !== recoveryCode) {
+      return res.status(401).json({ message: 'Invalid recovery code' });
+    }
+
+    // Check for existing username
+    const existing = await UserModel.findOne({ username: reqNewUsername });
+    if (existing) {
+      return res.status(409).json({ message: 'Username already in use' });
+    }
+
+    // Update username and clear recovery code
+    user.username = reqNewUsername;
+    user.recoveryCode = null;
+    await user.save();
+
+    console.log('Username and recovery code updated successfully.');
+    res.status(200).json({ message: 'Username updated successfully' });
+
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 app.post('/user/request-email-verification', authenticateToken, async (req, res) => {
     const { newEmail } = req.body;
@@ -262,11 +292,6 @@ app.get('/user', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-// Test route
-// app.get('/', (req, res) => {
-//     res.send('<h1>Testing index from the backend!</h1>');
-// });
 
 app.post('/signup', async (req, res) => {
     try {
@@ -1459,7 +1484,6 @@ app.get('/gender', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        console.log(user.gender);
         res.status(200).json({ gender: user.gender }); // returns true or false
     } catch (err) {
         console.error('Error fetching gender:', err);
@@ -1568,7 +1592,6 @@ app.get('/dob', authenticateToken, async (req, res) => {
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
-    console.log(user.date_of_birth)
     res.json(user.date_of_birth);
 
 });
