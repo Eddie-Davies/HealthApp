@@ -39,7 +39,7 @@
           <input type="radio" name="my-accordion-1" />
           <div class="collapse-title font-semibold flex items-center">Custom Figure:</div>
           <div class="collapse-content text-sm">
-            <input type="number" :step="isWeightGoal ? '0.1' : '1'" min="0" max="200"
+            <input type="number" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min"
               v-model.number="sliderDisplay" class="input input-bordered w-20" />
           </div>
         </div>
