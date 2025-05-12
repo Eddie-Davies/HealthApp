@@ -29,6 +29,7 @@
                   :key="goal._id"
                   :target="goal.target"
                   :progress="goal.progress"
+                  :trackFrom="goal.trackFrom"
                   :progressLabel="goal.progressLabel"
                   :remainingLabel="goal.remainingLabel"
                   :unit="goal.unit"
@@ -36,6 +37,7 @@
                   :date="goal.date"
                   :colour="slide.colour"
                   :maintainanceKcal="this.kcalIntake"
+                  :currentWeight="this.weight"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
@@ -205,6 +207,7 @@ export default {
       tempGoal: null,
       tempGroupId: null,
       kcalIntake: 0,
+      weight: 0,
       errorMessage: ''
     };
   },
@@ -285,6 +288,15 @@ export default {
       } catch (err) {
         console.error('Error fetching groups:', err.response?.data)
       }
+
+    try {
+      const res = await axios.get('/weights');
+      const weights = res.data;
+      this.weight = weights.weight
+      console.log(this.weight);
+    } catch (err) {
+      console.error('Error fetching user weight:', err.response?.data || err.message);
+    }
     
 
   },

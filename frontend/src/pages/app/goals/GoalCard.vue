@@ -4,7 +4,7 @@
     <div class="flex justify-between w-full">
       <div>
         <p :class="colour" class="font-semibold">{{ completed.label }}</p> 
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
+        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ this.localProgress }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
 
         <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
@@ -27,9 +27,10 @@
             :style="{ height: progressPercentage + '%', transition: 'height 0.5s ease' }">
         </div>
       </div>
-        <span v-if="type == 'custom'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-flag text-sm"></i></span>
-        <span v-else-if="type == 'diet'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-utensils"></i></span>
+        
+        <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-utensils"></i></span>
         <span v-else-if="type == 'exercise'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-person-running"></i></span>
+        <span v-else class="pt-1"><i class="text-neutral-200/70 fa-solid fa-flag text-sm"></i></span>
 
 
       </div>
@@ -91,10 +92,27 @@ export default {
       type: Number,
       default: 0
     },
+    currentWeight: {
+      type: Number,
+      default: 0,
+    },
+    trackFrom: {
+      type: Number,
+      default: 0,
+    },
     colour: {
       type: String,
       default: 'text-success'
     }
+  },
+  data() {
+    return {
+      localProgress: 0
+    };
+  },
+  created() {
+    this.localProgress = this.progress;
+    console.log('local progress created', this.localProgress)
   },
   computed: {
     totalDailyCals() {
@@ -115,38 +133,63 @@ export default {
 
       return this.abbreviateNumber(value);
     },
-    remainingDisplay() {
-      if (this.type === 'diet' && this.isCalorieGoal) {
-        // console.log('diet and calorie goal detected')
-        // console.log(this.totalDailyCals)
-        return this.totalDailyCals - this.progress
-      } else {
-        return this.target
-      }
-    },
+remainingDisplay() {
+  if (this.type === 'diet') {
+    if (this.isCalorieGoal) {
+      return Math.max(0, this.totalDailyCals - this.localProgress);
+    }
+
+    if (this.isWeightGoal) {
+      // Always compute and store localProgress
+      this.localProgress = Math.abs(this.currentWeight - this.trackFrom);
+      return Math.max(0, this.target - this.localProgress);
+    }
+  }
+
+  return this.target;
+},
+
+progressPercentage() {
+  let total = this.target;
+
+  if (this.type === 'diet') {
+    if (this.isCalorieGoal) {
+      total = this.totalDailyCals;
+    } else if (this.isWeightGoal) {
+      // Ensure localProgress is up to date
+      this.localProgress = Math.abs(this.currentWeight - this.trackFrom);
+    }
+  }
+
+  const cappedProgress = Math.min(this.localProgress, total);
+  return (cappedProgress / total) * 100;
+},
+
+
     isCalorieGoal() {
       // console.log('target display:' , this.progressLabel)
       return (this.progressLabel == 'More Calories' || this.progressLabel == 'Less Calories')
     },
+    isWeightGoal() {
+      return (this.progressLabel == 'Gain Weight' || this.progressLabel == 'Lose Weight')
+    },
     
     isComplete(){
-      return this.target === this.progress;
+      return this.target <= this.localProgress;
     },
     completed() {
       return {
         label: this.progressLabel,
-        value: this.progress
+        value: this.localProgress
       };
     },
     remaining() {
       return {
         label: this.remainingLabel,
-        value: this.target - this.progress
+        value: this.remainingDisplay
       };
     },
-    progressPercentage() {
-      return (this.progress / this.target) * 100;
-    },
+
     parsedDate() {
       const parsed = new Date(this.date);
       return isNaN(parsed.getTime()) ? new Date() : parsed; // fallback if invalid
@@ -165,6 +208,12 @@ export default {
     if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
     return value.toString();
   }
-  }
-}
+  },
+  watch: {
+  progress(newVal) {
+    this.localProgress = newVal; // sync with prop if it changes externally
+  },
+  
+}}
+
 </script>
