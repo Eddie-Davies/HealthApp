@@ -275,6 +275,13 @@ export default {
     } catch (err) {
       console.error('Error fetching groups:', err.response?.data)
     }
+    try {
+      const res = await axios.get('/kcal-intake')
+      this.kcalIntake = res.data.kcalIntake;
+      console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+    } catch (err) {
+      console.error('Error fetching groups:', err.response?.data)
+    }
 
   },
   methods: {

@@ -173,6 +173,7 @@ import axios from 'axios';
         weight: 0,
         targetWeight: 0,
         targetCalories: 2200,
+        kcalIntake: 0,
         date: null
       };
       
@@ -180,6 +181,13 @@ import axios from 'axios';
 
     // Disable scrolling, and leave room for it to stop page jittering.
     async mounted() {
+      try {
+        const res = await axios.get('/kcal-intake')
+        this.kcalIntake = res.data;
+        console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+      } catch (err) {
+        console.error('Error fetching groups:', err.response?.data)
+      }
       try {
         const res = await axios.get('/weights');
         const weights = res.data;
@@ -239,10 +247,10 @@ sliderDisplay: {
     },
       totalDailyCals() {
         if (this.dietConfig.goalType == 'Calorie Deficit') {
-          return 2200 - this.sliderDisplay
+          return this.kcalIntake - this.sliderDisplay
         }
         else if (this.dietConfig.goalType == 'Calorie Surplus') {
-          return 2200 + this.sliderDisplay 
+          return this.kcalIntake + this.sliderDisplay 
         }
         
       },
@@ -340,7 +348,7 @@ sliderDisplay: {
               }
                 return this.editableGoal.target > 0;
               case 'Calorie Surplus':
-                return this.editableGoal.target > 0 && this.totalDailyCals > 2200;
+                return this.editableGoal.target > 0 && this.totalDailyCals > this.kcalIntake;
 
               default:
                 return false;
