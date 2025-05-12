@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
+    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel', localGoal.group)">
         <div class="bg-base-200 p-6 rounded-xl w-80 text-center">
             <h2 class="text-lg font-semibold mb-4">Choose Diet Goal Type</h2>
             <div class="flex justify-center gap-4">

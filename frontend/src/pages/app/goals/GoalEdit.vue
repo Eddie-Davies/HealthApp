@@ -14,14 +14,19 @@
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
 
-      <div class="flex items-baseline justify-center mb-3">
+      <div :class="['flex items-baseline justify-center', !isCalorieGoal && 'mb-3']">
         <span class="text-sm opacity-70 mr-1">Change by:</span>
         <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
-      <p>For a total of {{ totalDailyCals }}kcal per day</p>
 
-      <p v-if="dietConfig.note" class="font-semibold text-neutral/75">{{dietConfig.note}}</p>
+      <div v-if="isCalorieGoal" :class="['text-sm text-neutral/80', isCalorieGoal && 'mb-3']">
+        <span>For a total of </span>
+        <span class="font-semibold text-lg text-neutral">{{ totalDailyCals }}</span>
+        <span class="text-sm font-semibold text-neutral/90">kcal per day</span>
+      </div>
+
+
       <div class="flex flex-col gap-4">
 
 
@@ -34,8 +39,8 @@
             target: </div>
           <div class="collapse-content text-sm">
             <!-- only use decimals if its a weight goal, not for calories! -->
-            <input type="range" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min"
-              :max="dietConfig.max" v-model.number="sliderDisplay" class="w-full" />
+            <input type="range" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min" :max="dietConfig.max"
+              v-model.number="sliderDisplay" class="w-full" />
           </div>
         </div>
         <div class="collapse bg-base-100 border border-base-300">
@@ -58,13 +63,21 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="space-x-3 mt-4">
-        <button @click="$emit('cancel')" class="btn w-1/4 btn-error btn-soft">
-          Back
-        </button>
-        <button :disabled="!isFormValid" class="btn w-2/4 btn-success"
-          @click="$emit('save', editableGoal)">Confirm</button>
+      <div class="space-y-3 mt-4">
+        <!-- Row with Back and Confirm -->
+        <div class="flex space-x-3">
+          <button @click="$emit('cancel')" class="btn flex-1 btn-error">
+            Quit
+          </button>
+          <button :disabled="!isFormValid" class="btn flex-2 btn-success"
+            @click="$emit('save', editableGoal)">Confirm</button>
+        </div>
+
+        <!-- Delete button on its own row -->
+        <button v-if="!isNew" class="btn btn-error btn-soft w-full"
+          @click="$emit('confirm-delete', editableGoal)">Delete</button>
       </div>
+
     </div>
   </div>
 
@@ -272,7 +285,6 @@ sliderDisplay: {
             max: 500, // later replace with daily calories dynmaiclly loaded
             goalType: 'Calorie Deficit',
             startingVal: 300,
-            note: '(every 24hrs)'
           };
         } else if (dietGoalChoice === 'More Calories') {
           config = {
@@ -280,7 +292,6 @@ sliderDisplay: {
             max: 500,
             goalType: 'Calorie Surplus',
             startingVal: 300,
-            note: '(every 24hrs)'
           };
         } else if (dietGoalChoice === 'Lose Weight') {
           config = {

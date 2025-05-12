@@ -68,7 +68,7 @@
     @diet="createNewGoal" />
 
   <DietGoalSelect v-if="showDietGoalSelect" 
-  @cancel="showDietGoalSelect = false; showTypeSelect = true"
+  @cancel="handleCancelDiet"
   @confirm="handleDietConfigComplete"
   :goal="tempGoal"/>
 
@@ -409,6 +409,11 @@ export default {
         this.confirmSaveGoal(goal)
       }
 
+    },
+    handleCancelDiet(group) {
+      this.showDietGoalSelect = false;
+      this.showTypeSelect = group;
+      
     },
 
     cancelDescription() {
