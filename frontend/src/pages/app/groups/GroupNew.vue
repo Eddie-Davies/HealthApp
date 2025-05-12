@@ -40,7 +40,7 @@
 
       <!-- Add Button -->
       <div class="flex justify-center mb-4">
-        <button class="btn btn-sm" @click="addMember">Add Member</button>
+        <button class="btn btn-neutral btn-soft rounded-3xl" @click="addMember">Add Member</button>
       </div>
 
       <!-- Error -->
@@ -48,7 +48,7 @@
 
       <!-- Action Buttons -->
       <div class="flex justify-end gap-2">
-        <button class="btn btn-sm" @click="$emit('close')">Cancel</button>
+        <button class="btn btn-sm btn-error btn-soft rounded-3xl" @click="$emit('close')">Cancel</button>
         <button class="btn btn-sm btn-primary" @click="createGroup">Create</button>
       </div>
     </div>

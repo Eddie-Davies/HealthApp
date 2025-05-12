@@ -1,24 +1,24 @@
 <template>
   <div class="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-50" @click.self="$emit('go-back')">
-    <div class="bg-base-200 p-6 rounded-xl w-96">
-      <h2 class="text-lg font-semibold mb-4 text-center">{{ groupName }}</h2>
+    <div class="bg-base-200 p-6 rounded-xl w-96 space-y-6">
+      <h2 class="text-lg font-semibold text-center">{{ groupName }}</h2>
 
       <!-- Members List -->
-      <div class="max-h-32 overflow-y-auto mb-4 rounded p-2 w-full bg-base-100 shadow-inner">
-        <ul>
+      <div class="max-h-40 overflow-y-auto mb-4 p-4 bg-base-100 shadow-inner rounded-lg">
+        <ul class="space-y-2">
           <li
             v-for="(member, index) in members"
             :key="index"
-            class="mb-2 border-b border-base-300 pb-1"
+            class="flex items-center justify-between py-2 px-4 bg-base-300 rounded-lg shadow-sm"
           >
-            {{ member }}
+            <span class="font-medium">{{ member }}</span>
           </li>
         </ul>
       </div>
 
       <!-- Add Member Input -->
       <div class="w-full mb-3">
-        <label class="block text-sm mb-1 font-medium ml-2">Add Member by Username</label>
+        <label class="block text-sm font-medium ml-2 mb-3">Add Member by Username</label>
         <input
           v-model="newMemberUsername"
           type="text"
@@ -33,9 +33,9 @@
       </div>
 
       <!-- Buttons -->
-      <div class="flex justify-between w-full">
+      <div class="flex justify-between w-full mt-5">
         <button class="btn btn-primary" @click="addMember">Add Member</button>
-        <button class="btn btn-ghost" @click="$emit('go-back')">Go Back</button>
+        <button class="btn btn-neutral" @click="$emit('go-back')">Go Back</button>
       </div>
     </div>
   </div>

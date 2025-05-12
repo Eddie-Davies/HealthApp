@@ -6,15 +6,19 @@
         <div v-for="goal in goals" :key="goal._id" class="p-3 bg-base-100 rounded-lg mb-3 shadow">
           <div class="font-semibold">{{ goal.description }}</div>
           <div class="text-sm text-neutral-500">{{ goal.target }} {{ goal.unit }}</div>
-          <div class="flex justify-end gap-2 mt-2">
-            <button class="btn btn-xl fa-solid fa-download btn-success" @click="addToMyGoals(goal._id)"></button>
-            <button class="btn btn-xl fa-solid fa-xmark btn-error" @click="deleteGoal(goal._id)"></button>
+          <div class="flex flex-col items-center w-full gap-3 mt-6">
+            <button class="btn btn-success btn-soft rounded-3xl w-[50%] flex justify-center items-center" @click="addToMyGoals(goal._id)">
+              <i class="fa-solid fa-download mr-2"></i> Download
+            </button>
+            <button class="btn btn-error btn-soft rounded-3xl w-[50%] flex justify-center items-center mt-2" @click="deleteGoal(goal._id)">
+              <i class="fa-solid fa-xmark mr-2"></i> Delete
+            </button>
           </div>
         </div>
       </div>
       <div v-else class="text-center text-sm text-neutral-400">No group goals found.</div>
       <div class="text-center mt-4">
-        <button class="btn btn-md btn-ghost" @click="$emit('close')">Close</button>
+        <button class="btn btn-neutral w-[50%] mt-10" @click="$emit('close')">Close</button>
       </div>
     </div>
   </div>
