@@ -34,8 +34,8 @@
                   :unit="goal.unit"
                   :type="goal.type"
                   :date="goal.date"
-                  :sport="goal.sport"
                   :colour="slide.colour"
+                  :maintainanceKcal="this.kcalIntake"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
@@ -204,6 +204,7 @@ export default {
       showDietGoalSelect: false,
       tempGoal: null,
       tempGroupId: null,
+      kcalIntake: 0,
       errorMessage: ''
     };
   },
@@ -275,6 +276,15 @@ export default {
     } catch (err) {
       console.error('Error fetching groups:', err.response?.data)
     }
+
+    // GET DAILY MAINTAINANCE KCAL
+    try {
+        const res = await axios.get('/kcal-intake')
+        this.kcalIntake = res.data;
+        // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+      } catch (err) {
+        console.error('Error fetching groups:', err.response?.data)
+      }
     
 
   },
