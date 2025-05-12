@@ -308,7 +308,7 @@ sliderDisplay: {
         this.sliderValue = config.startingVal;
         console.log('slider value:' , this.sliderValue)
         this.sliderValue = config.startingVal;
-        if (this.isNew) {
+        if (this.isNew && this.editableGoal.type == 'diet') {
         this.editableGoal.target = config.startingVal
 
         }
@@ -356,14 +356,14 @@ sliderDisplay: {
           }
 
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
-          // const isInt = val => Number.isInteger(val);
-          // console.log(this.isWeightGoal)
-          // return (
-          //   this.editableGoal.unit.trim() &&
-          //   (this.isWeightGoal || (isInt(this.editableGoal.target) && this.editableGoal.target > 0)) &&
-          //   (this.isWeightGoal || (isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0)) &&
-          //   this.editableGoal.progress <= this.editableGoal.target
-          // );
+          const isInt = val => Number.isInteger(val);
+          console.log(this.isWeightGoal)
+          return (
+            this.editableGoal.unit.trim() &&
+            (this.isWeightGoal || (isInt(this.editableGoal.target) && this.editableGoal.target > 0)) &&
+            (this.isWeightGoal || (isInt(this.editableGoal.progress) && this.editableGoal.progress >= 0)) &&
+            this.editableGoal.progress <= this.editableGoal.target
+          );
 
         },
         parsedDate() {
