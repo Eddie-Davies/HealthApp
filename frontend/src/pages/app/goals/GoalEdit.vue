@@ -309,7 +309,7 @@ sliderDisplay: {
         console.log('slider value:' , this.sliderValue)
         this.sliderValue = config.startingVal;
         if (this.isNew && this.editableGoal.type == 'diet') {
-        this.editableGoal.target = config.startingVal
+          this.editableGoal.target = config.startingVal
 
         }
         this.targetCalories = config.startingVal;
@@ -339,7 +339,7 @@ sliderDisplay: {
             switch (this.dietConfig.goalType) {
               case 'Weight Loss':
                 console.log('Editable goal target (weight loss)' , this.editableGoal.target)
-                return this.editableGoal.target > 0;
+                return this.editableGoal.target > 0 && this.editableGoal.target <= this.weight;
               case 'Weight Gain':
                 return this.editableGoal.target > 0;
               case 'Calorie Deficit':
