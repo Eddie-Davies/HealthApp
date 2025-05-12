@@ -1495,6 +1495,42 @@ app.get('/height', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/kcal-intake', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user.dailyCalorieIntake);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching weights', error: err });
+    }
+});
+app.post('/kcal-intake', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserModel.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Expecting a `dailyCalorieIntake` field in the request body
+    const { dailyCalorieIntake } = req.body;
+
+    if (typeof dailyCalorieIntake !== 'number' || dailyCalorieIntake < 0) {
+      return res.status(400).json({ message: 'Invalid dailyCalorieIntake value' });
+    }
+
+    user.dailyCalorieIntake = dailyCalorieIntake;
+    await user.save();
+
+    res.json({ message: 'Calorie intake updated successfully', dailyCalorieIntake });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating calorie intake', error: err });
+  }
+});
+
+
 app.post('/weight', authenticateToken, async (req, res) => {
     try {
         const { value } = req.body;

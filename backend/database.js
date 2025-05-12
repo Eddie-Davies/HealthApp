@@ -77,6 +77,7 @@ const UserSchema = new mongoose.Schema({
     firstLogin: { type: Boolean, default: true },
     gender: Boolean,
     weight: Number,
+    dailyCalorieIntake: Number,
     bmi: Number,
     height: Number,
     targetWeight: Number,
