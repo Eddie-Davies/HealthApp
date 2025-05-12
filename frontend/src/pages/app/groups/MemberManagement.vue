@@ -18,7 +18,7 @@
 
       <!-- Add Member Input -->
       <div class="w-full mb-3">
-        <label class="block text-sm mb-1 font-medium">Add Member by Username</label>
+        <label class="block text-sm mb-1 font-medium ml-2">Add Member by Username</label>
         <input
           v-model="newMemberUsername"
           type="text"
