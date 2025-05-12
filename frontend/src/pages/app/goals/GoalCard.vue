@@ -166,7 +166,7 @@ export default {
     progressPercentage() {
       // console.log(this.dynamicProgress)
 
-      return (this.dynamicProgress / this.target) * 100;
+      return Math.min(100, (this.dynamicProgress / this.target) * 100);
     },
 
 
