@@ -37,6 +37,7 @@
                   :date="goal.date"
                   :colour="slide.colour"
                   :maintainanceKcal="this.kcalIntake"
+                  :lastDayKcal="this.lastDayKcal"
                   :currentWeight="this.weight"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
@@ -207,6 +208,7 @@ export default {
       tempGoal: null,
       tempGroupId: null,
       kcalIntake: 0,
+      lastDayKcal: 0,
       weight: 0,
       errorMessage: ''
     };
@@ -293,7 +295,15 @@ export default {
         this.kcalIntake = res.data;
         // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
       } catch (err) {
-        console.error('Error fetching groups:', err.response?.data)
+        console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
+      }
+      // GET DAILY MAINTAINANCE KCAL
+    try {
+        const res = await axios.get('/today-calories')
+        this.lastDayKcal = res.data;
+        console.log('Kcal Intake last day:', this.lastDayKcal)
+      } catch (err) {
+        console.error('Error last day kcal:', err.response?.data)
       }
 
 

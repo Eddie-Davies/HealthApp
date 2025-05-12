@@ -748,8 +748,7 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
             typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
             typeof unit !== 'string' || unit.trim() === '' ||
             typeof type !== 'string' ||
-            !date ||
-            typeof trackFrom !== 'number'
+            !date 
         ) {
             return res.status(400).json({
                 message: 'Invalid goal input: target must be an integer > 0, progress must be an integer between 0 and target, and unit must be non-empty.'
@@ -940,6 +939,42 @@ app.get('/recent-calories', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// Get calories for today (from 00:00 to now)
+app.get('/today-calories', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const now = new Date();
+        const startOfToday = new Date(now);
+        startOfToday.setHours(0, 0, 0, 0); // Today at 00:00:00.000
+
+        let totalCalories = 0;
+
+        for (const meal of user.meals) {
+            const mealDate = new Date(meal.date);
+            if (mealDate >= startOfToday && mealDate <= now) {
+                let caloriesInMeal = 0;
+                const foods = meal.foods || [];
+                for (const food of foods) {
+                    caloriesInMeal += food.calories || 0;
+                }
+                totalCalories += caloriesInMeal;
+            }
+        }
+
+        res.status(200).json(totalCalories);
+    } catch (error) {
+        console.error('Error fetching today\'s calories:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
 
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {

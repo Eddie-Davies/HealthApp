@@ -100,6 +100,10 @@ export default {
       type: Number,
       default: 0,
     },
+    lastDayKcal: {
+      type: Number,
+      default: 0
+    },
     colour: {
       type: String,
       default: 'text-success'
@@ -111,10 +115,21 @@ export default {
       let diff = 0;
       if (this.progressLabel === 'Gain Weight') {
         diff = this.currentWeight - this.trackFrom;
+      if (diff > this.smartRemaining) diff = this.smartRemaining;
+
       } else if (this.progressLabel === 'Lose Weight') {
         diff = this.trackFrom - this.currentWeight;
+      if (diff > this.smartRemaining) diff = this.smartRemaining;
+
+      } else if (this.progressLabel === 'Less Calories') {
+        console.log('day kcal' , this.lastDayKcal)
+        return this.lastDayKcal
       }
-      if (diff > this.target) diff = this.target;
+      else if (this.progressLabel === 'More Calories') {
+        console.log('day kcal' , this.lastDayKcal)
+        return this.lastDayKcal
+      }
+
       if (diff < 0) diff = 0;
       return diff;
     }
@@ -139,6 +154,13 @@ export default {
 
       return this.abbreviateNumber(value);
     },
+    smartRemaining() {
+      const value = (this.type === 'diet' && this.isCalorieGoal)
+        ? this.totalDailyCals
+        : this.target;
+
+      return value;
+    },
 
 
     progressPercentage() {
@@ -156,9 +178,16 @@ export default {
       return (this.progressLabel == 'Gain Weight' || this.progressLabel == 'Lose Weight')
     },
     
-    isComplete(){
-      return this.target <= this.dynamicProgress;
+    isComplete() {
+      const isTargetMet = this.target <= this.dynamicProgress;
+      
+      if (this.progressLabel === 'Less Calories') {
+        return !isTargetMet;
+      }
+      
+      return isTargetMet;
     },
+
     completed() {
       return {
         label: this.progressLabel,
@@ -168,7 +197,7 @@ export default {
     remaining() {
       return {
         label: this.remainingLabel,
-        value: this.target - this.dynamicProgress
+        value: Math.max(0,this.smartRemaining - this.dynamicProgress)
     }},
 
     parsedDate() {
@@ -185,31 +214,6 @@ export default {
   },
 
   methods: {
-    //     updateDynamicProgress() {
-    //       if (this.type == 'diet') {
-    //         console.log('updated dynamic progress for diet goals')
-    //         let diff = 0
-    //           if (this.progressLabel == 'Gain Weight') {
-    //             console.log('adjusting gain goal')
-    //             console.log('current weight: ' , this.currentWeight)
-    //             console.log('True Progress ', diff)
-    //             diff = this.currentWeight - this.trackFrom
-    //             console.log('Progress:', diff)
-                
-    //           }
-    //           else if (this.progressLabel == 'Lose Weight') {
-    //             diff = this.trackFrom - this.currentWeight
-                
-    //           }
-    //           if (diff > this.target) {
-    //               diff = this.target
-    //             }
-    //             if (diff < 0)
-    //             { diff = 0}
-    //             this.dynamicProgress = diff
-
-    //       }
-    // },
     abbreviateNumber(value) {
       if (value >= 1_000_000) return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
       if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
@@ -217,13 +221,6 @@ export default {
     },
 
   },
-//   watch: {
-//   currentWeight(newVal) {
-//     if (newVal > 0) {
-//       this.updateDynamicProgress();
-//     }
-//   }
-// }
 
   
   
