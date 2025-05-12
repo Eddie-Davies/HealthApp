@@ -48,9 +48,11 @@ export default {
         confirm(choice) {
             this.localGoal.progressLabel = choice
             if (choice == 'Lose Weight' || choice == 'Gain Weight') {
+                this.localGoal.progressLabel = choice
                 this.localGoal.unit = 'kg'
             }
             else if (choice == 'Eat More Calories' || choice == 'Eat Less Calories') {
+                this.localGoal.progressLabel = choice.replace('Eat ', '');
                 this.localGoal.unit = 'kcal'
             }
             console.log(this.localGoal.unit)

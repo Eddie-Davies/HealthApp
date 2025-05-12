@@ -100,22 +100,20 @@ export default {
     totalDailyCals() {
       // console.log('kcal intake from daily cals:', this.maintainanceKcal)
       // console.log('calculating total daily cals')
-      if (this.progressLabel == 'Eat Less Calories') {
+      if (this.progressLabel == 'Less Calories') {
         // console.log('dtected an eat less')
         return this.maintainanceKcal - this.target
       }
-      else if (this.progressLabel == 'Eat More Calories') {
+      else if (this.progressLabel == 'More Calories') {
         return this.maintainanceKcal + this.target
       }
     },
     targetDisplay() {
-      if (this.type === 'diet' && this.isCalorieGoal) {
-        // console.log('diet and calorie goal detected')
-        // console.log(this.totalDailyCals)
-        return this.totalDailyCals
-      } else {
-        return this.target
-      }
+      const value = (this.type === 'diet' && this.isCalorieGoal)
+        ? this.totalDailyCals
+        : this.target;
+
+      return this.abbreviateNumber(value);
     },
     remainingDisplay() {
       if (this.type === 'diet' && this.isCalorieGoal) {
@@ -128,7 +126,7 @@ export default {
     },
     isCalorieGoal() {
       // console.log('target display:' , this.progressLabel)
-      return (this.progressLabel == 'Eat More Calories' || this.progressLabel == 'Eat Less Calories')
+      return (this.progressLabel == 'More Calories' || this.progressLabel == 'Less Calories')
     },
     
     isComplete(){
@@ -161,5 +159,12 @@ export default {
       return `${day}/${month}/${year}`;
     },
   },
+  methods : {
+    abbreviateNumber(value) {
+    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return value.toString();
+  }
+  }
 }
 </script>

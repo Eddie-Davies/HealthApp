@@ -263,7 +263,7 @@ sliderDisplay: {
         const dietGoalChoice = this.editableGoal.progressLabel;
         let config = {};
 
-        if (dietGoalChoice === 'Eat Less Calories') {
+        if (dietGoalChoice === 'Less Calories') {
           console.log('calorie deficit located')
           config = {
             min: 0,
@@ -272,7 +272,7 @@ sliderDisplay: {
             startingVal: 300,
             note: '(every 24hrs)'
           };
-        } else if (dietGoalChoice === 'Eat More Calories') {
+        } else if (dietGoalChoice === 'More Calories') {
           config = {
             min: 0,
             max: 500,
