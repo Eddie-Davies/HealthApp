@@ -4,11 +4,11 @@
     <div class="flex justify-between w-full">
       <div>
         <p :class="colour" class="font-semibold">{{ completed.label }}</p> 
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ this.localProgress }}</h1>
+        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
 
         <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remainingDisplay }}</h1>
+        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
         <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
       </div>
       <!-- Vertical Progress Bar -->
@@ -105,16 +105,22 @@ export default {
       default: 'text-success'
     }
   },
-  data() {
-    return {
-      localProgress: 0
-    };
-  },
-  created() {
-    this.localProgress = this.progress;
-    console.log('local progress created', this.localProgress)
-  },
   computed: {
+    dynamicProgress() {
+    if (this.type === 'diet') {
+      let diff = 0;
+      if (this.progressLabel === 'Gain Weight') {
+        diff = this.currentWeight - this.trackFrom;
+      } else if (this.progressLabel === 'Lose Weight') {
+        diff = this.trackFrom - this.currentWeight;
+      }
+      if (diff > this.target) diff = this.target;
+      if (diff < 0) diff = 0;
+      return diff;
+    }
+    return this.progress;
+  },
+
     totalDailyCals() {
       // console.log('kcal intake from daily cals:', this.maintainanceKcal)
       // console.log('calculating total daily cals')
@@ -133,37 +139,13 @@ export default {
 
       return this.abbreviateNumber(value);
     },
-remainingDisplay() {
-  if (this.type === 'diet') {
-    if (this.isCalorieGoal) {
-      return Math.max(0, this.totalDailyCals - this.localProgress);
-    }
 
-    if (this.isWeightGoal) {
-      // Always compute and store localProgress
-      this.localProgress = Math.abs(this.currentWeight - this.trackFrom);
-      return Math.max(0, this.target - this.localProgress);
-    }
-  }
 
-  return this.target;
-},
+    progressPercentage() {
+      // console.log(this.dynamicProgress)
 
-progressPercentage() {
-  let total = this.target;
-
-  if (this.type === 'diet') {
-    if (this.isCalorieGoal) {
-      total = this.totalDailyCals;
-    } else if (this.isWeightGoal) {
-      // Ensure localProgress is up to date
-      this.localProgress = Math.abs(this.currentWeight - this.trackFrom);
-    }
-  }
-
-  const cappedProgress = Math.min(this.localProgress, total);
-  return (cappedProgress / total) * 100;
-},
+      return (this.dynamicProgress / this.target) * 100;
+    },
 
 
     isCalorieGoal() {
@@ -175,20 +157,19 @@ progressPercentage() {
     },
     
     isComplete(){
-      return this.target <= this.localProgress;
+      return this.target <= this.dynamicProgress;
     },
     completed() {
       return {
         label: this.progressLabel,
-        value: this.localProgress
+        value: this.dynamicProgress
       };
     },
     remaining() {
       return {
         label: this.remainingLabel,
-        value: this.remainingDisplay
-      };
-    },
+        value: this.target - this.dynamicProgress
+    }},
 
     parsedDate() {
       const parsed = new Date(this.date);
@@ -202,18 +183,50 @@ progressPercentage() {
       return `${day}/${month}/${year}`;
     },
   },
-  methods : {
+
+  methods: {
+    //     updateDynamicProgress() {
+    //       if (this.type == 'diet') {
+    //         console.log('updated dynamic progress for diet goals')
+    //         let diff = 0
+    //           if (this.progressLabel == 'Gain Weight') {
+    //             console.log('adjusting gain goal')
+    //             console.log('current weight: ' , this.currentWeight)
+    //             console.log('True Progress ', diff)
+    //             diff = this.currentWeight - this.trackFrom
+    //             console.log('Progress:', diff)
+                
+    //           }
+    //           else if (this.progressLabel == 'Lose Weight') {
+    //             diff = this.trackFrom - this.currentWeight
+                
+    //           }
+    //           if (diff > this.target) {
+    //               diff = this.target
+    //             }
+    //             if (diff < 0)
+    //             { diff = 0}
+    //             this.dynamicProgress = diff
+
+    //       }
+    // },
     abbreviateNumber(value) {
-    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return value.toString();
-  }
+      if (value >= 1_000_000) return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return value.toString();
+    },
+
   },
-  watch: {
-  progress(newVal) {
-    this.localProgress = newVal; // sync with prop if it changes externally
-  },
+//   watch: {
+//   currentWeight(newVal) {
+//     if (newVal > 0) {
+//       this.updateDynamicProgress();
+//     }
+//   }
+// }
+
   
-}}
+  
+}
 
 </script>

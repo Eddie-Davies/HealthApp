@@ -7,8 +7,10 @@
       <h2 class="text-lg font-semibold mb-4">{{ editableGoal.progressLabel }}</h2>
       <!-- Value Display -->
       <div v-if="isWeightGoal" class="flex items-baseline justify-center">
-        <p class="text-sm opacity-70 mr-1">Current Weight:</p>
-        <span class="font-semibold text-lg">{{ weight }}</span>
+        <p v-if="isNew" class="text-sm opacity-70 mr-1">Starting Weight:</p>
+        <p v-else class="text-sm opacity-70 mr-1">Started at:</p>
+
+        <span class="font-semibold text-lg">{{ editableGoal.trackFrom }}</span>
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
 

@@ -270,7 +270,14 @@ export default {
     }
     console.log('GOALS:', this.goals.map(g => ({ id: g._id, group: g.group })));
 
-
+    try {
+      const res = await axios.get('/weights');
+      const weights = res.data;
+      this.weight = weights.weight
+      console.log('front weight', this.weight);
+    } catch (err) {
+      console.error('Error fetching user weight:', err.response?.data || err.message);
+    }
     // Get user Groups
     try {
       const res = await axios.get('/groups')
@@ -289,14 +296,7 @@ export default {
         console.error('Error fetching groups:', err.response?.data)
       }
 
-    try {
-      const res = await axios.get('/weights');
-      const weights = res.data;
-      this.weight = weights.weight
-      console.log(this.weight);
-    } catch (err) {
-      console.error('Error fetching user weight:', err.response?.data || err.message);
-    }
+
     
 
   },
