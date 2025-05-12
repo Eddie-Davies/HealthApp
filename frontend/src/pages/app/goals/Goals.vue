@@ -237,7 +237,7 @@ export default {
       // Add group slides
       this.groups.forEach((group, index) => {
         const colour = colourList[index % colourList.length]; 
-        console.log(group._id)
+        // console.log(group._id)
         slides.push({
           title: `${group.name} Goals`,
           goals: this.groupedGoals[group._id] || [],
@@ -276,7 +276,7 @@ export default {
       const res = await axios.get('/weights');
       const weights = res.data;
       this.weight = weights.weight
-      console.log('front weight', this.weight);
+      // console.log('front weight', this.weight);
     } catch (err) {
       console.error('Error fetching user weight:', err.response?.data || err.message);
     }
@@ -284,7 +284,7 @@ export default {
     try {
       const res = await axios.get('/groups')
       this.groups = res.data.groups;
-      console.log('Groups:', this.groups)
+      // console.log('Groups:', this.groups)
     } catch (err) {
       console.error('Error fetching groups:', err.response?.data)
     }
@@ -301,7 +301,7 @@ export default {
     try {
         const res = await axios.get('/today-calories')
         this.lastDayKcal = res.data;
-        console.log('Kcal Intake last day:', this.lastDayKcal)
+        // console.log('Kcal Intake last day:', this.lastDayKcal)
       } catch (err) {
         console.error('Error last day kcal:', err.response?.data)
       }

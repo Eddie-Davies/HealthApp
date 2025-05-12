@@ -5,15 +5,15 @@
       <div>
         <p :class="colour" class="font-semibold">{{ completed.label }}</p> 
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ completed.value }}</h1>
-        <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
+        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
 
         <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
         <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
-        <p class="text-neutral-400 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
+        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
       </div>
       <!-- Vertical Progress Bar -->
       <div class="flex flex-col items-center justify-end">
-        <p class="mb-1 text-neutral-400">{{ targetDisplay }}</p>
+        <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
         <div class="w-4 h-20 lg:h-28 bg-neutral-200/10 rounded-full overflow-hidden relative">
 
           <div class="absolute bottom-0 w-full rounded-full overflow-hidden"
@@ -106,41 +106,34 @@ export default {
     },
     colour: {
       type: String,
-      default: 'text-success'
+      default: 'text-primary'
     }
   },
   computed: {
     dynamicProgress() {
-    if (this.type === 'diet') {
-      let diff = 0;
-      if (this.progressLabel === 'Gain Weight') {
-        diff = this.currentWeight - this.trackFrom;
-      if (diff > this.smartRemaining) diff = this.smartRemaining;
+      if (this.type === 'diet') {
+        let diff = 0;
+        if (this.progressLabel === 'Gain Weight') {
+          diff = this.currentWeight - this.trackFrom;
+          if (diff > this.smartRemaining) diff = this.smartRemaining;
 
-      } else if (this.progressLabel === 'Lose Weight') {
-        diff = this.trackFrom - this.currentWeight;
-      if (diff > this.smartRemaining) diff = this.smartRemaining;
+        } else if (this.progressLabel === 'Lose Weight') {
+          diff = this.trackFrom - this.currentWeight;
+          if (diff > this.smartRemaining) diff = this.smartRemaining;
 
-      } else if (this.progressLabel === 'Less Calories') {
-        console.log('day kcal' , this.lastDayKcal)
-        return this.lastDayKcal
+        } else if (this.progressLabel === 'Less Calories' || this.progressLabel === 'More Calories') {
+          return this.lastDayKcal
+        }
+
+        if (diff < 0) diff = 0;
+        return diff;
       }
-      else if (this.progressLabel === 'More Calories') {
-        console.log('day kcal' , this.lastDayKcal)
-        return this.lastDayKcal
-      }
-
-      if (diff < 0) diff = 0;
-      return diff;
-    }
-    return this.progress;
-  },
+      return this.progress;
+    },
 
     totalDailyCals() {
-      // console.log('kcal intake from daily cals:', this.maintainanceKcal)
-      // console.log('calculating total daily cals')
+
       if (this.progressLabel == 'Less Calories') {
-        // console.log('dtected an eat less')
         return this.maintainanceKcal - this.target
       }
       else if (this.progressLabel == 'More Calories') {
@@ -164,14 +157,12 @@ export default {
 
 
     progressPercentage() {
-      // console.log(this.dynamicProgress)
-
+      // Round it only now. This means the progress can show if you are over but the bars colours are correct.
       return Math.min(100, (this.dynamicProgress / this.target) * 100);
     },
 
 
     isCalorieGoal() {
-      // console.log('target display:' , this.progressLabel)
       return (this.progressLabel == 'More Calories' || this.progressLabel == 'Less Calories')
     },
     isWeightGoal() {
@@ -179,7 +170,7 @@ export default {
     },
     
     isComplete() {
-      const isTargetMet = this.target <= this.dynamicProgress;
+      const isTargetMet = this.smartRemaining <= this.dynamicProgress;
       
       if (this.progressLabel === 'Less Calories') {
         return !isTargetMet;
@@ -219,11 +210,7 @@ export default {
       if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
       return value.toString();
     },
-
   },
-
-  
-  
 }
 
 </script>
