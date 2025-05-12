@@ -14,7 +14,7 @@
 
       <div class="flex items-baseline justify-center mb-3">
         <span class="text-sm opacity-70 mr-1">Change by:</span>
-        <span class="font-semibold text-lg">{{ editableGoal.target }}</span>
+        <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
         <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
       </div>
       <p>For a total of {{ totalDailyCals }}kcal per day</p>
@@ -381,7 +381,16 @@ sliderDisplay: {
           watch: {
         sliderDisplay() {
           // update the target based on the value of the slider.
-          this.editableGoal.target = this.sliderDisplay
+          if (this.isWeightGoal) { 
+            console.log('weight goal dtected')
+            this.editableGoal.target = this.sliderDisplay
+          }
+          else if (this.isCalorieGoal) {
+            console.log('calorie goal dtected')
+            this.editableGoal.target = this.sliderDisplay
+            console.log('fdfd')
+            console.log(this.editableGoal.target, this.kcalIntake)
+          }
         }},
   };
   </script>
