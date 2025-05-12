@@ -593,7 +593,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, type, date } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id;
 
@@ -848,10 +848,19 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
             remainingLabel: copiedGoalObj.remainingLabel?.trim() || "Remaining",
             progress: 0
         };
+        console.log(copiedGoal.progressLabel)
+        if (
+          (copiedGoal.type === "diet" &&
+            copiedGoal.progressLabel == "Gain Weight") ||
+          copiedGoal.progressLabel == "Lose Weight"
+        ) {
+          copiedGoal.trackFrom = user.weight;
+          console.log(user.weight)
+        }
 
         delete copiedGoal.description;
         delete copiedGoal._id; // Let MongoDB assign a new _id
-
+        
         user.goals.push(copiedGoal);
         await user.save();
 
