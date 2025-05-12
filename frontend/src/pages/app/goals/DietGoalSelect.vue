@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
     name: 'GoalSelectActivityType',
     props: {
@@ -37,11 +38,20 @@ export default {
     data() {
         return {
             localGoal: { ...this.goal },
-            choice: ''
+            choice: '',
+            weight: 0,
         };
     },
-    mounted() {
-        console.log(this.goal)
+    async mounted() {
+        // Get user weight
+        try {
+            const res = await axios.get('/weights');
+            const weights = res.data;
+            this.weight = weights.weight
+            console.log(this.weight);
+        } catch (err) {
+            console.error('Error fetching user weight:', err.response?.data || err.message);
+        }
     },
     methods: {
         // Set unit and Choice to goal object values.
@@ -49,6 +59,7 @@ export default {
             this.localGoal.progressLabel = choice
             if (choice == 'Lose Weight' || choice == 'Gain Weight') {
                 this.localGoal.progressLabel = choice
+                this.localGoal.trackFrom = this.weight // TODO: LOAD WEIGHT AT THE TIME FROM THE BACKEND
                 this.localGoal.unit = 'kg'
             }
             else if (choice == 'Eat More Calories' || choice == 'Eat Less Calories') {

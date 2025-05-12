@@ -474,6 +474,7 @@ export default {
       const newGoal = {
         target: 10,
         progress: 0,
+        trackFrom: null,
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',

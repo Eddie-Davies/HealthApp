@@ -58,7 +58,7 @@ const GoalSchema = new mongoose.Schema({
     progressLabel: String,
     remainingLabel: String,
     unit: String,
-    sport: Boolean, // false = food or other
+    trackFrom: {type: Number, default: null},
     type: String,
     date: { type: Date, default: Date.now },
     group: { type: String, default: null },

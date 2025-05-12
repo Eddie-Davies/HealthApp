@@ -740,7 +740,7 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // ADD NEW GOAL
 app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { target, progress, progressLabel, remainingLabel, unit, type, date, group } = req.body;
+        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group } = req.body;
 
         // Validate input
         if (
@@ -748,7 +748,8 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
             typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
             typeof unit !== 'string' || unit.trim() === '' ||
             typeof type !== 'string' ||
-            !date
+            !date ||
+            typeof trackFrom !== 'number'
         ) {
             return res.status(400).json({
                 message: 'Invalid goal input: target must be an integer > 0, progress must be an integer between 0 and target, and unit must be non-empty.'
@@ -762,7 +763,7 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         }
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, progressLabel, remainingLabel, unit, type, date, group };
+        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group };
         user.goals.push(newGoal);
         await user.save();
 
