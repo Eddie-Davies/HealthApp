@@ -186,9 +186,13 @@ export default {
       };
     },
     remaining() {
+      let returnVal = this.smartRemaining - this.dynamicProgress
+      if (this.progressLabel == 'Gain Weight' || this.progressLabel == 'Lose Weight') {
+        returnVal = Math.round(returnVal * 10) /10
+      }
       return {
         label: this.remainingLabel,
-        value: Math.max(0,this.smartRemaining - this.dynamicProgress)
+        value: Math.max(0, returnVal)
     }},
 
     parsedDate() {
