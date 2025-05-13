@@ -7,7 +7,7 @@ const mongoURI = process.env.MONGO_URI;
 mongoose.connect(mongoURI)
     .then(() => console.log('✅ Successfully Connected to MongoDB!'))
     .catch(err => console.log('❌ Error connecting to MongoDB:', err));
-    
+
 // Food Schema
 const FoodSchema = new mongoose.Schema({
     name: String,
@@ -17,19 +17,38 @@ const FoodSchema = new mongoose.Schema({
 
 // Meal Schema
 const MealSchema = new mongoose.Schema({
-    mealType: [String], // e.g., ["Dinner", "Breakfast"]
-    food: FoodSchema,
-    date: Date
+    mealName: {
+        type: String,
+        required: true
+    },
+    foods: [FoodSchema],
+    date: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Activity Type Schema
+const ActivityTypeSchema = new mongoose.Schema({
+    name: String,
+    unit: String,
+});
+
+// Activity Schema
+const ActivitySchema = new mongoose.Schema({
+    activityType: [ActivityTypeSchema],
+    quantity: Number,
 });
 
 // Exercise Schema
 const ExerciseSchema = new mongoose.Schema({
-    title: String,
-    type: String,
-    quantity: Number,
-    unit: String,
-    date: Date,
-    time: Date
+    exerciseName: String,
+    activities: [ActivitySchema],
+    durationMs: Number,
+    date: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 // Goal Schema
@@ -39,36 +58,50 @@ const GoalSchema = new mongoose.Schema({
     progressLabel: String,
     remainingLabel: String,
     unit: String,
-    sport: Boolean, // false = food or other
+    trackFrom: {type: Number, default: null},
+    type: String,
     date: { type: Date, default: Date.now },
-    group: {type: String, default: null},
+    group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
-  });
-  
+});
+
 
 // User Schema
 const UserSchema = new mongoose.Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    age: { type: Number, required: false },
+    date_of_birth: { type: Date },
     email: { type: String, unique: true, required: true },
-    password_hash: { type: String, required: true }, // Added password field
-    gender: Boolean,
+    username: { type: String, unique: true, required: true },
+    password_hash: { type: String, required: true },
+    firstLogin: { type: Boolean, default: true },
+    gender: Boolean, // true = male, false = female
     weight: Number,
+    dailyCalorieIntake: Number,
+    bmi: Number,
+    height: Number,
     targetWeight: Number,
     recoveryCode: String,
-    meal: [MealSchema],
-    exercise: [ExerciseSchema],
+    emailCode: String,
+    newEmail: String,
+    meals: [MealSchema],
+    foods: [FoodSchema],
+    exercises: [ExerciseSchema],
+    activities: [ActivitySchema],
+    activityTypes: [ActivityTypeSchema],
     goals: [GoalSchema],
-    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
+    accountCreationDate: { type: Date, required: true, default: Date.now },
+    groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
+    groupInvites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }]
 });
+
 const GroupGoalSchema = new mongoose.Schema({
     target: Number,
     progressLabel: String,
     remainingLabel: String,
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
-    sport: Boolean, // false = food or other
+    type: String,
     date: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 })
@@ -76,28 +109,30 @@ const GroupGoalSchema = new mongoose.Schema({
 // Group Schema
 const GroupSchema = new mongoose.Schema({
     name: {
-      type: String,
-      unique: true
+        type: String,
+        unique: true
     },
     membersByID: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     goals: [GroupGoalSchema]
-  });
-
+});
 
 
 // Models
 const FoodModel = mongoose.model("Food", FoodSchema);
 const MealModel = mongoose.model("Meal", MealSchema);
+const ActivityTypeModel = mongoose.model("ActivityType", ActivityTypeSchema)
+const ActivityModel = mongoose.model("Activity", ActivitySchema);
 const ExerciseModel = mongoose.model("Exercise", ExerciseSchema);
 const GoalModel = mongoose.model("Goal", GoalSchema);
 const UserModel = mongoose.model("User", UserSchema);
 const GroupModel = mongoose.model("Group", GroupSchema);
 const GroupGoal = mongoose.model("GroupGoal", GroupGoalSchema);
 
-
 module.exports = {
     FoodModel,
     MealModel,
+    ActivityTypeModel,
+    ActivityModel,
     ExerciseModel,
     GoalModel,
     UserModel,

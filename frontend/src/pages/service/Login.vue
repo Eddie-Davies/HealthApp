@@ -19,7 +19,7 @@
         <div class="card-body">
           <form @submit.prevent="handleSubmit">
           <fieldset class="fieldset">
-            <label class="fieldset-label">Email</label>
+            <label class="fieldset-label">Username</label>
             <label class="input w-full">
               <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
@@ -27,8 +27,10 @@
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                 </g>
               </svg>
-              <input type="email" v-model="email" placeholder="mail@site.com" required class="w-full"/>
+              <input type="text" v-model="username" placeholder="Username" required class="w-full"/>
             </label>
+
+            <div><a @click="$router.push('/forgotusername')" class="link link-hover">Forgot username?</a></div>
             
             <label class="fieldset-label">Password</label>
             <label class="input w-full">
@@ -69,7 +71,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      email: '',
+      username: '',
       password: '',
       errorMessage: ''
     }
@@ -79,7 +81,7 @@ export default {
     async handleSubmit() {
       try {
         const response = await axios.post('login', {
-          email: this.email,
+          username: this.username,
           password: this.password
         });
 
@@ -88,7 +90,7 @@ export default {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           console.log('Token stored successfully:', response.data.token);
-          this.$router.push('/home');
+          this.$router.push('/home/profile');
         } else {
           console.error('Token not received from backend', response.data);
         }
@@ -97,7 +99,7 @@ export default {
         if (error.response) {
       if (error.response.status === 401) {
         console.error("Login failed:", error.response.data.message);
-        this.errorMessage = "Invalid email or password.";
+        this.errorMessage = "Invalid username or password.";
       } else if (error.response.status === 500) {
         console.error("Server error:", error.response.data.message);
         this.errorMessage = "Server error. Please try again later.";
