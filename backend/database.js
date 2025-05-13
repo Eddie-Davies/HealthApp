@@ -62,6 +62,7 @@ const GoalSchema = new mongoose.Schema({
     type: String,
     time: String,
     date: { type: Date, default: Date.now },
+    createdDate: { type: Date, default: Date.now},
     group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
 });

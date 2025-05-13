@@ -921,9 +921,10 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        const createdDate = new Date().toISOString(); // to track against activities
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time };
+        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time, createdDate };
         user.goals.push(newGoal);
         await user.save();
 
@@ -1018,6 +1019,8 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
           copiedGoal.trackFrom = user.weight;
           console.log(user.weight)
         }
+        copiedGoal.createdDate = new Date().toISOString(); // e.g., "2025-05-13T12:17:44.104Z"
+
 
         delete copiedGoal.description;
         delete copiedGoal._id; // Let MongoDB assign a new _id
