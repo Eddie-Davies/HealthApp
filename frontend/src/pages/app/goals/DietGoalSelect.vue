@@ -60,7 +60,7 @@ export default {
             this.localGoal.progressLabel = choice
             if (choice == 'Lose Weight' || choice == 'Gain Weight') {
                 this.localGoal.progressLabel = choice
-                this.localGoal.trackFrom = this.weight // TODO: LOAD WEIGHT AT THE TIME FROM THE BACKEND
+                this.localGoal.trackFrom = this.weight
                 this.localGoal.unit = 'kg'
             }
             else if (choice == 'Eat More Calories' || choice == 'Eat Less Calories') {

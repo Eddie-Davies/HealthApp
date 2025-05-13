@@ -542,6 +542,7 @@ export default {
         target: 10,
         progress: 0,
         trackFrom: null,
+        time: null,
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',

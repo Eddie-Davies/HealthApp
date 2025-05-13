@@ -4,12 +4,48 @@
     @click.self="$emit('cancel')">
 
     <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
-      <div v-if="editableGoal.remainingLabel == 'Run'">
-        <p class="text-lg text-cyan-700">fdf</p>
+
+      <div class="text-lg font-semibold mb-4 text-center">{{ this.activityConfig.title }}</div>
+      <!-- Describe target differently for consistency based goals -->
+      <label v-if="this.activityConfig.focus == 'Consistency' " class="text-left block text-sm mb-2">{{
+        this.activityConfig.activity }} Count </label>
+      <label v-else class="text-left block text-sm mb-2">Amount to {{ this.activityConfig.activity }} ({{
+        this.activityConfig.unit }})</label>
+
+      <!-- Always show target -->
+      <input v-model.number="editableGoal.target" :placeholder="goal.target" type="number"
+        class="input input-bordered w-full mb-2" />
+
+      <!-- If Speed goal, show time limit oriented input box -->
+      <div v-if="activityConfig.focus === 'Speed'">
+        <label class="text-left  block text-sm mb-2">Time Limit (hh/mm/ss)</label>
+        <input v-model.number="editableGoal.time" :placeholder="goal.time" type="time" step="1"
+          class="input input-bordered w-full mb-2" />
       </div>
-      <div v-else>
-        <p>{{ editableGoal.remainingLabel }}</p>
+
+      <!-- CONSISTENCY: SELECT TIME PERIOD INSTEAD -->
+      <div v-else-if="activityConfig.focus === 'Consistency'">
+        <label class="text-left block text-sm mb-2">Per</label>
+        <select v-model="editableGoal.time" class="select select-bordered w-full mb-2">
+          <option disabled value="">Select a time period</option>
+          <option value="Day">Day</option>
+          <option value="Week">Week</option>
+          <option value="Month">Month</option>
+          <option value="Year">Year</option>
+        </select>
       </div>
+
+
+      <!-- Date -->
+      <label class="text-left block text-sm mb-2">Override Deadline:</label>
+      <input v-model="editableGoal.date" type="date" class="input input-bordered w-full">
+      <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100 mt-5 mb-20">
+        <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+        <div v-else class="text-sm">Deadline currently set to:</div>
+        <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+      </div>
+
+
 
       <!-- Action Buttons -->
       <div class="space-y-3 mt-4">
@@ -301,10 +337,41 @@ sliderDisplay: {
         }
         
       },
-    weightLoss() {
-    return this.weight - this.targetWeight;
-  },
+      weightLoss() {
+        return this.weight - this.targetWeight;
+      },
 
+      activityConfig() {
+        const labelMap = {
+          Remaining: 'Standard',
+          Under: 'Speed',
+          Left: 'Consistency'
+        };
+
+        const activity = this.editableGoal.progressLabel;
+        const unit = this.editableGoal.unit;
+        const focus = labelMap[this.editableGoal.remainingLabel];
+
+        let config = {
+          activity: activity,
+          unit: unit,
+          focus: focus
+        };
+
+        if (focus === 'Standard') {
+          config.title = `${activity} a set amount of ${unit}`;
+        } else if (focus === 'Speed') {
+          config.title = `${activity} a set amount of ${unit} under a set time`;
+          this.editableGoal.time = "01:02:34"
+        } else if (focus === 'Consistency') {
+          config.title = `${activity} regularly (per day/week/month/etc)`;
+          this.editableGoal.time = ""
+          this.editableGoal.unit = "count"
+          this.editableGoal.trackFrom = 50 // todo: replace with current activity count
+        }
+
+        return config;
+      },
 
       dietConfig() {
         const dietGoalChoice = this.editableGoal.progressLabel;
