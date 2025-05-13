@@ -1,6 +1,38 @@
 <template>
+  <!-- ACTIVITY EDIT -->
+  <div v-if="goal.type == 'activity'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+    @click.self="$emit('cancel')">
+
+    <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
+      <div v-if="editableGoal.remainingLabel == 'Run'">
+        <p class="text-lg text-cyan-700">fdf</p>
+      </div>
+      <div v-else>
+        <p>{{ editableGoal.remainingLabel }}</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-3 mt-4">
+        <!-- Row with Back and Confirm -->
+        <div class="flex space-x-3">
+          <button @click="$emit('cancel')" class="btn flex-1 btn-error">
+            Quit
+          </button>
+          <button :disabled="!isFormValid" class="btn flex-2 btn-success"
+            @click="$emit('save', editableGoal)">Confirm</button>
+        </div>
+
+        <!-- Delete button on its own row -->
+        <button v-if="!isNew" class="btn btn-error btn-soft w-full"
+          @click="$emit('confirm-delete', editableGoal)">Delete</button>
+      </div>
+
+    </div>
+  </div>
+
+
   <!-- DIET EDIT -->
-  <div v-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+  <div v-else-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
     @click.self="$emit('cancel')">
 
     <div class="bg-base-200 p-6 rounded-xl w-96 text-center">

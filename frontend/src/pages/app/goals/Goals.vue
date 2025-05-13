@@ -81,7 +81,8 @@
 
   <ActivityGoalRefine v-if="showActivityGoalRefine"
   :goal="showActivityGoalRefine"
-  @cancel="handleCancelActivityRefine"/>
+  @cancel="handleCancelActivityRefine"
+  @confirm="handleActivityConfigComplete"/>
 
   <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
@@ -342,6 +343,10 @@ export default {
       // TODO: REVERT BACK TO THE LINE BELOW IF IT BREAKS LATER
       // this.openEditor(configuredGoal, true, this.tempGroupId);
       this.openEditor(configuredGoal, true, configuredGoal.group);
+    },
+    handleActivityConfigComplete(configuredGoal){
+      this.showActivityGoalRefine= false
+      this.openEditor(configuredGoal, true, configuredGoal.group)
     },
     handleActivityTypeChosen(configuredGoal) {
       this.showActivityGoalSelect = false
