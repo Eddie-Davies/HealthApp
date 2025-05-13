@@ -19,12 +19,26 @@
       <!-- Add Member Input -->
       <div class="w-full mb-3">
         <label class="block text-sm font-medium ml-2 mb-3">Add Member by Username</label>
-        <input
-          v-model="newMemberUsername"
-          type="text"
-          class="input input-bordered w-full"
-          placeholder="Enter username"
-        />
+        <div class="join">
+        <div>
+          <label class="input validator join-item max-w">
+            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <g
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2.5"
+                fill="none"
+                stroke="currentColor"
+              >
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </g>
+            </svg>
+            <input v-model="newMemberUsername" placeholder="blossom123" required />
+          </label>
+        </div>
+        <button class="btn btn-neutral join-item" @click="addMember" >Add member</button>
+      </div>
       </div>
 
       <!-- Error or Success -->
@@ -33,9 +47,8 @@
       </div>
 
       <!-- Buttons -->
-      <div class="flex justify-between w-full mt-5">
-        <button class="btn btn-primary" @click="addMember">Add Member</button>
-        <button class="btn btn-neutral" @click="$emit('go-back')">Go Back</button>
+      <div class="flex w-full mt-5">
+        <button class="btn btn-neutral btn-soft" @click="$emit('go-back')">Go Back</button>
       </div>
     </div>
   </div>

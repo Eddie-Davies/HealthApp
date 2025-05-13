@@ -7,7 +7,12 @@
         <button class="btn btn-neutral btn-soft rounded-2xl" @click="goToMembers">View Members</button>
         <button class="btn btn-neutral btn-soft rounded-2xl" @click="showManageGoals = true">Manage Goals</button>
       </div>
-      <button class="btn rounded-2xl btn-error w-full mt-4" @click="leaveGroup">Leave Group</button>
+      <div class="flex justify-end">
+        <div class="flex w-full">
+        <button class="btn btn-neutral btn-soft" @click.self="$emit('cancel')">Go Back</button>
+        </div>
+        <button class="btn btn-error" @click="leaveGroup">Leave Group</button>
+      </div>
     </div>
     <GoalManagement
       v-if="showManageGoals"
