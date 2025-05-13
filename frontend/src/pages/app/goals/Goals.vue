@@ -35,6 +35,7 @@
                   :unit="goal.unit"
                   :type="goal.type"
                   :date="goal.date"
+                  :time="goal.time"
                   :colour="slide.colour"
                   :maintainanceKcal="this.kcalIntake"
                   :lastDayKcal="this.lastDayKcal"

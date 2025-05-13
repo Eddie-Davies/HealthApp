@@ -19,7 +19,7 @@
       <!-- If Speed goal, show time limit oriented input box -->
       <div v-if="activityConfig.focus === 'Speed'">
         <label class="text-left  block text-sm mb-2">Time Limit (hh/mm/ss)</label>
-        <input v-model.number="editableGoal.time" :placeholder="goal.time" type="time" step="1"
+        <input v-model="editableGoal.time" :placeholder="goal.time" type="time" step="1"
           class="input input-bordered w-full mb-2" />
       </div>
 
@@ -362,12 +362,19 @@ sliderDisplay: {
           config.title = `${activity} a set amount of ${unit}`;
         } else if (focus === 'Speed') {
           config.title = `${activity} a set amount of ${unit} under a set time`;
-          this.editableGoal.time = "01:02:34"
+          if (this.isNew) {
+            this.editableGoal.time = "01:02:34"
+           }
+          
+          console.log('editableGoal', this.editableGoal)
         } else if (focus === 'Consistency') {
           config.title = `${activity} regularly (per day/week/month/etc)`;
-          this.editableGoal.time = ""
-          this.editableGoal.unit = "count"
-          this.editableGoal.trackFrom = 50 // todo: replace with current activity count
+          if (this.isNew) {
+            this.editableGoal.time = ""
+            this.editableGoal.unit = "times" // ie. How many 'times' this week/day
+            this.editableGoal.trackFrom = 50 // todo: replace with current activity count
+          }
+
         }
 
         return config;
@@ -466,7 +473,6 @@ sliderDisplay: {
                 return false;
             }
           }
-
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
           const isInt = val => Number.isInteger(val);
           // console.log(this.isWeightGoal)

@@ -901,8 +901,8 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // ADD NEW GOAL
 app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group } = req.body;
-
+        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time } = req.body;
+        console.log(time)
         // Validate input
         if (
             typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
@@ -923,7 +923,7 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         }
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group };
+        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time };
         user.goals.push(newGoal);
         await user.save();
 
