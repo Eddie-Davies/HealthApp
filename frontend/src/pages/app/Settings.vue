@@ -17,12 +17,12 @@
                   <div v-if="usernameSuccess" class="text-success text-sm font-semibold">{{ usernameSuccess }}</div>
                   <div v-if="usernameError" class="text-error text-sm font-semibold">{{ usernameError }}</div>
                   <div class="form-control">
-                    <label class="label font-semibold text-neutral-content mb-2 ml-2">Current Username</label>
-                    <input v-model="currentUsername" type="text" class="input input-bordered w-full text-white"
+                    <label class="label font-semibold text-neutral mb-2 ml-2">Current Username</label>
+                    <input v-model="currentUsername" type="text" class="input input-bordered w-full text-neutral"
                       :placeholder="username || 'Loading...'" required />
                   </div>
                   <div class="form-control">
-                    <label class="label font-semibold text-neutral-content mb-2 ml-2">New Username</label>
+                    <label class="label font-semibold text-neutral mb-2 ml-2">New Username</label>
                     <input v-model="newUsername" type="text" class="input input-bordered w-full" placeholder="JaneDoe"
                       required />
                   </div>
@@ -45,12 +45,12 @@
                   <div v-if="emailError" class="text-error text-sm font-semibold">{{ emailError }}</div>
                   <div v-if="emailSuccess" class="text-success text-sm font-semibold">{{ emailSuccess }}</div>
                   <div class="form-control">
-                    <label class="label font-semibold text-neutral-content mb-2 ml-2">Current Email</label>
-                    <input v-model="currentEmail" type="text" class="input input-bordered w-full text-white"
+                    <label class="label font-semibold text-neutral mb-2 ml-2">Current Email</label>
+                    <input v-model="currentEmail" type="text" class="input input-bordered w-full text-neutral"
                       :placeholder="email || 'Loading...'" required />
                   </div>
                   <div class="form-control">
-                    <label class="label font-semibold text-neutral-content mb-2 ml-2">New Email</label>
+                    <label class="label font-semibold text-neutral mb-2 ml-2">New Email</label>
                     <input v-model="newEmail" type="email" class="input input-bordered w-full"
                       placeholder="JaneDoe@example.com" required />
                   </div>
@@ -64,11 +64,11 @@
                   <div v-if="codeError" class="text-error text-sm font-semibold">{{ codeError }}</div>
                   <div v-if="codeSuccess" class="text-success text-sm font-semibold">{{ codeSuccess }}</div>
                   <div class="form-control">
-                    <label class="label font-semibold text-neutral-content mb-2 ml-2">Verification Code</label>
+                    <label class="label font-semibold text-neutral mb-2 ml-2">Verification Code</label>
                     <input v-model="emailVerificationCode" type="text" class="input input-bordered w-full"
                       placeholder="Enter verification code" required />
                   </div>
-                  <p class="text-center text-red-500 mb-2 font-bold">
+                  <p class="text-center text-error mb-2 font-bold">
                     You will need to sign back in after this change. You will be logged out.
                   </p>
                   <div class="flex justify-center mt-5 mb-5">
