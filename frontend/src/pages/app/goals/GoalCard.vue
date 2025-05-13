@@ -157,8 +157,11 @@ export default {
 
 
     progressPercentage() {
+      console.log('target display', this.targetDisplay)
+      console.log('target', this.target)
+
       // Round it only now. This means the progress can show if you are over but the bars colours are correct.
-      return Math.min(100, (this.dynamicProgress / this.target) * 100);
+      return Math.min(100, (this.dynamicProgress / this.smartRemaining) * 100);
     },
 
 
