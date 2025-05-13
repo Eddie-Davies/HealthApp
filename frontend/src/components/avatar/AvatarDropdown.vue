@@ -8,9 +8,6 @@
       'fixed right-0 mt-2 bg-base-200 rounded-lg py-2 z-50 shadow-lg mr-3',
       scrollBHidden ? 'mr-6' : ''
     ]">
-      <div class="cursor-pointer block px-4 py-2 hover:bg-base-100/60">
-        <i class="fa-solid fa-sun mr-2"></i>Light Mode
-      </div>
       <router-link to="/home/settings" class="block px-4 py-2 hover:bg-base-100/60" @click.self="$emit('close')">
         <i class="fa-solid fa-gear mr-2"></i>Settings
       </router-link>
