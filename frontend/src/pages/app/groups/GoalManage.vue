@@ -1,8 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('close')">
     <div class="bg-base-200 p-6 rounded-xl w-[90%] max-w-md space-y-4">
-      <h2 class="text-lg font-semibold text-center">Manage Goals – {{ groupName }}</h2>
-      
+      <h2 class="text-lg font-semibold text-center">Manage Goals – {{ groupName }}</h2>      
       <div 
         v-if="goals.length" 
         class="overflow-y-auto max-h-64 space-y-3">
@@ -13,7 +12,9 @@
           <div class="flex justify-between items-center">
             <div>
               <div class="font-semibold">Goal Description: {{ goal.description }}</div>
-              <div class="text-sm text-neutral-500">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
+              <div class="text-sm text-neutral/70">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
+              <div class="text-sm text-neutral/70">Goal Type: {{ goal.type }}</div>
+              
             </div>
 
             <div class="flex gap-3">
