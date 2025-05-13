@@ -199,7 +199,7 @@ import axios from 'axios';
       try {
         const res = await axios.get('/kcal-intake')
         this.kcalIntake = res.data;
-        console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+        // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
       } catch (err) {
         console.error('Error fetching groups:', err.response?.data)
       }
@@ -207,7 +207,7 @@ import axios from 'axios';
         const res = await axios.get('/weights');
         const weights = res.data;
         this.weight = weights.weight
-        console.log(this.weight);
+        // console.log(this.weight);
       } catch (err) {
         console.error('Error fetching user weight:', err.response?.data || err.message);
       }
@@ -219,7 +219,7 @@ import axios from 'axios';
             this.sliderDisplay = this.editableGoal.target; 
           }
     // Set the initial value for the slider
-    console.log('Initial sliderValue set:', this.sliderValue);
+    // console.log('Initial sliderValue set:', this.sliderValue);
   });
       
        
@@ -249,7 +249,7 @@ sliderDisplay: {
       } else if (this.isCalorieGoal) {
         this.targetCalories = Math.round(newVal); // Set total calories (rounded to nearest whole number)
       }
-      console.log(this.targetWeight || this.targetCalories);
+      // console.log(this.targetWeight || this.targetCalories);
     }
   },
 
@@ -319,7 +319,7 @@ sliderDisplay: {
 
         // Assign the starting value to sliderValue
         this.sliderValue = config.startingVal;
-        console.log('slider value:' , this.sliderValue)
+        // console.log('slider value:' , this.sliderValue)
         this.sliderValue = config.startingVal;
         if (this.isNew && this.editableGoal.type == 'diet') {
           this.editableGoal.target = config.startingVal
@@ -351,7 +351,7 @@ sliderDisplay: {
           if (this.editableGoal.type === 'diet') {
             switch (this.dietConfig.goalType) {
               case 'Weight Loss':
-                console.log('Editable goal target (weight loss)' , this.editableGoal.target)
+                // console.log('Editable goal target (weight loss)' , this.editableGoal.target)
                 return this.editableGoal.target > 0 && this.editableGoal.target <= this.weight;
               case 'Weight Gain':
                 return this.editableGoal.target > 0;
@@ -370,7 +370,7 @@ sliderDisplay: {
 
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
           const isInt = val => Number.isInteger(val);
-          console.log(this.isWeightGoal)
+          // console.log(this.isWeightGoal)
           return (
             this.editableGoal.unit.trim() &&
             (this.isWeightGoal || (isInt(this.editableGoal.target) && this.editableGoal.target > 0)) &&
@@ -395,7 +395,7 @@ sliderDisplay: {
         sliderDisplay() {
           // update the target based on the value of the slider.
           if (this.isWeightGoal) { 
-            console.log('weight goal dtected')
+            // console.log('weight goal dtected')
             this.editableGoal.target = this.sliderDisplay
           }
           else if (this.isCalorieGoal) {
