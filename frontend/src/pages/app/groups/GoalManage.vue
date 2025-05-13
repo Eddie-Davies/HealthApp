@@ -2,31 +2,45 @@
   <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('close')">
     <div class="bg-base-200 p-6 rounded-xl w-[90%] max-w-md space-y-4">
       <h2 class="text-lg font-semibold text-center">Manage Goals – {{ groupName }}</h2>
-      <div v-if="goals.length">
-        <div v-for="goal in goals" :key="goal._id" class="p-3 bg-base-100 rounded-lg mb-3 shadow">
-          <div class="flex justify-end">
-            <div class="flex flex-col">
+      
+      <div 
+        v-if="goals.length" 
+        class="overflow-y-auto max-h-64 space-y-3">
+        <div 
+          v-for="goal in goals"
+          :key="goal._id" 
+          class="p-3 bg-base-100 rounded-lg shadow">
+          <div class="flex justify-between items-center">
+            <div>
               <div class="font-semibold">Goal Description: {{ goal.description }}</div>
               <div class="text-sm text-neutral-500">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
             </div>
-            <div class="flex justify-end gap-3">
-            <button class="btn btn-success btn-soft rounded-full" @click="addToMyGoals(goal._id)">
-              <i class="fa-solid fa-download"></i>
-            </button>
-            <button class="btn btn-error btn-soft rounded-full" @click="deleteGoal(goal._id)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
+
+            <div class="flex gap-3">
+              <button 
+                class="btn btn-success btn-soft rounded-full" 
+                @click="addToMyGoals(goal._id)">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button 
+                class="btn btn-error btn-soft rounded-full" 
+                @click="deleteGoal(goal._id)">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
       <div v-else class="text-center text-sm text-neutral-400">No group goals found.</div>
+
       <div class="flex w-full mt-5">
         <button class="btn btn-neutral btn-soft" @click="$emit('close')">Go Back</button>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
