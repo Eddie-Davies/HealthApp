@@ -12,28 +12,16 @@
         placeholder="Enter group name"
       />
 
-      <!-- Add Member -->
       <label class="block mb-2 text-sm ml-2">Add Member by Username</label>
-      <div class="join">
-        <div>
-          <label class="input validator join-item max-w">
-            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <g
-                stroke-linejoin="round"
-                stroke-linecap="round"
-                stroke-width="2.5"
-                fill="none"
-                stroke="currentColor"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-              </g>
-            </svg>
-            <input class="w-full" v-model="newMember" placeholder="blossom123" required />
-          </label>
-        </div>
-        <button class="mb-10 btn btn-neutral join-item" @click="addMember" >Add member</button>
+      <div class="join w-full mb-10">
+        <input 
+          class="input input-bordered join-item w-full" 
+          v-model="newMember" 
+          placeholder="blossom123" 
+          required />
+        <button class="btn btn-neutral join-item" @click="addMember">Add member</button>
       </div>
+
 
       <!-- Member List -->
       <div v-if="members.length" class="max-h-32 overflow-y-auto mb-4 rounded p-2 bg-base-100">
