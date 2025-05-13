@@ -34,8 +34,8 @@
     <div class="mt-8 xs:mt-4 w-full max-w-md">
       <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id" :title="exercise.title"
         :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
-        :activityInstanceId="exercise._id" @updateActivity="updateActivity" @updateInteger="updateInteger"
-        @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
+        :activityInstanceId="exercise._id || exercise.id" @updateActivity="updateActivity"
+        @updateInteger="updateInteger" @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
     </div>
 
 
@@ -187,22 +187,27 @@ export default {
       this.saveToLocalStorage();
     },
     async deleteActivity(instanceIdToDelete) {
-      // Check if this is a local-only activity (no _id assigned yet)
-      if (!instanceIdToDelete) {
-        this.exercises = this.exercises.filter(ex => ex._id !== undefined); // safety: remove all unsaved
+      if (this.isNew) {
+        // Match using local ID for unsaved exercises
+        this.exercises = this.exercises.filter(ex => ex.id !== instanceIdToDelete);
+        this.saveToLocalStorage();
+        return;
+      }
+
+      const activityToDelete = this.exercises.find(ex => ex._id === instanceIdToDelete || ex.id === instanceIdToDelete);
+
+      if (!activityToDelete?._id) {
+        this.exercises = this.exercises.filter(ex => ex.id !== instanceIdToDelete);
         this.saveToLocalStorage();
         return;
       }
 
       try {
-        console.log('Deleting activity instance _id:', instanceIdToDelete);
-
         await axios.post('/exercises/delete-activity-instance', {
           exerciseId: this.exerciseId,
           activityId: instanceIdToDelete
         }, { withCredentials: true });
 
-        // Remove from local list for UI update
         this.exercises = this.exercises.filter(ex => ex._id !== instanceIdToDelete);
         this.saveToLocalStorage();
       } catch (err) {
