@@ -194,19 +194,19 @@
       </div>
     </div>
 
-    <router-link to="/delete">
-      <button class="btn btn-error btn-outline group">
+    <div class="mt-6">
+      <button @click="handleAccountDelete" class="btn btn-error btn-outline group">
         <i class="fas fa-user w-6 mr-2 text-inherit group-hover:text-error"></i>
         Delete Account
       </button>
-    </router-link>
+    </div>
 
-      <div class="px-4 pt-6">
-        <button class="btn btn-ghost text-sm" @click="$router.push('/home/profile')">
-          <i class="fas fa-arrow-left mr-2"></i>
-          Back to Home
-        </button>
-      </div>
+    <div class="px-4 pt-6">
+      <button class="btn btn-ghost text-sm" @click="$router.push('/home/profile')">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to Home
+      </button>
+    </div>
   </div>
 </template>
 
@@ -354,8 +354,21 @@ export default {
           globalErrorMessage.value = 'Something went wrong.';
         }
       }
-    }
+    },
+    async handleAccountDelete() {
+      const confirmed = confirm("Are you sure you want to permanently delete your account? This action cannot be undone.");
 
+      if (!confirmed) return;
+
+      try {
+        await axios.delete('/user/delete-account');
+        alert("Your account has been deleted.");
+        this.$router.push('/signup');
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        globalErrorMessage.value = error.response?.data?.message || "Failed to delete account. Please try again.";
+      }
+    }
 
   },
   mounted() {

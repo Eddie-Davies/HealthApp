@@ -293,6 +293,31 @@ app.get('/user', authenticateToken, async (req, res) => {
     }
 });
 
+app.delete('/user/delete-account', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // remove user from groups
+        await GroupModel.updateMany(
+            { membersByID: user._id },
+            { $pull: { membersByID: user._id } }
+        );
+
+        await UserModel.deleteOne({ _id: user._id });
+
+        console.log(`User (${user.email}) deleted their account.`);
+        return res.status(200).json({ message: 'Account deleted successfully' });
+
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
 app.post('/signup', async (req, res) => {
     try {
         let { first_name, last_name, username, email, password } = req.body;
