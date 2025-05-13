@@ -1471,7 +1471,7 @@ app.get('/activities', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ activities: user.activities });
+        res.json({ activities: user.activityTypes });
     } catch (err) {
         res.status(500).json({ message: 'Error fetching activities', error: err });
     }
