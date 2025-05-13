@@ -1,9 +1,10 @@
 <template>
   <div class="flex flex-col items-center w-full px-4 pb-32">
-
-    <button class="btn btn-ghost" @click="goBack">
+    <div class="w-full max-w-md flex flex-col items-start mb-5">
+      <button class="btn btn-ghost " @click="goBack">
       ← Back
     </button>
+    </div>
 
     <!-- Wrapper to constrain width and align children to left -->
     <div class="w-full max-w-md flex flex-col items-start">

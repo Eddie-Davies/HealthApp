@@ -1,11 +1,12 @@
 <template>
+    <div class="flex flex-col items-center w-full px-4 pb-32">
     <div v-if="isLoaded" class="p-4 space-y-4">
 
         <button class="btn btn-ghost" @click="goBack">
             ← Back
         </button>
 
-        <h1 class="text-2xl font-semibold">Select activity type</h1>
+        <h1 class="text-2xl font-semibold ml-2">Select activity type</h1>
 
         <input v-model="searchQuery" type="text" placeholder="Search..." class="input input-bordered w-full" />
 
@@ -22,7 +23,7 @@
         </div>
 
         <div class="mt-6 border-t pt-4">
-            <h2 class="font-semibold mb-2">Add new activity type:</h2>
+            <h2 class="font-semibold mb-2 ml-2">Add new activity type:</h2>
             <input v-model="newType.name" placeholder="Name" class="input input-bordered w-full mb-2" />
             <input v-model="newType.unit" placeholder="Unit" class="input input-bordered w-full mb-4" />
             <button class="btn btn-primary w-full" @click="addType"> Add to activity type List </button>
@@ -39,6 +40,7 @@
                 <button class="btn btn-error" @click="confirmDelete">Yes, Delete</button>
             </div>
         </div>
+    </div>
     </div>
 </template>
 
