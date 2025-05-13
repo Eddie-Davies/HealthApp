@@ -14,7 +14,7 @@
       <!-- Vertical Progress Bar -->
       <div class="flex flex-col items-center justify-end">
         <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
-        <div class="w-4 h-20 lg:h-28 bg-neutral-200/10 rounded-full overflow-hidden relative">
+        <div class="w-4 h-20 lg:h-28 bg-neutral/30 rounded-full overflow-hidden relative">
 
           <div class="absolute bottom-0 w-full rounded-full overflow-hidden"
             :class="{
@@ -28,9 +28,9 @@
         </div>
       </div>
         
-        <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-utensils"></i></span>
-        <span v-else-if="type == 'exercise'" class="pt-1"><i class="text-neutral-200/70 fa-solid fa-person-running"></i></span>
-        <span v-else class="pt-1"><i class="text-neutral-200/70 fa-solid fa-flag text-sm"></i></span>
+        <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral/50 fa-solid fa-utensils"></i></span>
+        <span v-else-if="type == 'exercise'" class="pt-1"><i class="text-neutral/50 fa-solid fa-person-running"></i></span>
+        <span v-else class="pt-1"><i class="text-neutral/50 fa-solid fa-flag text-sm"></i></span>
 
 
       </div>

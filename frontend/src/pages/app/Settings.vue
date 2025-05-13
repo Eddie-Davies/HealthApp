@@ -92,6 +92,31 @@
               </div>
             </div>
 
+            <!-- Color Theme -->
+            <div class="collapse collapse-arrow join-item border-base-300 border">
+              <input type="radio" name="my-accordion-4" />
+              <div class="collapse-title font-semibold">
+                <i class="fas fa-palette text-primary w-6"></i>
+                Color Theme
+              </div>
+              <div class="collapse-content text-sm space-y-4">
+                <p class="text-neutral">
+                  Blossom automatically switches between light and dark mode based on your device or browser settings.
+                </p>
+                <p class="text-neutral">
+                  To change themes:
+                </p>
+                <ul class="list-disc list-inside pl-2 text-neutral space-y-1">
+                  <li>On most devices, go to your system settings and switch between Light and Dark mode.</li>
+                  <li>On some browsers, the setting can also be adjusted in Appearance or Display options.</li>
+                </ul>
+                <p class="text-neutral italic mt-2">
+                  Tip: Refresh the page if the theme doesn’t switch immediately.
+                </p>
+              </div>
+            </div>
+
+
             <!-- FAQ -->
             <div class="collapse collapse-arrow join-item border-base-300 border">
               <input type="radio" name="my-accordion-4" />
@@ -175,6 +200,13 @@
         Delete Account
       </button>
     </router-link>
+
+      <div class="px-4 pt-6">
+        <button class="btn btn-ghost text-sm" @click="$router.push('/home/profile')">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back to Home
+        </button>
+      </div>
   </div>
 </template>
 
