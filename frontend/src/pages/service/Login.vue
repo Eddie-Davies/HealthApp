@@ -29,6 +29,8 @@
               </svg>
               <input type="text" v-model="username" placeholder="Username" required class="w-full"/>
             </label>
+
+            <div><a @click="$router.push('/forgotusername')" class="link link-hover">Forgot username?</a></div>
             
             <label class="fieldset-label">Password</label>
             <label class="input w-full">
@@ -88,7 +90,7 @@ export default {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           console.log('Token stored successfully:', response.data.token);
-          this.$router.push('/home');
+          this.$router.push('/home/profile');
         } else {
           console.error('Token not received from backend', response.data);
         }

@@ -1,17 +1,17 @@
 <template>
   <div class="card bg-base-300 rounded-box p-4 flex flex-col mb-4 relative">
     <!-- Delete button in top-right corner -->
-    <button @click="deleteActivity" class="btn btn-sm btn-error absolute top-2 right-2">
+    <button @click="deleteActivity" class="btn btn-sm btn-error btn-ghost rounded-2xl absolute top-2 right-2">
       Delete
     </button>
 
-    <h1 class="text-lg font-semibold text-neutral/80">{{ title }}</h1>
+    <h1 class="text-lg font-semibold text-neutral/80 ml-2">{{ title }}</h1>
 
     <!-- Aligned activity row -->
     <div class="flex items-end mt-5 gap-5 xs:gap-2">
       <!-- Activity dropdown -->
       <div class="pr-2 xs:pr-1">
-        <p class="text-neutral-400 mb-2">Activity</p>
+        <p class="text-neutral-400 mb-2 ml-2">Activity</p>
         <div class="flex items-center gap-2">
           <select v-model="editedActivityId" @change="handleActivityChange"
             class="select font-medium text-neutral bg-base-100 rounded-2xl px-3 text-center">
@@ -31,7 +31,7 @@
 
       <!-- Quantity input -->
       <div class="pr-2 xs:pr-1">
-        <p class="text-neutral-400 mb-2">Quantity</p>
+        <p class="text-neutral-400 mb-2 ml-2">Quantity</p>
         <input v-model="editedInteger"
           class="input font-medium text-neutral focus:outline-none focus:ring-0 border-none bg-base-100 rounded-2xl px-3 text-center"
           type="text" @blur="emitChanges" @keyup.enter="emitChanges" />
@@ -40,7 +40,7 @@
       <!-- Unit display -->
       <div v-if="editedActivity && editedActivity.unit && editedActivity.name !== '__custom__'"
         class="flex items-center pr-2 self-center mt-6">
-        <p class="text-neutral font-medium">{{ editedActivity.unit }}</p>
+        <p class="text-neutral font-medium mt-2">{{ editedActivity.unit }}</p>
       </div>
     </div>
   </div>

@@ -90,7 +90,7 @@
             code: this.code
           });
   
-          console.log('Full backend response:', response); // Log full response
+          console.log('Full backend response:', response);
   
           if (response.data) {
             console.log("success");
@@ -104,7 +104,7 @@
           if (error.response) {
         if (error.response.status === 401) {
           console.error("Password Reset Failed:", error.response.data.message);
-          this.errorMessage = "Invalid email.";
+          this.errorMessage = "Invalid email or Code.";
         } else if (error.response.status === 500) {
           console.error("Server error:", error.response.data.message);
           this.errorMessage = "Server error. Please try again later.";

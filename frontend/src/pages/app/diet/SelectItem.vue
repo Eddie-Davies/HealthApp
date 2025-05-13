@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center min-h-screen items-start pt-10">
-    <div v-if="isLoaded" class="px-4 max-w-md w-full">
+    <div v-if="isLoaded" class="px-4">
       <h1 class="text-2xl font-semibold mb-10 text-center">Select {{ capitalizedType }}</h1>
       <div class="flex justify-center">
         <input v-model="searchQuery" type="text" placeholder="Search my list..." class="input input-bordered w-2/3" />

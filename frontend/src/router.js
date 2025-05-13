@@ -3,10 +3,15 @@ import Landing from './pages/service/Landing.vue';
 import Login from './pages/service/Login.vue';
 import Signup from './pages/service/Signup.vue';
 import ForgotPassword from './pages/service/ForgotPassword.vue';
+import ChangePassword from './pages/service/ChangePassword.vue';
 import NewPassword  from './pages/service/NewPassword.vue';
+import ForgotUsername from './pages/service/ForgotUsername.vue';
+import NewUsername from './pages/service/NewUsername.vue';
 
 import Home from './pages/app/Home.vue';
 import Goals from './pages/app/goals/Goals.vue';
+import Settings from './pages/app/Settings.vue';
+
 import Profile from './pages/app/profile/Profile.vue';
 import Groups from './pages/app/groups/Groups.vue';
 import Exercise from './pages/app/exercise/Exercise.vue';
@@ -22,7 +27,10 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/signup", component: Signup },
   { path: '/forgotpassword', component: ForgotPassword },
+  { path: '/forgotusername', component: ForgotUsername },
+  { path: '/changepassword', component: ChangePassword },
   { path: '/newpassword', component: NewPassword },
+  { path: '/newusername', component: NewUsername },
   {
     path: "/home",
     component: Home,
@@ -37,7 +45,8 @@ const routes = [
       { path: "diet", component: Diet, meta: {title: 'My Diet'}},
       { path: '/home/diet/new', component: EditMeal },
       { path: '/home/diet/:id', component: EditMeal},
-      { path: '/home/diet/:mealId/select/:type', component: SelectItem, props: true }
+      { path: '/home/diet/:mealId/select/:type', component: SelectItem, props: true },
+      { path: "settings", component: Settings, meta: {title: 'My Settings'}},
     ],
   },
   

@@ -9,7 +9,7 @@
 
       <div class="mt-8 w-full max-w-md">
         <div v-if="groups.length > 0">
-          <h2 class="text-xl font-semibold mb-4">Your Groups</h2>
+          <h2 class="text-xl font-semibold mb-4 ml-2">Your Groups</h2>
           <FamilyCard
             v-for="(group, index) in groups"
             :key="index"

@@ -1,13 +1,13 @@
 <template>
-  <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
-    <div class="bg-base-200 p-6 rounded-xl w-80 space-y-4">
-      <h2 class="text-lg font-semibold text-center">{{ groupName }}</h2>
-      <div class="flex flex-col gap-2">
-        <button class="btn btn-sm btn-primary w-full" @click="goToMembers">View Members</button>
-        <button class="btn btn-sm btn-secondary w-full" @click="showManageGoals = true">Manage Goals</button>
-        <button class="btn btn-sm btn-warning w-full" @click="leaveGroup">Leave Group</button>
-        <button class="btn btn-sm btn-error w-full" @click="deleteGroup">Delete Group</button>
+  <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 " @click.self="$emit('cancel')">
+    
+    <div class="bg-base-200 p-8 rounded-2xl space-y-8 w-full max-w-md ">
+      <h2 class="text-xl font-bold text-center">{{ groupName }}</h2>
+      <div class="flex flex-col space-y-4">
+        <button class="btn btn-neutral btn-soft rounded-2xl" @click="goToMembers">View Members</button>
+        <button class="btn btn-neutral btn-soft rounded-2xl" @click="showManageGoals = true">Manage Goals</button>
       </div>
+      <button class="btn rounded-2xl btn-error w-full mt-4" @click="leaveGroup">Leave Group</button>
     </div>
     <GoalManagement
       v-if="showManageGoals"
