@@ -58,7 +58,8 @@ const GoalSchema = new mongoose.Schema({
     progressLabel: String,
     remainingLabel: String,
     unit: String,
-    sport: Boolean, // false = food or other
+    trackFrom: {type: Number, default: null},
+    type: String,
     date: { type: Date, default: Date.now },
     group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
@@ -76,6 +77,7 @@ const UserSchema = new mongoose.Schema({
     firstLogin: { type: Boolean, default: true },
     gender: Boolean, // true = male, false = female
     weight: Number,
+    dailyCalorieIntake: Number,
     bmi: Number,
     height: Number,
     targetWeight: Number,
@@ -99,7 +101,7 @@ const GroupGoalSchema = new mongoose.Schema({
     remainingLabel: String,
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
-    sport: Boolean, // false = food or other
+    type: String,
     date: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 })

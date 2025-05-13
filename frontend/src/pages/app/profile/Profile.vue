@@ -20,6 +20,7 @@
             <!-- Top Centered Card -->
             <ProfileCard title="Current Weight" :displayNumber="weight" :secondaryNumber="targetWeight" unit="kg" />
             <!-- Two Side-by-Side Cards -->
+            <ProfileCard title="Daily Calorie Intake Goal" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
             <div class="grid grid-cols-2 gap-6">
                 <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
                 <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
@@ -56,6 +57,7 @@ export default {
             weight: 0,
             targetWeight: 0,
             calories: 0,
+            kcalDailyRec: 0,
             height: 0,
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
@@ -65,6 +67,13 @@ export default {
         }
     },
     async mounted() {
+        try {
+            const res = await axios.get('/kcal-intake');
+            this.kcalDailyRec = res.data
+            console.log('daily',this.kcalDailyRec)
+        } catch (err) {
+            console.error('Error fetching daily kcal rec:', err.response?.data);
+        }
         // Get user Calories in last 24hrs
         try {
             const res = await axios.get('/recent-calories');
