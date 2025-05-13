@@ -74,7 +74,7 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
     password_hash: { type: String, required: true },
     firstLogin: { type: Boolean, default: true },
-    gender: Boolean,
+    gender: Boolean, // true = male, false = female
     weight: Number,
     bmi: Number,
     height: Number,
