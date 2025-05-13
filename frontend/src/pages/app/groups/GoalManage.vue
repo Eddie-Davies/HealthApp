@@ -1,30 +1,47 @@
 <template>
   <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('close')">
     <div class="bg-base-200 p-6 rounded-xl w-[90%] max-w-md space-y-4">
-      <h2 class="text-lg font-semibold text-center">Manage Goals – {{ groupName }}</h2>
-      <div v-if="goals.length">
-        <div v-for="goal in goals" :key="goal._id" class="p-3 bg-base-100 rounded-lg mb-3 shadow">
-          <div class="font-semibold">{{ goal.description }}</div>
-          <div class="text-sm text-neutral-500">{{ goal.target }} {{ goal.unit }}</div>
-            <div class="text-sm">Goal Type: {{ goal.type }}</div>
+      <h2 class="text-lg font-semibold text-center">Manage Goals – {{ groupName }}</h2>      
+      <div 
+        v-if="goals.length" 
+        class="overflow-y-auto max-h-64 space-y-3">
+        <div 
+          v-for="goal in goals"
+          :key="goal._id" 
+          class="p-3 bg-base-100 rounded-lg shadow">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="font-semibold">Goal Description: {{ goal.description }}</div>
+              <div class="text-sm text-neutral/70">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
+              <div class="text-sm text-neutral/70">Goal Type: {{ goal.type }}</div>
+              
+            </div>
 
-          <div class="flex flex-col items-center w-full gap-3 mt-6">
-            <button class="btn btn-success btn-soft rounded-3xl w-[50%] flex justify-center items-center" @click="addToMyGoals(goal._id)">
-              <i class="fa-solid fa-download mr-2"></i> Download
-            </button>
-            <button class="btn btn-error btn-soft rounded-3xl w-[50%] flex justify-center items-center mt-2" @click="deleteGoal(goal._id)">
-              <i class="fa-solid fa-xmark mr-2"></i> Delete
-            </button>
+            <div class="flex gap-3">
+              <button 
+                class="btn btn-success btn-soft rounded-full" 
+                @click="addToMyGoals(goal._id)">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button 
+                class="btn btn-error btn-soft rounded-full" 
+                @click="deleteGoal(goal._id)">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
       <div v-else class="text-center text-sm text-neutral-400">No group goals found.</div>
-      <div class="text-center mt-4">
-        <button class="btn btn-neutral w-[50%] mt-10" @click="$emit('close')">Close</button>
+
+      <div class="flex w-full mt-5">
+        <button class="btn btn-neutral btn-soft" @click="$emit('close')">Go Back</button>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
