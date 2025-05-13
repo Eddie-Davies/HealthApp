@@ -193,4 +193,86 @@ async function runMigration6_addGroupInvites() {
   }
 }
 
+async function runMigration7_convertSportToType() {
+    try {
+        console.log('✅ Connected to MongoDB');
+
+        // --- USER GOALS ---
+        const users = await UserModel.find({ "goals.sport": { $exists: true } });
+        let userGoalsUpdated = 0;
+
+        for (const user of users) {
+            let updated = false;
+
+            for (const goal of user.goals) {
+              console.log(user.first_name, goal.sport, goal.progressLabel)
+                for (const goal of user.goals) {
+    if (goal.sport !== undefined) {
+        goal.type = goal.sport === true ? 'sport' : 'other';
+        goal.set('sport', undefined, { strict: false });
+        goal.markModified('sport');
+        updated = true;
+    }
+}
+
+            }
+
+            if (updated) {
+                // Fix potential validation issues
+                for (const meal of user.meals || []) {
+                    if (Array.isArray(meal.mealName)) {
+                        meal.mealName = meal.mealName.join(', ');
+                    }
+                }
+
+                try {
+                    await user.save();
+                    userGoalsUpdated++;
+                } catch (err) {
+                    console.warn(`⚠️ Skipped user ${user._id} due to validation error:`, err.message);
+                }
+            }
+        }
+
+        // --- GROUP GOALS ---
+        const groups = await GroupModel.find({ "goals.sport": { $exists: true } });
+        let groupGoalsUpdated = 0;
+
+        for (const group of groups) {
+            let updated = false;
+
+            for (const goal of group.goals) {
+for (const goal of user.goals) {
+    if (goal.sport !== undefined) {
+        goal.type = goal.sport === true ? 'sport' : 'other';
+        goal.set('sport', undefined, { strict: false });
+        goal.markModified('sport');
+        updated = true;
+    }
+}
+
+            }
+
+            if (updated) {
+                try {
+                    await group.save();
+                    groupGoalsUpdated++;
+                } catch (err) {
+                    console.warn(`⚠️ Skipped group ${group._id} due to validation error:`, err.message);
+                }
+            }
+        }
+
+        console.log(`✅ Migration complete: ${userGoalsUpdated} users and ${groupGoalsUpdated} groups updated`);
+        process.exit(0);
+
+    } catch (err) {
+        console.error('❌ Migration failed:', err);
+        process.exit(1);
+    }
+}
+
+runMigration7_convertSportToType();
+
+
 // runMigration6_addGroupInvites()

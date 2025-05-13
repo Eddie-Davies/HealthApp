@@ -6,6 +6,8 @@
         <div v-for="goal in goals" :key="goal._id" class="p-3 bg-base-100 rounded-lg mb-3 shadow">
           <div class="font-semibold">{{ goal.description }}</div>
           <div class="text-sm text-neutral-500">{{ goal.target }} {{ goal.unit }}</div>
+            <div class="text-sm">Goal Type: {{ goal.type }}</div>
+
           <div class="flex flex-col items-center w-full gap-3 mt-6">
             <button class="btn btn-success btn-soft rounded-3xl w-[50%] flex justify-center items-center" @click="addToMyGoals(goal._id)">
               <i class="fa-solid fa-download mr-2"></i> Download
