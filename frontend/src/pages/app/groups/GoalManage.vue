@@ -5,7 +5,9 @@
         <div v-if="goals.length">
           <div v-for="goal in goals" :key="goal._id" class="p-3 bg-base-100 rounded-lg mb-3 shadow">
             <div class="font-semibold">{{ goal.description }}</div>
-            <div class="text-sm text-neutral-500">{{ goal.target }} {{ goal.unit }}</div>
+            <div class="text-sm text-neutral-500">Target: {{ goal.target }} {{ goal.unit }}</div>
+            <div class="text-sm">{{ goal.type }}</div>
+
             <div class="flex justify-end gap-2 mt-2">
               <button class="btn btn-sm btn-success" @click="addToMyGoals(goal._id)">⬇️</button>
               <button class="btn btn-sm btn-error" @click="deleteGoal(goal._id)">🗑️</button>

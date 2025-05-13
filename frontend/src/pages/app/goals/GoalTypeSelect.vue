@@ -6,7 +6,7 @@
                 <button
                     class="btn btn-neutral btn-soft hover:btn-success border-2 w-20 h-20 flex flex-col items-center justify-center rounded-xl">
                     <i class="fas fa-running"></i>
-                    <p>Sport</p>
+                    <p>Activity</p>
                 </button>
                 <button @click="$emit('diet', group, 'diet')"
                     class="btn btn-neutral btn-soft hover:btn-warning w-20 h-20 flex flex-col items-center justify-center rounded-xl">

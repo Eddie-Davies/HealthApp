@@ -608,6 +608,16 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (!group) {
             return res.status(404).json({ message: 'Group not found.' });
         }
+        
+        const validTypes = ["diet", "activity", "custom"];
+        if (!validTypes.includes(type)) {
+          return res
+            .status(400)
+            .json({
+              message: "Type must be one of: diet, activity, or custom.",
+            });
+        }
+
 
         const newGoal = {
             description,

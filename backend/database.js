@@ -99,7 +99,6 @@ const GroupGoalSchema = new mongoose.Schema({
     remainingLabel: String,
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
-    sport: Boolean, // false = food or other
     type: String,
     date: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
