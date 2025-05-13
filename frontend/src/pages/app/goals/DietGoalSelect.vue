@@ -12,7 +12,7 @@
                 </select>
             </div>
             <div class="space-x-3">
-                <button @click="$emit('cancel')" class="btn w-1/4 btn-error btn-soft">Back</button>
+                <button @click="$emit('cancel' , localGoal.group)" class="btn w-1/4 btn-error btn-soft">Back</button>
                 <button 
                     @click="confirm(choice)"
                     class="btn w-2/4 btn-success" 
@@ -28,7 +28,7 @@
 <script>
 import axios from 'axios';
 export default {
-    name: 'GoalSelectActivityType',
+    name: 'DietGoalSelect',
     props: {
         goal: {
             type: Object,
@@ -43,6 +43,7 @@ export default {
         };
     },
     async mounted() {
+        console.log('GROUP', this.localGoal.group)
         // Get user weight
         try {
             const res = await axios.get('/weights');

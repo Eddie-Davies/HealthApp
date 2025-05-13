@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="mt-10 mb-40 flex flex-wrap justify-center">
-          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group" />
+          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
         </div>
       </div>
     </swiper-slide>
@@ -65,12 +65,23 @@
     :group="showTypeSelect"
     @cancel="showTypeSelect = false"
     @custom="createNewGoal"
-    @diet="createNewGoal" />
+    @diet="createNewGoal"
+    @activity="createNewGoal" />
 
   <DietGoalSelect v-if="showDietGoalSelect" 
   @cancel="handleCancelDiet"
   @confirm="handleDietConfigComplete"
   :goal="tempGoal"/>
+
+  <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null"
+  :goal="tempGoal"
+  :group="showActivityGoalSelect"
+  @cancel="handleCancelActivity"
+  @confirm="handleActivityTypeChosen"/>
+
+  <ActivityGoalRefine v-if="showActivityGoalRefine"
+  :goal="showActivityGoalRefine"
+  @cancel="handleCancelActivityRefine"/>
 
   <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
@@ -161,7 +172,7 @@ import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
 import GoalTypeSelect from './GoalTypeSelect.vue';
-
+import ActivityGoalRefine from './ActivityGoalRefine.vue';
 
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -169,6 +180,7 @@ import { Pagination, Keyboard } from 'swiper/modules';
 import 'swiper/css/pagination';
 import 'swiper/css';
 import DietGoalSelect from './DietGoalSelect.vue';
+import ActivityGoalSelect from './ActivityGoalSelect.vue';
 
 export default {
   name: 'Goals',
@@ -183,6 +195,8 @@ export default {
     GoalDescriptionAlert,
     GoalTypeSelect,
     DietGoalSelect,
+    ActivityGoalSelect,
+    ActivityGoalRefine,
     PageHeader
   },
   setup() {
@@ -205,6 +219,8 @@ export default {
       goalDescription: false,
       showTypeSelect: false,
       showDietGoalSelect: false,
+      showActivityGoalSelect: false,
+      showActivityGoalRefine: false,
       tempGoal: null,
       tempGroupId: null,
       kcalIntake: 0,
@@ -322,10 +338,15 @@ export default {
     },
     handleDietConfigComplete(configuredGoal) {
       this.showDietGoalSelect = false
-      console.log(configuredGoal)
+      // console.log(configuredGoal)
       // TODO: REVERT BACK TO THE LINE BELOW IF IT BREAKS LATER
       // this.openEditor(configuredGoal, true, this.tempGroupId);
       this.openEditor(configuredGoal, true, configuredGoal.group);
+    },
+    handleActivityTypeChosen(configuredGoal) {
+      this.showActivityGoalSelect = false
+      this.showActivityGoalRefine = configuredGoal
+      console.log(configuredGoal)
     },
 
     openEditor(goal, isNew = false, groupId = null) {
@@ -411,9 +432,22 @@ export default {
 
     },
     handleCancelDiet(group) {
+      console.log('cancel diet group' , group)
       this.showDietGoalSelect = false;
       this.showTypeSelect = group;
       
+    },
+    handleCancelActivity(group) {
+      this.showActivityGoalSelect = false;
+      console.log('group', group)
+      this.showTypeSelect = group;
+
+    },
+    handleCancelActivityRefine(group) {
+      console.log('cancelling refine')
+      this.showActivityGoalRefine = false
+      this.showActivityGoalSelect = group
+      // console.log(tempGroupId)
     },
 
     cancelDescription() {
@@ -496,6 +530,7 @@ export default {
     
     // GOAL CREATION
     createNewGoal(groupId = null, goalType = 'custom') {
+      console.log('group ID:' , groupId)
       console.log(groupId, goalType)
       this.showTypeSelect = false
       const newGoal = {
@@ -517,8 +552,10 @@ export default {
           this.tempGoal = { ...newGoal };
           this.tempGroupId = groupId;
           this.showDietGoalSelect = true;
-      } else if (goalType == 'exercise') { 
-         this.openEditor(newGoal, true, groupId); 
+      } else if (goalType == 'activity') { 
+          this.tempGoal = {...newGoal};
+          this.tempGroupId = groupId;
+          this.showActivityGoalSelect = true;
       } 
       
     }
