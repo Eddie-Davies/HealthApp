@@ -104,8 +104,8 @@ app.post('/forgotUsername', async (req, res) => {
             const email = user.email;
             await transporter.sendMail({
                 from: `"CHANGE Username" ${EMAIL_ADDRESS}`,
-                to: email, 
-                subject: "CHANGE Username", 
+                to: email,
+                subject: "CHANGE Username",
                 text: `Here is your recovery code to change username: ${recoveryCode}. Sincerely the Blossom Dev team.`,
 
             });
@@ -155,37 +155,37 @@ app.post('/newPassword', async (req, res) => {
 });
 
 app.post('/newUsername', async (req, res) => {
-  try {
-    const user = await UserModel.findOne({ email: req.body.email });
-    const reqCode = req.body.code;
-    const reqNewUsername = req.body.newUsername;
+    try {
+        const user = await UserModel.findOne({ email: req.body.email });
+        const reqCode = req.body.code;
+        const reqNewUsername = req.body.newUsername;
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const recoveryCode = user.recoveryCode;
+        const recoveryCode = user.recoveryCode;
 
-    if (reqCode !== recoveryCode) {
-      return res.status(401).json({ message: 'Invalid recovery code' });
+        if (reqCode !== recoveryCode) {
+            return res.status(401).json({ message: 'Invalid recovery code' });
+        }
+
+        // Check for existing username
+        const existing = await UserModel.findOne({ username: reqNewUsername });
+        if (existing) {
+            return res.status(409).json({ message: 'Username already in use' });
+        }
+
+        // Update username and clear recovery code
+        user.username = reqNewUsername;
+        user.recoveryCode = null;
+        await user.save();
+
+        console.log('Username and recovery code updated successfully.');
+        res.status(200).json({ message: 'Username updated successfully' });
+
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-
-    // Check for existing username
-    const existing = await UserModel.findOne({ username: reqNewUsername });
-    if (existing) {
-      return res.status(409).json({ message: 'Username already in use' });
-    }
-
-    // Update username and clear recovery code
-    user.username = reqNewUsername;
-    user.recoveryCode = null;
-    await user.save();
-
-    console.log('Username and recovery code updated successfully.');
-    res.status(200).json({ message: 'Username updated successfully' });
-
-  } catch (error) {
-    console.error('Database error:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
 });
 
 
@@ -780,9 +780,13 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
 
         //emial
         const memberUsers = await UserModel.find({
-            _id: { $in: group.membersByID },
-            _id: { $ne: createdBy } // exclude creator
+            $and: [
+                { _id: { $in: group.membersByID } },
+                { _id: { $ne: createdBy } }
+            ]
         });
+
+        console.log('Member users:', memberUsers);
 
         const recipientEmails = memberUsers.map(member => member.email);
 
@@ -1549,41 +1553,41 @@ app.delete('/activityType/:id', authenticateToken, async (req, res) => {
 // Delete activity from exercise
 app.post('/exercises/delete-activity-instance', authenticateToken, async (req, res) => {
     const { exerciseId, activityId } = req.body;
-  
+
     if (!mongoose.Types.ObjectId.isValid(exerciseId) || !mongoose.Types.ObjectId.isValid(activityId)) {
-      console.log('Invalid IDs');
-      return res.status(400).json({ message: 'Invalid exerciseId or activityId' });
+        console.log('Invalid IDs');
+        return res.status(400).json({ message: 'Invalid exerciseId or activityId' });
     }
-  
+
     try {
-      const user = await UserModel.findOne({ email: req.user.email });
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      const exerciseIndex = user.exercises.findIndex(ex => ex._id.toString() === exerciseId);
-  
-      if (exerciseIndex === -1) {
-        return res.status(404).json({ message: 'Exercise not found' });
-      }
-  
-      const exercise = user.exercises[exerciseIndex];
-  
-      // Filter out the activity
-      exercise.activities = exercise.activities.filter(
-        act => act._id.toString() !== activityId
-      );
-    
-      user.markModified('exercises');
-  
-      await user.save();
-  
-      return res.status(200).json({ message: 'Activity deleted successfully' });
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const exerciseIndex = user.exercises.findIndex(ex => ex._id.toString() === exerciseId);
+
+        if (exerciseIndex === -1) {
+            return res.status(404).json({ message: 'Exercise not found' });
+        }
+
+        const exercise = user.exercises[exerciseIndex];
+
+        // Filter out the activity
+        exercise.activities = exercise.activities.filter(
+            act => act._id.toString() !== activityId
+        );
+
+        user.markModified('exercises');
+
+        await user.save();
+
+        return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
-      console.error('❌ Error deleting activity instance:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+        console.error('❌ Error deleting activity instance:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-  });
+});
 
 // GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
 app.get('/dob', authenticateToken, async (req, res) => {
