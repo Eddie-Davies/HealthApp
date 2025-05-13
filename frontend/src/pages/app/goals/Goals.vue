@@ -29,13 +29,16 @@
                   :key="goal._id"
                   :target="goal.target"
                   :progress="goal.progress"
+                  :trackFrom="goal.trackFrom"
                   :progressLabel="goal.progressLabel"
                   :remainingLabel="goal.remainingLabel"
                   :unit="goal.unit"
                   :type="goal.type"
                   :date="goal.date"
-                  :sport="goal.sport"
                   :colour="slide.colour"
+                  :maintainanceKcal="this.kcalIntake"
+                  :lastDayKcal="this.lastDayKcal"
+                  :currentWeight="this.weight"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
@@ -47,7 +50,7 @@
           </div>
         </div>
         <div class="mt-10 mb-40 flex flex-wrap justify-center">
-          <GoalNew :group="slide.group" @new-goal="createNewGoal(slide.group)" />
+          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group" />
         </div>
       </div>
     </swiper-slide>
@@ -58,9 +61,19 @@
   </GoalDescriptionAlert>
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
+  <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" 
+    :group="showTypeSelect"
+    @cancel="showTypeSelect = false"
+    @custom="createNewGoal"
+    @diet="createNewGoal" />
+
+  <DietGoalSelect v-if="showDietGoalSelect" 
+  @cancel="handleCancelDiet"
+  @confirm="handleDietConfigComplete"
+  :goal="tempGoal"/>
+
   <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
-
 </template>
 
 <style>
@@ -138,15 +151,16 @@ body {
 
 <script>
 import axios from 'axios';
+import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 
 import GoalCard from './GoalCard.vue';
 import PageHeader from '../../../components/header/PageHeader.vue';
-import { globalErrorMessage } from '../../../components/errorBanner/ErrorBanner.vue';
 import GoalNew from './GoalNew.vue';
 import GoalEdit from './GoalEdit.vue';
 import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
+import GoalTypeSelect from './GoalTypeSelect.vue';
 
 
 
@@ -154,6 +168,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination, Keyboard } from 'swiper/modules';
 import 'swiper/css/pagination';
 import 'swiper/css';
+import DietGoalSelect from './DietGoalSelect.vue';
 
 export default {
   name: 'Goals',
@@ -166,6 +181,8 @@ export default {
     GoalGroupAlert,
     GoalDeleteAlert,
     GoalDescriptionAlert,
+    GoalTypeSelect,
+    DietGoalSelect,
     PageHeader
   },
   setup() {
@@ -186,6 +203,13 @@ export default {
       showAlert: false,
       showDescriptionBox: false,
       goalDescription: false,
+      showTypeSelect: false,
+      showDietGoalSelect: false,
+      tempGoal: null,
+      tempGroupId: null,
+      kcalIntake: 0,
+      lastDayKcal: 0,
+      weight: 0,
       errorMessage: ''
     };
   },
@@ -213,7 +237,7 @@ export default {
       // Add group slides
       this.groups.forEach((group, index) => {
         const colour = colourList[index % colourList.length]; 
-        console.log(group._id)
+        // console.log(group._id)
         slides.push({
           title: `${group.name} Goals`,
           goals: this.groupedGoals[group._id] || [],
@@ -248,15 +272,42 @@ export default {
     }
     console.log('GOALS:', this.goals.map(g => ({ id: g._id, group: g.group })));
 
-
+    try {
+      const res = await axios.get('/weights');
+      const weights = res.data;
+      this.weight = weights.weight
+      // console.log('front weight', this.weight);
+    } catch (err) {
+      console.error('Error fetching user weight:', err.response?.data || err.message);
+    }
     // Get user Groups
     try {
       const res = await axios.get('/groups')
       this.groups = res.data.groups;
-      console.log('Groups:', this.groups)
+      // console.log('Groups:', this.groups)
     } catch (err) {
       console.error('Error fetching groups:', err.response?.data)
     }
+
+    // GET DAILY MAINTAINANCE KCAL
+    try {
+        const res = await axios.get('/kcal-intake')
+        this.kcalIntake = res.data;
+        // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+      } catch (err) {
+        console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
+      }
+      // GET DAILY MAINTAINANCE KCAL
+    try {
+        const res = await axios.get('/today-calories')
+        this.lastDayKcal = res.data;
+        // console.log('Kcal Intake last day:', this.lastDayKcal)
+      } catch (err) {
+        console.error('Error last day kcal:', err.response?.data)
+      }
+
+
+    
 
   },
   methods: {
@@ -268,6 +319,13 @@ export default {
       this.editingGoal = { ...this.pendingGoal };
       this.pendingGoal = null;
       this.showAlert = false;
+    },
+    handleDietConfigComplete(configuredGoal) {
+      this.showDietGoalSelect = false
+      console.log(configuredGoal)
+      // TODO: REVERT BACK TO THE LINE BELOW IF IT BREAKS LATER
+      // this.openEditor(configuredGoal, true, this.tempGroupId);
+      this.openEditor(configuredGoal, true, configuredGoal.group);
     },
 
     openEditor(goal, isNew = false, groupId = null) {
@@ -352,6 +410,11 @@ export default {
       }
 
     },
+    handleCancelDiet(group) {
+      this.showDietGoalSelect = false;
+      this.showTypeSelect = group;
+      
+    },
 
     cancelDescription() {
       this.editingGoal = this.pendingGoal
@@ -430,21 +493,34 @@ export default {
         console.error('Error deleting goal:', err.response?.data || err);
       }
     },
-
+    
     // GOAL CREATION
-    createNewGoal(groupId = null) {
-
+    createNewGoal(groupId = null, goalType = 'custom') {
+      console.log(groupId, goalType)
+      this.showTypeSelect = false
       const newGoal = {
         target: 10,
         progress: 0,
+        trackFrom: null,
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',
-        sport: false,
+        type: goalType,
         group: groupId,
         date: new Date()
       };
-      this.openEditor(newGoal, true, groupId);
+      console.log(goalType)
+      if (goalType == 'custom') {
+        console.log('custom detected')
+        this.openEditor(newGoal, true, groupId); 
+      } else if (goalType == 'diet') { 
+          this.tempGoal = { ...newGoal };
+          this.tempGroupId = groupId;
+          this.showDietGoalSelect = true;
+      } else if (goalType == 'exercise') { 
+         this.openEditor(newGoal, true, groupId); 
+      } 
+      
     }
   }
 };

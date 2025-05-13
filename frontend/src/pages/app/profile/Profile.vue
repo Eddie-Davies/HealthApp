@@ -1,10 +1,16 @@
 <template>
     <div class="">
+
         <!-- Page Title -->
         <PageHeader :title="$route.meta.title" />
 
+        <h2 class="text-2xl font-bold text-center mt-5">
+            <span><i class="fa-solid fa-user mr-1"></i></span>
+            {{ username }}
+        </h2>
+
         <!-- Member Since -->
-        <p class="text-center mt-10 text-base-content/50">
+        <p class="text-center mt-5 text-base-content/50">
             <span><i class="fa-solid fa-trophy mr-1"></i></span>
             Member since {{ memberSince }}
         </p>
@@ -14,6 +20,7 @@
             <!-- Top Centered Card -->
             <ProfileCard title="Current Weight" :displayNumber="weight" :secondaryNumber="targetWeight" unit="kg" />
             <!-- Two Side-by-Side Cards -->
+            <ProfileCard title="Daily Calorie Intake Goal" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
             <div class="grid grid-cols-2 gap-6">
                 <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
                 <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
@@ -50,14 +57,23 @@ export default {
             weight: 0,
             targetWeight: 0,
             calories: 0,
+            kcalDailyRec: 0,
             height: 0,
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
             memberSince: '04/05/2025', // default to date this was implemented instead of 00/00/0000.
             gender: null,
+            username: '',
         }
     },
     async mounted() {
+        try {
+            const res = await axios.get('/kcal-intake');
+            this.kcalDailyRec = res.data
+            console.log('daily',this.kcalDailyRec)
+        } catch (err) {
+            console.error('Error fetching daily kcal rec:', err.response?.data);
+        }
         // Get user Calories in last 24hrs
         try {
             const res = await axios.get('/recent-calories');
@@ -104,6 +120,12 @@ export default {
             console.log(this.gender);
         } catch (err) {
             console.error('Error fetching gender:', err.response?.data);
+        }
+        try {
+            const res = await axios.get('/user');
+            this.username = res.data.username;
+        } catch (err) {
+            console.error('Error fetching username:', err.response?.data);
         }
 
     },

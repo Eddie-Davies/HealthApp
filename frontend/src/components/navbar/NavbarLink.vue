@@ -2,7 +2,7 @@
     <router-link :to="to" 
         class="group flex flex-col items-center text-center transition duration-300 ease-in-out hover:bg-base-100 rounded-xl px-3 py-2" 
         :class="{'text-primary': isActive, 'text-base-content/60': !isActive}">
-        <i :class="icon" class="mb-2 text-2xl transform transition-transform duration-200 ease-in-out group-hover:scale-110 group-hover:shadow-md"></i>
+        <i :class="icon" class="mb-2 text-2xl transform transition-transform duration-200 ease-in-out group-hover:scale-110"></i>
         <span class="text-xs">
             <slot></slot>
         </span>

@@ -33,7 +33,7 @@
 
       <!-- Options Button -->
       <div class="flex items-start">
-        <button class="rounded px-3 py-1 text-sm hover:text-accent" @click="goToOptionsPage">
+        <button class="btn btn-neutral btn-soft rounded-3xl px-3 py-1 text-sm" @click="goToOptionsPage">
           Options
         </button>
       </div>

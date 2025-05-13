@@ -1,9 +1,10 @@
 <template>
   <div class="flex flex-col items-center w-full px-4 pb-32">
-
-    <button class="btn btn-ghost" @click="goBack">
-      ← Back
-    </button>
+    <div class="w-full max-w-md flex flex-col items-start mb-5">
+      <button class="btn btn-ghost " @click="goBack">
+        ← Back
+      </button>
+    </div>
 
     <!-- Wrapper to constrain width and align children to left -->
     <div class="w-full max-w-md flex flex-col items-start">
@@ -32,10 +33,10 @@
     </div>
 
     <div class="mt-8 xs:mt-4 w-full max-w-md">
-      <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id" :title="exercise.title"
-        :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
-        :activityInstanceId="exercise._id" @updateActivity="updateActivity" @updateInteger="updateInteger"
-        @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
+      <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id || exercise._id"
+        :title="exercise.title" :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
+        :activityInstanceId="exercise._id || exercise.id" @updateActivity="updateActivity"
+        @updateInteger="updateInteger" @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
     </div>
 
 
