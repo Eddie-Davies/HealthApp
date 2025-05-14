@@ -92,6 +92,31 @@
               </div>
             </div>
 
+            <!-- Color Theme -->
+            <div class="collapse collapse-arrow join-item border-base-300 border">
+              <input type="radio" name="my-accordion-4" />
+              <div class="collapse-title font-semibold">
+                <i class="fas fa-palette text-primary w-6"></i>
+                Color Theme
+              </div>
+              <div class="collapse-content text-sm space-y-4">
+                <p class="text-neutral">
+                  Blossom automatically switches between light and dark mode based on your device or browser settings.
+                </p>
+                <p class="text-neutral">
+                  To change themes:
+                </p>
+                <ul class="list-disc list-inside pl-2 text-neutral space-y-1">
+                  <li>On most devices, go to your system settings and switch between Light and Dark mode.</li>
+                  <li>On some browsers, the setting can also be adjusted in Appearance or Display options.</li>
+                </ul>
+                <p class="text-neutral italic mt-2">
+                  Tip: Refresh the page if the theme doesn’t switch immediately.
+                </p>
+              </div>
+            </div>
+
+
             <!-- FAQ -->
             <div class="collapse collapse-arrow join-item border-base-300 border">
               <input type="radio" name="my-accordion-4" />
@@ -169,12 +194,19 @@
       </div>
     </div>
 
-    <router-link to="/delete">
-      <button class="btn btn-error btn-outline group">
+    <div class="mt-6">
+      <button @click="handleAccountDelete" class="btn btn-error btn-outline group">
         <i class="fas fa-user w-6 mr-2 text-inherit group-hover:text-error"></i>
         Delete Account
       </button>
-    </router-link>
+    </div>
+
+    <div class="px-4 pt-6">
+      <button class="btn btn-ghost text-sm" @click="$router.push('/home/profile')">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to Home
+      </button>
+    </div>
   </div>
 </template>
 
@@ -322,8 +354,21 @@ export default {
           globalErrorMessage.value = 'Something went wrong.';
         }
       }
-    }
+    },
+    async handleAccountDelete() {
+      const confirmed = confirm("Are you sure you want to permanently delete your account? This action cannot be undone.");
 
+      if (!confirmed) return;
+
+      try {
+        await axios.delete('/user/delete-account');
+        alert("Your account has been deleted.");
+        this.$router.push('/signup');
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        globalErrorMessage.value = error.response?.data?.message || "Failed to delete account. Please try again.";
+      }
+    }
 
   },
   mounted() {

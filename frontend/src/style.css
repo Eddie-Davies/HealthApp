@@ -17,12 +17,13 @@ html {
   default: true;
   prefersdark: false;
   color-scheme: "light";
+
   --color-base-100: oklch(100% 0 0);
   --color-base-200: oklch(98% 0 0);
-  --color-base-300: oklch(92% 0.004 286.32);
+  --color-base-300: oklch(95% 0.004 286.32);
   --color-base-content: oklch(20% 0 0);
-  --color-primary: #ff6889;
-  --color-primary-content: oklch(14% 0 0);
+  --color-primary: #e94870;
+  --color-primary-content: oklch(98% 0 0);
   --color-secondary: #eea6ec;
   --color-secondary-content: oklch(0% 0 0);
   --color-accent: #70003d;
@@ -37,6 +38,7 @@ html {
   --color-warning-content: oklch(28% 0.066 53.813);
   --color-error: oklch(63% 0.237 25.331);
   --color-error-content: oklch(14% 0.004 49.25);
+  --color-progress-track: oklch(84% 0 0);
   --radius-selector: 0.5rem;
   --radius-field: 2rem;
   --radius-box: 1rem;
@@ -46,8 +48,6 @@ html {
   --depth: 0;
   --noise: 0;
 }
-
-
 
 
 

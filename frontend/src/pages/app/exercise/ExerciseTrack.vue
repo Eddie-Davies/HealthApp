@@ -2,8 +2,8 @@
   <div class="flex flex-col items-center w-full px-4 pb-32">
     <div class="w-full max-w-md flex flex-col items-start mb-5">
       <button class="btn btn-ghost " @click="goBack">
-      ← Back
-    </button>
+        ← Back
+      </button>
     </div>
 
     <!-- Wrapper to constrain width and align children to left -->
@@ -33,10 +33,10 @@
     </div>
 
     <div class="mt-8 xs:mt-4 w-full max-w-md">
-      <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id" :title="exercise.title"
-        :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
-        :activityInstanceId="exercise._id" @updateActivity="updateActivity" @updateInteger="updateInteger"
-        @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
+      <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id || exercise._id"
+        :title="exercise.title" :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
+        :activityInstanceId="exercise._id || exercise.id" @updateActivity="updateActivity"
+        @updateInteger="updateInteger" @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
     </div>
 
 
@@ -188,28 +188,28 @@ export default {
       this.saveToLocalStorage();
     },
     async deleteActivity(instanceIdToDelete) {
-  // Check if this is a local-only activity (no _id assigned yet)
-  if (!instanceIdToDelete) {
-    this.exercises = this.exercises.filter(ex => ex._id !== undefined); // safety: remove all unsaved
-    this.saveToLocalStorage();
-    return;
-  }
+      // Check if this is a local-only activity (no _id assigned yet)
+      if (!instanceIdToDelete) {
+        this.exercises = this.exercises.filter(ex => ex._id !== undefined); // safety: remove all unsaved
+        this.saveToLocalStorage();
+        return;
+      }
 
-  try {
-    console.log('Deleting activity instance _id:', instanceIdToDelete);
+      try {
+        console.log('Deleting activity instance _id:', instanceIdToDelete);
 
-    await axios.post('/exercises/delete-activity-instance', {
-      exerciseId: this.exerciseId,
-      activityId: instanceIdToDelete
-    }, { withCredentials: true });
+        await axios.post('/exercises/delete-activity-instance', {
+          exerciseId: this.exerciseId,
+          activityId: instanceIdToDelete
+        }, { withCredentials: true });
 
-    // Remove from local list for UI update
-    this.exercises = this.exercises.filter(ex => ex._id !== instanceIdToDelete);
-    this.saveToLocalStorage();
-  } catch (err) {
-    console.error('Failed to delete activity:', err.response?.data || err);
-  }
-},
+        // Remove from local list for UI update
+        this.exercises = this.exercises.filter(ex => ex._id !== instanceIdToDelete);
+        this.saveToLocalStorage();
+      } catch (err) {
+        console.error('Failed to delete activity:', err.response?.data || err);
+      }
+    },
     updateInteger({ title, integer }) {
       const ex = this.exercises.find((e) => e.title === title);
       if (ex) {
@@ -245,15 +245,17 @@ export default {
         exerciseName: this.newTitle,
         activities: activitiesDetails,
         durationMs: this.timer,
-        date: new Date()
       };
+
+      if (this.isNew) {
+        completedWorkout.date = new Date();
+      }
 
       try {
         if (this.isNew) {
           await axios.post('/exercises', completedWorkout);
         } else {
           await axios.put(`/exercises/update/${this.exerciseId}`, completedWorkout);
-          localStorage.removeItem(this.storageKey);
         }
         localStorage.removeItem(this.storageKey);
         this.$router.push('/home/exercise');

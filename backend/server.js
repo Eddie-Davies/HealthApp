@@ -72,12 +72,25 @@ app.post('/forgotPassword', async (req, res) => {
         try {
             const email = user.email;
             await transporter.sendMail({
-                from: `"RESET PASSWORD" ${EMAIL_ADDRESS}`,
+                from: `"Blossom Password Reset" <${EMAIL_ADDRESS}>`,
                 to: email,
-                subject: "RESET PASSWORD",
-                text: `Here is your recovery code: ${recoveryCode}. Sincerely the Blossom Dev team.`,
+                subject: "Reset your Blossom password",
+                text: `Hi there,
 
+                Here is your recovery code to reset your Blossom password: ${recoveryCode}
+
+                If you did not request a password reset, please ignore this message.
+
+                – The Blossom Team`,
+                html: `
+                <p>Hi there,</p>
+                <p>Here is your recovery code to reset your Blossom password:</p>
+                <h2 style="margin-top: 0; color: #B54492;">${recoveryCode}</h2>
+                <p>If you did not request a password reset, you can safely ignore this message.</p>
+                <p>– The Blossom Team</p>
+             `
             });
+
         } catch (error) {
             console.error("An error occurred while sending alert emails:", error);
             res.status(500).send("An error occurred while sending alert emails");
@@ -103,12 +116,25 @@ app.post('/forgotUsername', async (req, res) => {
         try {
             const email = user.email;
             await transporter.sendMail({
-                from: `"CHANGE Username" ${EMAIL_ADDRESS}`,
+                from: `"Blossom Username Recovery" <${EMAIL_ADDRESS}>`,
                 to: email,
-                subject: "CHANGE Username",
-                text: `Here is your recovery code to change username: ${recoveryCode}. Sincerely the Blossom Dev team.`,
+                subject: "Change your Blossom username",
+                text: `Hi there,
 
+                Here is your recovery code to change your Blossom username: ${recoveryCode}
+
+                If you did not request this, please ignore this message.
+
+                – The Blossom Team`,
+                html: `
+                <p>Hi there,</p>
+                <p>Here is your recovery code to change your Blossom username:</p>
+                <h2 style="margin-top: 0; color: #B54492;">${recoveryCode}</h2>
+                <p>If you did not request this, you can safely ignore this message.</p>
+                <p>– The Blossom Team</p>
+                `
             });
+
         } catch (error) {
             console.error("An error occurred while sending alert emails:", error);
             res.status(500).send("An error occurred while sending alert emails");
@@ -212,8 +238,22 @@ app.post('/user/request-email-verification', authenticateToken, async (req, res)
             from: `"Blossom Email Verification" <${EMAIL_ADDRESS}>`,
             to: req.user.email,
             subject: "Verify your new email address",
-            text: `Here is your Blossom verification code: ${emailCode}`
+            text: `Hi there,
+
+            Here is your Blossom verification code: ${emailCode}
+
+            If you did not request this change, please ignore this email.
+
+            – The Blossom Team`,
+            html: `
+            <p>Hi there,</p>
+            <p>Here is your Blossom verification code:</p>
+            <h2 style="margin-top: 0; color: #B54492;">${emailCode}</h2>
+            <p>If you did not request this change, you can safely ignore this message.</p>
+            <p>– The Blossom Team</p>
+            `
         });
+
 
         res.status(200).json({ message: 'Verification code sent to new email' });
         console.log(`Verification code sent to ${req.user.email}: ${emailCode}`);
@@ -292,6 +332,31 @@ app.get('/user', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+app.delete('/user/delete-account', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // remove user from groups
+        await GroupModel.updateMany(
+            { membersByID: user._id },
+            { $pull: { membersByID: user._id } }
+        );
+
+        await UserModel.deleteOne({ _id: user._id });
+
+        console.log(`User (${user.email}) deleted their account.`);
+        return res.status(200).json({ message: 'Account deleted successfully' });
+
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 app.post('/signup', async (req, res) => {
     try {
@@ -755,14 +820,14 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (!group) {
             return res.status(404).json({ message: 'Group not found.' });
         }
-        
+
         const validTypes = ["diet", "activity", "custom"];
         if (!validTypes.includes(type)) {
-          return res
-            .status(400)
-            .json({
-              message: "Type must be one of: diet, activity, or custom.",
-            });
+            return res
+                .status(400)
+                .json({
+                    message: "Type must be one of: diet, activity, or custom.",
+                });
         }
 
 
@@ -911,7 +976,7 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
             typeof progress !== 'number' || !Number.isInteger(progress) || progress < 0 || progress > target ||
             typeof unit !== 'string' || unit.trim() === '' ||
             typeof type !== 'string' ||
-            !date 
+            !date
         ) {
             return res.status(400).json({
                 message: 'Invalid goal input: target must be an integer > 0, progress must be an integer between 0 and target, and unit must be non-empty.'
@@ -1014,19 +1079,19 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
         };
         console.log(copiedGoal.progressLabel)
         if (
-          (copiedGoal.type === "diet" &&
-            copiedGoal.progressLabel == "Gain Weight") ||
-          copiedGoal.progressLabel == "Lose Weight"
+            (copiedGoal.type === "diet" &&
+                copiedGoal.progressLabel == "Gain Weight") ||
+            copiedGoal.progressLabel == "Lose Weight"
         ) {
-          copiedGoal.trackFrom = user.weight;
-          console.log(user.weight)
+            copiedGoal.trackFrom = user.weight;
+            console.log(user.weight)
         }
         copiedGoal.createdDate = new Date().toISOString(); // e.g., "2025-05-13T12:17:44.104Z"
 
 
         delete copiedGoal.description;
         delete copiedGoal._id; // Let MongoDB assign a new _id
-        
+
         user.goals.push(copiedGoal);
         await user.save();
 
@@ -1717,26 +1782,26 @@ app.get('/kcal-intake', authenticateToken, async (req, res) => {
     }
 });
 app.post('/kcal-intake', authenticateToken, async (req, res) => {
-  try {
-    const user = await UserModel.findOne({ email: req.user.email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Expecting a `dailyCalorieIntake` field in the request body
+        const { dailyCalorieIntake } = req.body;
+
+        if (typeof dailyCalorieIntake !== 'number' || dailyCalorieIntake < 0) {
+            return res.status(400).json({ message: 'Invalid dailyCalorieIntake value' });
+        }
+
+        user.dailyCalorieIntake = dailyCalorieIntake;
+        await user.save();
+
+        res.json({ message: 'Calorie intake updated successfully', dailyCalorieIntake });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating calorie intake', error: err });
     }
-
-    // Expecting a `dailyCalorieIntake` field in the request body
-    const { dailyCalorieIntake } = req.body;
-
-    if (typeof dailyCalorieIntake !== 'number' || dailyCalorieIntake < 0) {
-      return res.status(400).json({ message: 'Invalid dailyCalorieIntake value' });
-    }
-
-    user.dailyCalorieIntake = dailyCalorieIntake;
-    await user.save();
-
-    res.json({ message: 'Calorie intake updated successfully', dailyCalorieIntake });
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating calorie intake', error: err });
-  }
 });
 
 
