@@ -1,6 +1,6 @@
 <template>
   <PageHeader :title="$route.meta.title" />
-  <div class="mt-20 px-4 pb-32 flex flex-col items-center">
+  <div v-if="isLoaded" class="mt-20 px-4 pb-32 flex flex-col items-center">
     <!-- Start Exercise -->
     <div class="w-full max-w-md">
       <ExerciseNew @start="startExercise" />
@@ -73,7 +73,8 @@ export default {
       showAll: false,
       exercises: [],
       sortOption: 'date_desc',
-      searchQuery: ''
+      searchQuery: '',
+      isLoaded: false
     };
   },
   computed: {
@@ -122,6 +123,7 @@ export default {
       } catch (err) {
         console.error('Failed to fetch exercises:', err);
       }
+      this.isLoaded = true;
     },
 
     startExercise() {
