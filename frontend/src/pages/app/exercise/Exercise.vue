@@ -55,6 +55,17 @@
         </button>
       </div>
     </div>
+    <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
+      class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+      <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
+        <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
+        <p>Are you sure you want to delete this meal?</p>
+        <div class="flex justify-end mt-6">
+          <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
+          <button class="btn btn-error" @click="confirmDeleteExercise">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,7 +85,9 @@ export default {
       exercises: [],
       sortOption: 'date_desc',
       searchQuery: '',
-      isLoaded: false
+      isLoaded: false,
+      pendingDeleteIndex: null,
+      showDeleteModal: false
     };
   },
   computed: {
@@ -145,17 +158,23 @@ export default {
       }
       this.showTrack = false;
     },
-
     async deleteExercise(index) {
+      this.pendingDeleteIndex = index;
+      this.showDeleteModal = true;
+    },
+    async confirmDeleteExercise() {
+      const index = this.pendingDeleteIndex;
+      if (index === null) return;
       const idToDelete = this.exercises[index]._id;
       try {
         await axios.delete(`/exercises/${idToDelete}`, { withCredentials: true });
         this.exercises.splice(index, 1);
+        this.showDeleteModal = false;
+        this.pendingDeleteIndex = null;
       } catch (err) {
         console.error('Failed to delete exercise:', err);
       }
     },
-
     totalUnits(exercise) {
       return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
     },

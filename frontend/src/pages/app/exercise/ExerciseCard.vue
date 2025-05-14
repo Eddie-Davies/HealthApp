@@ -117,7 +117,6 @@ export default {
   methods: {
     handleDelete() {
       this.$emit('delete');
-      console.log('detlet')
     },
     goToEditPage() {
       this.$router.push(`/home/exercise/${this.exerciseId}`);
