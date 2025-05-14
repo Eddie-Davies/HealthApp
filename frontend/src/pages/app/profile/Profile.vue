@@ -22,7 +22,7 @@
             <!-- Two Side-by-Side Cards -->
             <ProfileCard title="Daily Calorie Intake Goal" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
             <div class="grid grid-cols-2 gap-6">
-                <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
+                <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(Today's)" />
                 <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
                     note="(last 24hrs)" />
             </div>
@@ -68,7 +68,7 @@ export default {
     },
     async mounted() {
         try {
-            const res = await axios.get('/kcal-intake');
+            const res = await axios.get('/today-calories');
             this.kcalDailyRec = res.data
             console.log('daily',this.kcalDailyRec)
         } catch (err) {
@@ -80,7 +80,7 @@ export default {
             this.calories = res.data
             // console.log(this.calories)
         } catch (err) {
-            console.error('Error fetching last 24hr calories:', err.response?.data);
+            console.error('Error fetching todays calories:', err.response?.data);
         }
 
         try {
