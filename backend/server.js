@@ -732,7 +732,7 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 });
 
 
-// CREATES NEW !GROUP! GOAL
+// CREATES NEW !GROUP! GOAL / publish group goal
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
@@ -740,7 +740,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom, time, createdDate } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id;
 
@@ -782,7 +782,9 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
             newGoal.remainingLabel = remainingLabel;
         }
-
+        if (type == 'activity') {
+            newGoal.time = time
+        }
         group.goals.push(newGoal);
         await group.save();
 
