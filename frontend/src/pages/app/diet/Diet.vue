@@ -2,7 +2,7 @@
   <PageHeader :title="$route.meta.title" />
   <div class="mt-20 px-4 pb-16 flex flex-col items-center">
     <NewMeal />
-    <div class="mt-16 w-full max-w-md mb-20">
+    <div class="mt-10 w-full max-w-md mb-20">
       <div v-if="meals.length > 0">
 
         <div class="flex-row justify-between items-center mb-4">

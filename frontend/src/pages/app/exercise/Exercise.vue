@@ -11,7 +11,7 @@
           <p class="text-right text-base-content/50 cursor-default">Tap on an exercise to edit.</p>
         </div>
 
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-1">
           <input v-model="searchQuery" type="text" placeholder="Search exercises..." class="input input-bordered w-full max-w-xs" />
           <div class="relative ml-4">
             <div class="dropdown dropdown-bottom dropdown-end">

@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-200 rounded-box p-4 mb-4 hover:bg-base-200/60 cursor-pointer" @click="goToEditPage">
+  <div class="card bg-base-200 rounded-box p-4 hover:bg-base-200/60 cursor-pointer" @click="goToEditPage">
     <button @click="handleDelete" class="absolute right-4 btn btn-sm btn-neutral">
       <i class="fa-solid fa-xmark text-base-100"></i>
     </button>
