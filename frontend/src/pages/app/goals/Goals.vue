@@ -37,9 +37,12 @@
                   :date="goal.date"
                   :time="goal.time"
                   :colour="slide.colour"
+                  :createdDate="goal.createdDate"
+
                   :maintainanceKcal="this.kcalIntake"
                   :lastDayKcal="this.lastDayKcal"
                   :currentWeight="this.weight"
+                  :exercises="this.exercises"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
@@ -209,6 +212,7 @@ export default {
   data() {
     return {
       user: null,
+      exercises: null,
       goals: [],
       groups: [],
       editingGoal: null,
@@ -309,26 +313,59 @@ export default {
 
     // GET DAILY MAINTAINANCE KCAL
     try {
-        const res = await axios.get('/kcal-intake')
-        this.kcalIntake = res.data;
-        // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
-      } catch (err) {
-        console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
-      }
-      // GET DAILY MAINTAINANCE KCAL
+      const res = await axios.get('/kcal-intake')
+      this.kcalIntake = res.data;
+      // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+    } catch (err) {
+      console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
+    }
+    // GET DAILY MAINTAINANCE KCAL
     try {
-        const res = await axios.get('/today-calories')
-        this.lastDayKcal = res.data;
-        // console.log('Kcal Intake last day:', this.lastDayKcal)
-      } catch (err) {
-        console.error('Error last day kcal:', err.response?.data)
-      }
+      const res = await axios.get('/today-calories')
+      this.lastDayKcal = res.data;
+      // console.log('Kcal Intake last day:', this.lastDayKcal)
+    } catch (err) {
+      console.error('Error last day kcal:', err.response?.data)
+    }
+    this.fetchExercises()
+    
+      
+    
+
 
 
     
 
   },
   methods: {
+    // EXERCISE FETCH STUFF
+    async fetchExercises() {
+      try {
+        const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
+        this.exercises = res?.data?.exercises.map(workout => ({
+          ...workout,
+          isMultiActivity: workout.activities.length > 1,
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
+        })) || [];
+        console.log(this.exercises)
+      } catch (err) {
+        console.error('Failed to fetch exercises:', err);
+      }
+    },
+        formatTime(ms) {
+      if (!ms || typeof ms !== 'number') return '00:00.00';
+      const minutes = Math.floor(ms / 60000);
+      const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+      return `${String(minutes).padStart(2, '0')}:${seconds}`;
+    },
+    
+
+    // OG STUFF
     toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
       return str.replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },

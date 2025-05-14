@@ -117,10 +117,24 @@ export default {
     colour: {
       type: String,
       default: 'text-primary'
+    },
+    exercises: {
+      type: Object,
+      
+    },
+    createdDate :{
+      type: [Date, String],
+      default: () => new Date()
     }
   },
+  data() {
+    return {
+      localExercises: []
+    }
+  },
+
   computed: {
-    timePeriodDisplay(){
+    timePeriodDisplay() {
       return this.time.toLowerCase()
     },
     dynamicProgress() {
@@ -141,6 +155,100 @@ export default {
         if (diff < 0) diff = 0;
         return diff;
       }
+
+      else if (this.type === 'activity') {
+        const matchedActivities = [];
+
+        const createdDate = new Date(this.createdDate);
+        const now = new Date();
+
+        const isMatchingActivity = (activity) => {
+          return Array.isArray(activity.activityType) &&
+            activity.activityType.some(type => type.name === this.progressLabel);
+        };
+
+        const collectMatchingActivities = () => {
+          for (const exercise of this.localExercises) {
+            console.log("Running with localExercises:", this.localExercises);
+            if (!Array.isArray(exercise.activities)) continue;
+
+            for (const activity of exercise.activities) {
+              if (!isMatchingActivity(activity)) continue;
+
+              const type = activity.activityType.find(t => t.name === this.progressLabel);
+              const exerciseDate = new Date(exercise.date);
+              const durationSeconds = exercise.durationMs / 1000;
+
+              matchedActivities.push({
+                date: exerciseDate,
+                quantity: activity.quantity,
+                durationSeconds
+              });
+
+              console.log('Exercise found', type.name, type._id);
+              console.log('found match');
+              console.log('date', exerciseDate);
+              console.log('quantity', type.name, activity.quantity);
+              console.log('exercise time', durationSeconds);
+              console.log('createdDate', createdDate);
+
+              // Remaining or Under goal evaluation
+              if (this.remainingLabel === 'Remaining') {
+                if (activity.quantity >= this.target && createdDate < exerciseDate) {
+                  return this.target;
+                }
+              }
+
+              if (this.remainingLabel === 'Under') {
+                const targetTimeS = this.timeStringToSeconds(this.remaining.value);
+                if (
+                  activity.quantity >= this.target &&
+                  createdDate < exerciseDate &&
+                  durationSeconds < targetTimeS
+                ) {
+                  return this.target;
+                }
+              }
+            }
+          }
+        };
+
+        const handleLeftComparison = () => {
+          const filterByTime = (activities) => {
+            const hoursIn = {
+              Day: 24,
+              Week: 168,
+              Month: 720,
+            }[this.time] || 168;
+
+            return activities.filter(({ date }) => {
+              const diffHours = (now - date) / (1000 * 60 * 60);
+              return diffHours <= hoursIn;
+            });
+          };
+
+          const filtered = filterByTime(matchedActivities);
+          console.log(`Filtered activities for ${this.time || 'Week'}:`, filtered.length);
+
+          return filtered.length >= this.target ? this.target : filtered.length;
+        };
+
+        // Execute
+        const earlyReturn = collectMatchingActivities();
+        if (earlyReturn !== undefined) return earlyReturn;
+
+        if (this.remainingLabel === 'Left') {
+          console.log('Processing Left goal comparison with', matchedActivities.length, 'matched activities');
+          return handleLeftComparison();
+        }
+
+        // Default fallback
+        return 0;
+      }
+
+
+      // After collecting all matches, implement "Left" comparison
+
       return this.progress;
     },
 
@@ -169,9 +277,10 @@ export default {
     },
 
 
+
     progressPercentage() {
-      console.log('target display', this.targetDisplay)
-      console.log('target', this.target)
+      // console.log('target display', this.targetDisplay)
+      // console.log('target', this.target)
 
       // Round it only now. This means the progress can show if you are over but the bars colours are correct.
       return Math.min(100, (this.dynamicProgress / this.smartRemaining) * 100);
@@ -184,14 +293,14 @@ export default {
     isWeightGoal() {
       return (this.progressLabel == 'Gain Weight' || this.progressLabel == 'Lose Weight')
     },
-    
+
     isComplete() {
       const isTargetMet = this.smartRemaining <= this.dynamicProgress;
-      
+
       if (this.progressLabel === 'Less Calories') {
         return !isTargetMet;
       }
-      
+
       return isTargetMet;
     },
 
@@ -204,15 +313,16 @@ export default {
     remaining() {
       let returnVal = this.smartRemaining - this.dynamicProgress
       if ((this.type == 'diet') && (this.progressLabel == 'Gain Weight' || this.progressLabel == 'Lose Weight')) {
-        returnVal = Math.round(returnVal * 10) /10
+        returnVal = Math.round(returnVal * 10) / 10
         returnVal = Math.max(0, returnVal)
       } else if ((this.type == 'activity') && (this.remainingLabel == 'Under')) {
         returnVal = this.time
-      } 
+      }
       return {
         label: this.remainingLabel,
         value: returnVal
-    }},
+      }
+    },
 
     parsedDate() {
       const parsed = new Date(this.date);
@@ -233,7 +343,24 @@ export default {
       if (value >= 1_000) return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
       return value.toString();
     },
+    timeStringToSeconds(timeStr) {
+      const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+      return (hours * 3600) + (minutes * 60) + seconds;
+    },
   },
+  watch: {
+    // watcher required to stop loading glitches. Sometimes it won't be there on load
+    exercises: {
+      handler(newVal) {
+        if (this.type === 'activity' && Array.isArray(newVal) && newVal.length > 0) {
+          this.localExercises = [...newVal]; // make a safe copy
+        }
+      },
+      immediate: true, // ensures it runs on component mount too
+      deep: true 
+    }
+  }
+
 }
 
 </script>
