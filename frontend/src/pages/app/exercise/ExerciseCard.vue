@@ -1,9 +1,8 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 mb-4">
+  <div class="card bg-base-200 rounded-box p-4 mb-4 hover:bg-base-200/60 cursor-pointer" @click="goToEditPage">
     <button @click="handleDelete" class="absolute right-4 btn btn-sm btn-neutral">
       <i class="fa-solid fa-xmark text-base-100"></i>
     </button>
-    <div class="cursor-pointer hover:bg-base-200/60" @click="goToEditPage">
       <!-- Title, Edit & Delete -->
       <div class="flex justify-between items-center w-full mb-1">
         <div class="flex items-center gap-2">
@@ -52,7 +51,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
