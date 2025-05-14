@@ -797,7 +797,7 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
 });
 
 
-// CREATES NEW !GROUP! GOAL
+// CREATES NEW !GROUP! GOAL / publish group goal
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
@@ -805,7 +805,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom, time, createdDate } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id;
 
@@ -847,7 +847,9 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
             newGoal.remainingLabel = remainingLabel;
         }
-
+        if (type == 'activity') {
+            newGoal.time = time
+        }
         group.goals.push(newGoal);
         await group.save();
 
@@ -966,8 +968,8 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // ADD NEW GOAL
 app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group } = req.body;
-
+        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time } = req.body;
+        console.log(time)
         // Validate input
         if (
             typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
@@ -986,9 +988,10 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        const createdDate = new Date().toISOString(); // to track against activities
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group };
+        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time, createdDate };
         user.goals.push(newGoal);
         await user.save();
 
@@ -1083,6 +1086,8 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
             copiedGoal.trackFrom = user.weight;
             console.log(user.weight)
         }
+        copiedGoal.createdDate = new Date().toISOString(); // e.g., "2025-05-13T12:17:44.104Z"
+
 
         delete copiedGoal.description;
         delete copiedGoal._id; // Let MongoDB assign a new _id
@@ -1536,7 +1541,7 @@ app.get('/activities', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ activities: user.activities });
+        res.json({ activities: user.activityTypes });
     } catch (err) {
         res.status(500).json({ message: 'Error fetching activities', error: err });
     }

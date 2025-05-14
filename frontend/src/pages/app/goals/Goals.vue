@@ -35,10 +35,14 @@
                   :unit="goal.unit"
                   :type="goal.type"
                   :date="goal.date"
+                  :time="goal.time"
                   :colour="slide.colour"
+                  :createdDate="goal.createdDate"
+
                   :maintainanceKcal="this.kcalIntake"
                   :lastDayKcal="this.lastDayKcal"
                   :currentWeight="this.weight"
+                  :exercises="this.exercises"
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
@@ -50,7 +54,7 @@
           </div>
         </div>
         <div class="mt-10 mb-40 flex flex-wrap justify-center">
-          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group" />
+          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
         </div>
       </div>
     </swiper-slide>
@@ -65,12 +69,24 @@
     :group="showTypeSelect"
     @cancel="showTypeSelect = false"
     @custom="createNewGoal"
-    @diet="createNewGoal" />
+    @diet="createNewGoal"
+    @activity="createNewGoal" />
 
   <DietGoalSelect v-if="showDietGoalSelect" 
   @cancel="handleCancelDiet"
   @confirm="handleDietConfigComplete"
   :goal="tempGoal"/>
+
+  <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null"
+  :goal="tempGoal"
+  :group="showActivityGoalSelect"
+  @cancel="handleCancelActivity"
+  @confirm="handleActivityTypeChosen"/>
+
+  <ActivityGoalRefine v-if="showActivityGoalRefine"
+  :goal="showActivityGoalRefine"
+  @cancel="handleCancelActivityRefine"
+  @confirm="handleActivityConfigComplete"/>
 
   <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
     @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
@@ -161,7 +177,7 @@ import GoalGroupAlert from './GoalGroupAlert.vue';
 import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
 import GoalTypeSelect from './GoalTypeSelect.vue';
-
+import ActivityGoalRefine from './ActivityGoalRefine.vue';
 
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -169,6 +185,7 @@ import { Pagination, Keyboard } from 'swiper/modules';
 import 'swiper/css/pagination';
 import 'swiper/css';
 import DietGoalSelect from './DietGoalSelect.vue';
+import ActivityGoalSelect from './ActivityGoalSelect.vue';
 
 export default {
   name: 'Goals',
@@ -183,6 +200,8 @@ export default {
     GoalDescriptionAlert,
     GoalTypeSelect,
     DietGoalSelect,
+    ActivityGoalSelect,
+    ActivityGoalRefine,
     PageHeader
   },
   setup() {
@@ -193,6 +212,7 @@ export default {
   data() {
     return {
       user: null,
+      exercises: null,
       goals: [],
       groups: [],
       editingGoal: null,
@@ -205,6 +225,8 @@ export default {
       goalDescription: false,
       showTypeSelect: false,
       showDietGoalSelect: false,
+      showActivityGoalSelect: false,
+      showActivityGoalRefine: false,
       tempGoal: null,
       tempGroupId: null,
       kcalIntake: 0,
@@ -291,26 +313,59 @@ export default {
 
     // GET DAILY MAINTAINANCE KCAL
     try {
-        const res = await axios.get('/kcal-intake')
-        this.kcalIntake = res.data;
-        // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
-      } catch (err) {
-        console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
-      }
-      // GET DAILY MAINTAINANCE KCAL
+      const res = await axios.get('/kcal-intake')
+      this.kcalIntake = res.data;
+      // console.log('Kcal Intake Reccommendation:', this.kcalIntake)
+    } catch (err) {
+      console.error('Error fetching kcal intake / maintainanceKcal:', err.response?.data)
+    }
+    // GET DAILY MAINTAINANCE KCAL
     try {
-        const res = await axios.get('/today-calories')
-        this.lastDayKcal = res.data;
-        // console.log('Kcal Intake last day:', this.lastDayKcal)
-      } catch (err) {
-        console.error('Error last day kcal:', err.response?.data)
-      }
+      const res = await axios.get('/today-calories')
+      this.lastDayKcal = res.data;
+      // console.log('Kcal Intake last day:', this.lastDayKcal)
+    } catch (err) {
+      console.error('Error last day kcal:', err.response?.data)
+    }
+    this.fetchExercises()
+    
+      
+    
+
 
 
     
 
   },
   methods: {
+    // EXERCISE FETCH STUFF
+    async fetchExercises() {
+      try {
+        const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
+        this.exercises = res?.data?.exercises.map(workout => ({
+          ...workout,
+          isMultiActivity: workout.activities.length > 1,
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
+        })) || [];
+        console.log(this.exercises)
+      } catch (err) {
+        console.error('Failed to fetch exercises:', err);
+      }
+    },
+        formatTime(ms) {
+      if (!ms || typeof ms !== 'number') return '00:00.00';
+      const minutes = Math.floor(ms / 60000);
+      const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+      return `${String(minutes).padStart(2, '0')}:${seconds}`;
+    },
+    
+
+    // OG STUFF
     toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
       return str.replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     },
@@ -322,10 +377,19 @@ export default {
     },
     handleDietConfigComplete(configuredGoal) {
       this.showDietGoalSelect = false
-      console.log(configuredGoal)
+      // console.log(configuredGoal)
       // TODO: REVERT BACK TO THE LINE BELOW IF IT BREAKS LATER
       // this.openEditor(configuredGoal, true, this.tempGroupId);
       this.openEditor(configuredGoal, true, configuredGoal.group);
+    },
+    handleActivityConfigComplete(configuredGoal){
+      this.showActivityGoalRefine= false
+      this.openEditor(configuredGoal, true, configuredGoal.group)
+    },
+    handleActivityTypeChosen(configuredGoal) {
+      this.showActivityGoalSelect = false
+      this.showActivityGoalRefine = configuredGoal
+      console.log(configuredGoal)
     },
 
     openEditor(goal, isNew = false, groupId = null) {
@@ -411,9 +475,22 @@ export default {
 
     },
     handleCancelDiet(group) {
+      console.log('cancel diet group' , group)
       this.showDietGoalSelect = false;
       this.showTypeSelect = group;
       
+    },
+    handleCancelActivity(group) {
+      this.showActivityGoalSelect = false;
+      console.log('group', group)
+      this.showTypeSelect = group;
+
+    },
+    handleCancelActivityRefine(group) {
+      console.log('cancelling refine')
+      this.showActivityGoalRefine = false
+      this.showActivityGoalSelect = group
+      // console.log(tempGroupId)
     },
 
     cancelDescription() {
@@ -496,12 +573,14 @@ export default {
     
     // GOAL CREATION
     createNewGoal(groupId = null, goalType = 'custom') {
+      console.log('group ID:' , groupId)
       console.log(groupId, goalType)
       this.showTypeSelect = false
       const newGoal = {
         target: 10,
         progress: 0,
         trackFrom: null,
+        time: null,
         progressLabel: 'Progress',
         remainingLabel: 'Remaining',
         unit: 'units',
@@ -517,8 +596,10 @@ export default {
           this.tempGoal = { ...newGoal };
           this.tempGroupId = groupId;
           this.showDietGoalSelect = true;
-      } else if (goalType == 'exercise') { 
-         this.openEditor(newGoal, true, groupId); 
+      } else if (goalType == 'activity') { 
+          this.tempGoal = {...newGoal};
+          this.tempGroupId = groupId;
+          this.showActivityGoalSelect = true;
       } 
       
     }

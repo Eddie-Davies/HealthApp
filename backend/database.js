@@ -60,7 +60,9 @@ const GoalSchema = new mongoose.Schema({
     unit: String,
     trackFrom: {type: Number, default: null},
     type: String,
+    time: String,
     date: { type: Date, default: Date.now },
+    createdDate: { type: Date, default: Date.now},
     group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
 });
@@ -102,6 +104,7 @@ const GroupGoalSchema = new mongoose.Schema({
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
     type: String,
+    time: String,
     date: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 })

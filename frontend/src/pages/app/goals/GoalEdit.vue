@@ -1,6 +1,74 @@
 <template>
+  <!-- ACTIVITY EDIT -->
+  <div v-if="goal.type == 'activity'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+    @click.self="$emit('cancel')">
+
+    <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
+
+      <div class="text-lg font-semibold mb-4 text-center">{{ this.activityConfig.title }}</div>
+      <!-- Describe target differently for consistency based goals -->
+      <label v-if="this.activityConfig.focus == 'Consistency' " class="text-left block text-sm mb-2">{{
+        this.activityConfig.activity }} Count </label>
+      <label v-else class="text-left block text-sm mb-2">Amount to {{ this.activityConfig.activity }} ({{
+        this.activityConfig.unit }})</label>
+
+      <!-- Always show target -->
+      <input v-model.number="editableGoal.target" :placeholder="goal.target" type="number"
+        class="input input-bordered w-full mb-2" />
+
+      <!-- If Speed goal, show time limit oriented input box -->
+      <div v-if="activityConfig.focus === 'Speed'">
+        <label class="text-left  block text-sm mb-2">Time Limit (hh/mm/ss)</label>
+        <input v-model="editableGoal.time" :placeholder="goal.time" type="time" step="1"
+          class="input input-bordered w-full mb-2" />
+      </div>
+
+      <!-- CONSISTENCY: SELECT TIME PERIOD INSTEAD -->
+      <div v-else-if="activityConfig.focus === 'Consistency'">
+        <label class="text-left block text-sm mb-2">Per</label>
+        <select v-model="editableGoal.time" class="select select-bordered w-full mb-2">
+          <option disabled value="">Select a time period</option>
+          <option value="Day">Day</option>
+          <option value="Week">Week</option>
+          <option value="Month">Month</option>
+          <option value="Year">Year</option>
+        </select>
+      </div>
+
+
+      <!-- Date -->
+      <label class="text-left block text-sm mb-2">Override Deadline:</label>
+      <input v-model="editableGoal.date" type="date" class="input input-bordered w-full">
+      <div class="flex-col items-center justify-center text-center p-5 rounded-3xl bg-base-100 mt-5 mb-20">
+        <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+        <div v-else class="text-sm">Deadline currently set to:</div>
+        <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+      </div>
+
+
+
+      <!-- Action Buttons -->
+      <div class="space-y-3 mt-4">
+        <!-- Row with Back and Confirm -->
+        <div class="flex space-x-3">
+          <button @click="$emit('cancel')" class="btn flex-1 btn-error">
+            Quit
+          </button>
+          <button :disabled="!isFormValid" class="btn flex-2 btn-success"
+            @click="$emit('save', editableGoal)">Confirm</button>
+        </div>
+
+        <!-- Delete button on its own row -->
+        <button v-if="!isNew" class="btn btn-error btn-soft w-full"
+          @click="$emit('confirm-delete', editableGoal)">Delete</button>
+      </div>
+
+    </div>
+  </div>
+
+
   <!-- DIET EDIT -->
-  <div v-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+  <div v-else-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
     @click.self="$emit('cancel')">
 
     <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
@@ -193,6 +261,24 @@ import axios from 'axios';
       };
       
     },
+    methods: {
+      // detect if time input field is valid
+      isValidTime(time) {
+        if (!time || typeof time !== 'string') return false;
+
+        // format must be hh mm ss
+        const parts = time.split(':');
+        if (parts.length !== 3) return false;
+
+        const [hours, minutes, seconds] = parts.map(Number);
+
+        
+        if ([hours, minutes, seconds].some(isNaN)) return false;
+
+        // check if bigger than 0
+        return hours > 0 || minutes > 0 || seconds > 0;
+      }
+    },
 
     // Disable scrolling, and leave room for it to stop page jittering.
     async mounted() {
@@ -269,10 +355,48 @@ sliderDisplay: {
         }
         
       },
-    weightLoss() {
-    return this.weight - this.targetWeight;
-  },
+      weightLoss() {
+        return this.weight - this.targetWeight;
+      },
 
+      activityConfig() {
+        const labelMap = {
+          Remaining: 'Standard',
+          Under: 'Speed',
+          Left: 'Consistency'
+        };
+
+        const activity = this.editableGoal.progressLabel;
+        const unit = this.editableGoal.unit;
+        const focus = labelMap[this.editableGoal.remainingLabel];
+
+        let config = {
+          activity: activity,
+          unit: unit,
+          focus: focus
+        };
+
+        if (focus === 'Standard') {
+          config.title = `${activity} a set amount of ${unit}`;
+        } else if (focus === 'Speed') {
+          config.title = `${activity} a set amount of ${unit} under a set time`;
+          if (this.isNew) {
+            this.editableGoal.time = "01:02:34"
+           }
+          
+          console.log('editableGoal', this.editableGoal)
+        } else if (focus === 'Consistency') {
+          config.title = `${activity} regularly (per day/week/month/etc)`;
+          if (this.isNew) {
+            this.editableGoal.time = ""
+            this.editableGoal.unit = "times" // ie. How many 'times' this week/day
+            this.editableGoal.trackFrom = 50 // todo: replace with current activity count
+          }
+
+        }
+
+        return config;
+      },
 
       dietConfig() {
         const dietGoalChoice = this.editableGoal.progressLabel;
@@ -367,7 +491,16 @@ sliderDisplay: {
                 return false;
             }
           }
-
+          if (this.editableGoal.type == 'activity') {
+            switch (this.activityConfig.focus) {
+              case 'Consistency':
+                return this.editableGoal.time != '' && this.editableGoal.target > 0;
+              case 'Speed':
+                return this.editableGoal.target > 0 && this.isValidTime(this.editableGoal.time);
+              case 'Standard':
+                return this.editableGoal.target > 0
+            }
+          }
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
           const isInt = val => Number.isInteger(val);
           // console.log(this.isWeightGoal)
