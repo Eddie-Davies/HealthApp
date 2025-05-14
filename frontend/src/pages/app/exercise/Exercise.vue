@@ -2,32 +2,47 @@
   <PageHeader :title="$route.meta.title" />
   <div class="mt-20 px-4 pb-32 flex flex-col items-center">
     <!-- Start Exercise -->
-    <div>
+    <div class="w-full max-w-md">
       <ExerciseNew @start="startExercise" />
       <!-- Exercise Summary -->
-      <div class="mt-10 flex justify-between items-center w-full max-w-md">
-        <h2 class="text-2xl font-semibold">Previous Exercise</h2>
+      <div class="mt-10">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold">Previous Exercise</h2>
+          <p class="text-right text-base-content/50 cursor-default">Tap on an exercise to edit.</p>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+          <input v-model="searchQuery" type="text" placeholder="Search exercises..." class="input input-bordered w-full max-w-xs" />
+          <div class="relative ml-4">
+            <div class="dropdown dropdown-bottom dropdown-end">
+              <div tabindex="0" role="button" class="m-1 p-4 btn cursor-pointer rounded-full"><i class="fa-solid fa-filter text-xl"></i></div>
+              <ul tabindex="0" class="dropdown-content menu bg-base-200 border-secondary border-2 rounded-box z-1 w-52 p-2 shadow-sm">
+                <li><a @click="sortOption = 'date_desc'; showDropdown = false">Date (Newest First)</a></li>
+                <li><a @click="sortOption = 'date_asc'; showDropdown = false">Date (Oldest First)</a></li>
+                <li><a @click="sortOption = 'unit_desc'; showDropdown = false">Units (Most)</a></li>
+                <li><a @click="sortOption = 'unit_asc'; showDropdown = false">Units (Least)</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
     <!-- Workout in progress -->
     <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
-    <div class="mt-10 w-full max-w-md">
-      <div>
 
-        <!-- Only show limited exercises or all based on showAll toggle -->
-        <ExerciseCard v-for="(exercise, index) in displayedExercises" :key="index" :exerciseName="exercise.exerciseName"
+    <div class="w-full max-w-md">
+      <div class="mt-3 grid grid-cols-1 gap-4">
+        <ExerciseCard v-for="(exercise, index) in filteredAndSortedExercises" :key="index" :exerciseName="exercise.exerciseName"
           :activity="exercise.activity" :value="exercise.value" :time="exercise.time"
           :activitiesDetails="exercise.activitiesDetails || []" :isMultiActivity="Boolean(exercise.isMultiActivity)"
-          :createdAt="exercise.date" :exerciseId="exercise._id"
-          @delete="deleteExercise(index)"
-          />
+          :createdAt="exercise.date" :exerciseId="exercise._id" @delete="deleteExercise(index)" />
+      </div>
 
-          <!-- Show more/less button -->
-          <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
-            <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
-              {{ showAll ? 'Show Recent' : 'Show All' }}
-            </button>
-          </div>
+      <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
+        <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
+          {{ showAll ? 'Show Recent' : 'Show All' }}
+        </button>
       </div>
     </div>
   </div>
@@ -46,46 +61,48 @@ export default {
     return {
       showTrack: false,
       showAll: false,
-      exercises: []
+      exercises: [],
+      sortOption: 'date_desc',
+      searchQuery: ''
     };
   },
   computed: {
-    displayedExercises() {
-      if (this.showAll || this.exercises.length <= 5) {
-        return this.exercises;
-      } else {
-        // Show only the first 5 (most recent) exercises
-        return this.exercises.slice(0, 5);
+    filteredAndSortedExercises() {
+      let exercises = [...this.exercises];
+
+      if (this.searchQuery.trim()) {
+        const query = this.searchQuery.toLowerCase();
+        exercises = exercises.filter(exercise => exercise.exerciseName.toLowerCase().includes(query));
       }
+
+      switch (this.sortOption) {
+        case 'date_asc':
+          exercises.sort((a, b) => new Date(a.date) - new Date(b.date));
+          break;
+        case 'date_desc':
+          exercises.sort((a, b) => new Date(b.date) - new Date(a.date));
+          break;
+        case 'unit_asc':
+          exercises.sort((a, b) => this.totalUnits(a) - this.totalUnits(b));
+          break;
+        case 'unit_desc':
+          exercises.sort((a, b) => this.totalUnits(b) - this.totalUnits(a));
+          break;
+      }
+
+      return exercises;
     }
   },
   created() {
     this.fetchExercises();
   },
   methods: {
-    formatTime(ms) {
-      if (!ms || typeof ms !== 'number') return '00:00.00';
-      const minutes = Math.floor(ms / 60000);
-      const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
-      return `${String(minutes).padStart(2, '0')}:${seconds}`;
     },
     async fetchExercises() {
       try {
         const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
         this.exercises = res?.data?.exercises.map(workout => ({
-          ...workout,
-          isMultiActivity: workout.activities.length > 1,
-          time: this.formatTime(workout.durationMs),
-          activitiesDetails: workout.activities.map(act => ({
-            activity: act.activityType[0]?.name || 'Unknown',
-            unit: act.activityType[0]?.unit || '',
-            integer: act.quantity
-          }))
-        })) || [];
-      } catch (err) {
-        console.error('Failed to fetch exercises:', err);
-      }
-    },
+    
     startExercise() {
       this.$router.push('/home/exercise/new');
     },
@@ -112,6 +129,33 @@ export default {
       } catch (err) {
         console.error('Failed to delete exercise:', err);
       }
+    },
+
+    totalUnits(exercise) {
+      return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
+    },
+    async fetchExercises() {
+      try {
+        const res = await axios.get('/exercises', { withCredentials: true });
+        this.exercises = res?.data?.exercises.map(workout => ({
+          ...workout,
+          isMultiActivity: workout.activities.length > 1,
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
+        })) || [];
+      } catch (err) {
+        console.error('Failed to fetch exercises:', err);
+      }
+    },
+    formatTime(ms) {
+      if (!ms || typeof ms !== 'number') return '00:00.00';
+      const minutes = Math.floor(ms / 60000);
+      const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+      return `${String(minutes).padStart(2, '0')}:${seconds}`;
     }
   }
 };
