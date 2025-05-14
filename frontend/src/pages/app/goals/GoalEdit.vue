@@ -494,9 +494,11 @@ sliderDisplay: {
           if (this.editableGoal.type == 'activity') {
             switch (this.activityConfig.focus) {
               case 'Consistency':
-                return this.editableGoal.time != '';
+                return this.editableGoal.time != '' && this.editableGoal.target > 0;
               case 'Speed':
-                return this.isValidTime(this.editableGoal.time);
+                return this.editableGoal.target > 0 && this.isValidTime(this.editableGoal.time);
+              case 'Standard':
+                return this.editableGoal.target > 0
             }
           }
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
