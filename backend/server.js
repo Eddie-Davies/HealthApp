@@ -1460,6 +1460,11 @@ app.post('/exercises', authenticateToken, async (req, res) => {
         if (!activities) {
             return res.status(400).json({ message: 'Activities are required' });
         }
+        for (const activity of activities) {
+            if (typeof activity.quantity !== 'number' || isNaN(activity.quantity)) {
+                return res.status(400).json({ message: 'Quantity must be a number' });
+            }
+        }
 
         const newexercise = { exerciseName, activities, durationMs, date };
         user.exercises.push(newexercise);
@@ -1492,6 +1497,11 @@ app.put('/exercises/update/:id', authenticateToken, async (req, res) => {
         }
         if (updatedExercise.exerciseName.length < 1 || updatedExercise.exerciseName.length > 30) {
             return res.status(400).json({ message: 'Exercise name must be between 1 and 30 characters long.' });
+        }
+        for (const activity of activities) {
+            if (typeof activity.quantity !== 'number' || isNaN(activity.quantity)) {
+                return res.status(400).json({ message: 'Quantity must be a number' });
+            }
         }
 
         // Find the exercise in the user's exercises by id
@@ -1555,7 +1565,7 @@ app.post('/activity', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: 'activityType required' });
     }
     if (typeof quantity !== 'number' || quantity < 0) {
-        return res.status(400).json({ message: 'quantity must be a number' });
+        return res.status(400).json({ message: 'Quantity must be a number' });
     }
     try {
         const user = await UserModel.findOne({ email: req.user.email });
