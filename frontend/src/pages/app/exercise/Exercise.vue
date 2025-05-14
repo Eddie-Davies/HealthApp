@@ -89,7 +89,6 @@ export default {
           exercises.sort((a, b) => this.totalUnits(b) - this.totalUnits(a));
           break;
       }
-
       return exercises;
     }
   },
@@ -97,43 +96,6 @@ export default {
     this.fetchExercises();
   },
   methods: {
-    },
-    async fetchExercises() {
-      try {
-        const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
-        this.exercises = res?.data?.exercises.map(workout => ({
-    
-    startExercise() {
-      this.$router.push('/home/exercise/new');
-    },
-    handleWorkoutFinished(workout) {
-      if (workout) {
-        this.exercises.unshift({
-          ...workout,
-          isMultiActivity: workout.activities.length > 1,
-          time: this.formatTime(workout.durationMs),
-          activitiesDetails: workout.activities.map(act => ({
-            activity: act.activityType[0]?.name || 'Unknown',
-            unit: act.activityType[0]?.unit || '',
-            integer: act.quantity
-          }))
-        });
-      }
-      this.showTrack = false;
-    },
-    async deleteExercise(index) {
-      const idToDelete = this.exercises[index]._id;
-      try {
-        await axios.delete(`/exercises/${idToDelete}`, { withCredentials: true });
-        this.exercises.splice(index, 1);
-      } catch (err) {
-        console.error('Failed to delete exercise:', err);
-      }
-    },
-
-    totalUnits(exercise) {
-      return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
-    },
     async fetchExercises() {
       try {
         const res = await axios.get('/exercises', { withCredentials: true });
@@ -151,6 +113,41 @@ export default {
         console.error('Failed to fetch exercises:', err);
       }
     },
+
+    startExercise() {
+      this.$router.push('/home/exercise/new');
+    },
+
+    handleWorkoutFinished(workout) {
+      if (workout) {
+        this.exercises.unshift({
+          ...workout,
+          isMultiActivity: workout.activities.length > 1,
+          time: this.formatTime(workout.durationMs),
+          activitiesDetails: workout.activities.map(act => ({
+            activity: act.activityType[0]?.name || 'Unknown',
+            unit: act.activityType[0]?.unit || '',
+            integer: act.quantity
+          }))
+        });
+      }
+      this.showTrack = false;
+    },
+
+    async deleteExercise(index) {
+      const idToDelete = this.exercises[index]._id;
+      try {
+        await axios.delete(`/exercises/${idToDelete}`, { withCredentials: true });
+        this.exercises.splice(index, 1);
+      } catch (err) {
+        console.error('Failed to delete exercise:', err);
+      }
+    },
+
+    totalUnits(exercise) {
+      return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
+    },
+
     formatTime(ms) {
       if (!ms || typeof ms !== 'number') return '00:00.00';
       const minutes = Math.floor(ms / 60000);
@@ -160,3 +157,4 @@ export default {
   }
 };
 </script>
+
