@@ -20,7 +20,7 @@
             <!-- Top Centered Card -->
             <ProfileCard title="Current Weight" :displayNumber="weight" :secondaryNumber="targetWeight" unit="kg" />
             <!-- Two Side-by-Side Cards -->
-            <ProfileCard title="Daily Calorie Intake Goal" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
+            <ProfileCard title="Maintenance Calories" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
             <div class="grid grid-cols-2 gap-6">
                 <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
                 <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
