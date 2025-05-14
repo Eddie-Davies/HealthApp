@@ -261,6 +261,24 @@ import axios from 'axios';
       };
       
     },
+    methods: {
+      // detect if time input field is valid
+      isValidTime(time) {
+        if (!time || typeof time !== 'string') return false;
+
+        // format must be hh mm ss
+        const parts = time.split(':');
+        if (parts.length !== 3) return false;
+
+        const [hours, minutes, seconds] = parts.map(Number);
+
+        
+        if ([hours, minutes, seconds].some(isNaN)) return false;
+
+        // check if bigger than 0
+        return hours > 0 || minutes > 0 || seconds > 0;
+      }
+    },
 
     // Disable scrolling, and leave room for it to stop page jittering.
     async mounted() {
@@ -471,6 +489,14 @@ sliderDisplay: {
 
               default:
                 return false;
+            }
+          }
+          if (this.editableGoal.type == 'activity') {
+            switch (this.activityConfig.focus) {
+              case 'Consistency':
+                return this.editableGoal.time != '';
+              case 'Speed':
+                return this.isValidTime(this.editableGoal.time);
             }
           }
             // form checks: progress must be lower or same as target; both numbers must be more than zero and integers; 
