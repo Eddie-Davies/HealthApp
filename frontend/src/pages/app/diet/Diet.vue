@@ -2,6 +2,7 @@
   <PageHeader :title="$route.meta.title" />
   <div v-if="isLoaded" class="mt-20 px-4 pb-16 flex flex-col items-center">
     <NewMeal />
+    <!-- Container for meal history with responsive width -->
     <div class="mt-10 w-full max-w-md mb-20">
       <div v-if="meals.length > 0">
 
@@ -12,13 +13,17 @@
             <p class="text text-right text-base-content/50 cursor-default">Tap on a meal to edit.</p>
           </div>
 
+          <!-- Search and filter controls -->
           <div class="flex justify-between items-center mb-4">
             <input v-model="searchQuery" type="text" placeholder="Search meals..."
               class="input input-bordered w-full max-w-xs" />
+
+              <!-- Filter dropdown for sorting options -->
             <div class="relative ml-4">
               <div class="dropdown dropdown-bottom dropdown-end">
                 <div tabindex="0" role="button" class="m-1 p-4 btn cursor-pointer rounded-full "><i
                     class="fa-solid fa-filter text-xl"></i></div>
+                    <!-- Dropdown menu with sorting options -->
                 <ul tabindex="0"
                   class="dropdown-content menu bg-base-200 border-secondary border-2 rounded-box z-1 w-52 p-2 shadow-sm">
                   <li>
@@ -42,6 +47,7 @@
           :food="meal.foods.filter(f => !f.isDrink)" :drinks="meal.foods.filter(f => f.isDrink)" :date="meal.date"
           :id="meal._id" />
       </div>
+      <!-- Empty state shown when no meals exist -->
       <div v-else class="tooltip flex justify-center items-center" data-tip="Click the button above :)">
         <button class="btn">Log some new meals to start tracking!</button>
       </div>
@@ -100,6 +106,7 @@ export default {
     }
   },
   methods: {
+    // Fetch meals from the API
     async fetchMeals() {
       try {
         const token = localStorage.getItem('token');
@@ -108,11 +115,13 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
+        // Store meals in component data
         this.meals = res.data.meals;
       } catch (err) {
         console.error('Error fetching meals:', err);
       }
     },
+     // Calculate total calories for a meal (used for sorting)
     totalCalories(meal) {
       return meal.foods.reduce((sum, item) => sum + (item.calories || 0), 0);
     }
