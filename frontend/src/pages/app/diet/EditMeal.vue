@@ -55,7 +55,7 @@
 </div>
 
 
-    <div class="mt-10 flex w-full space-x-3">
+    <div class="mt-10 flex w-full space-x-3 mb-20">
   <button class="btn btn-error flex-1" @click="cancelEdit">Cancel</button>
   <button class="btn btn-success flex-2" @click="saveMeal">Save Meal</button>
 </div>
