@@ -1,3 +1,4 @@
+// import dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -14,6 +15,8 @@ const SECRET_KEY = process.env.JWT_SECRET || "default_secret";
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
 const EMAIL_PASSWORD = process.env.EMAIL_NODEMAILER_PASSWORD
 
+
+// set up nodemailer transporter
 const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
@@ -28,6 +31,7 @@ const transporter = nodemailer.createTransport({
 const app = express();
 const port = 8000;
 
+// set up ip for mobile testing
 const envIP = process.env.VITE_IP;
 const allowedOrigin = envIP ? `http://${envIP}:3000` : null;
 const corsOptions = {
@@ -41,8 +45,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+
+//generate a 6 digit recovery code used for password and username recovery
 function generateCode() {
-    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit recovery code
+    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
     return recoveryCode;
 }
 
@@ -59,6 +65,8 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+// password and username recovery ----
 
 app.post('/forgotPassword', async (req, res) => {
     try {
@@ -194,18 +202,18 @@ app.post('/newUsername', async (req, res) => {
             return res.status(401).json({ message: 'Invalid recovery code' });
         }
 
-        // Check for existing username
+        // check for existing username
         const existing = await UserModel.findOne({ username: reqNewUsername });
         if (existing) {
             return res.status(409).json({ message: 'Username already in use' });
         }
 
-        // Update username and clear recovery code
+        // update username and clear recovery code
         user.username = reqNewUsername;
         user.recoveryCode = null;
         await user.save();
 
-        console.log('Username and recovery code updated successfully.');
+        // console.log('Username and recovery code updated successfully.');
         res.status(200).json({ message: 'Username updated successfully' });
 
     } catch (error) {
@@ -214,6 +222,9 @@ app.post('/newUsername', async (req, res) => {
     }
 });
 
+// ----
+
+// email and username change ----
 
 app.post('/user/request-email-verification', authenticateToken, async (req, res) => {
     const { newEmail } = req.body;
@@ -318,6 +329,9 @@ app.post('/user/update-username', authenticateToken, async (req, res) => {
     }
 });
 
+// ----
+
+// get full user schema data by email ----
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
@@ -332,6 +346,10 @@ app.get('/user', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// ----
+
+// delete user account ----
 
 app.delete('/user/delete-account', authenticateToken, async (req, res) => {
     try {
@@ -357,6 +375,9 @@ app.delete('/user/delete-account', authenticateToken, async (req, res) => {
     }
 });
 
+// ----
+
+// signup (create user) and login ----
 
 app.post('/signup', async (req, res) => {
     try {
@@ -386,7 +407,7 @@ app.post('/signup', async (req, res) => {
             errors.push("Password must be at least 8 characters long and contain at least one number, one lowercase letter, and one uppercase letter.");
         }
 
-        // Return validation errors if any
+        // Rrturn validation errors if any
         if (errors.length > 0) {
             return res.status(400).json({ errors });
         }
@@ -394,7 +415,7 @@ app.post('/signup', async (req, res) => {
         // no need to set firstLogin to true as it is the default value in the schema.
 
         console.log(`Incoming request to /signup: Email: ${email}`);
-        // Check if email is already in database.
+        // check if email is already in database.
         const emailInDB = await UserModel.findOne({ email });
         if (emailInDB) {
             console.log('User already has an account! ');
@@ -407,7 +428,7 @@ app.post('/signup', async (req, res) => {
             return res.status(401).json({ message: `This Username (${username}) is already associated with an account.` });
         }
 
-        // Hash Password before storing
+        // hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
 
@@ -454,9 +475,14 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// ----
+
+// set initial user data on first login ----
+
 app.put('/users/firstLogin', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
+        // console.log(`Incoming request to /users/firstLogin: User ID: ${userId}`);
 
         const {
             date_of_birth,
@@ -468,6 +494,8 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         } = req.body;
 
         const errors = [];
+
+        // data valdiation
 
         if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
             errors.push("Invalid date of birth.");
@@ -513,6 +541,9 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
     }
 });
 
+// ----
+
+// get users groups and group control routes ----
 
 app.get('/groups', authenticateToken, async (req, res) => {
     try {
@@ -796,6 +827,9 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
     }
 });
 
+// ----
+
+// group goals control routes ----
 
 // CREATES NEW !GROUP! GOAL / publish group goal
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
@@ -930,6 +964,9 @@ app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
     }
 });
 
+// ----
+
+// get personal user goals and control routes ----
 
 // GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
@@ -1043,6 +1080,7 @@ app.put('/goals/update/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 //   ACCEPT GOAL: Copies GroupGoal to a users list of Goals
 app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
     try {
@@ -1120,6 +1158,9 @@ app.delete('/groups/:groupId/goal/:goalId', authenticateToken, async (req, res) 
     }
 });
 
+// ----
+
+// get user meals and control routes ----
 
 // GET ALL USER MEALS
 app.get('/meals', authenticateToken, async (req, res) => {
@@ -1213,8 +1254,6 @@ app.get('/today-calories', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
 
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
@@ -1400,6 +1439,10 @@ app.delete('/food/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Failed to delete food" });
     }
 });
+
+// ----
+
+// get user exercises and control routes ----
 
 // GET ALL USER EXERCISES
 app.get('/exercises', authenticateToken, async (req, res) => {
@@ -1616,20 +1659,7 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
     }
 });
 
-// returns gender
-app.get('/gender', authenticateToken, async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ email: req.user.email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ gender: user.gender }); // returns true or false
-    } catch (err) {
-        console.error('Error fetching gender:', err);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
+// ----
 
 // POST ACTIVITY TYPE
 app.post('/activityTypes', authenticateToken, async (req, res) => {
@@ -1721,6 +1751,24 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
     } catch (error) {
         console.error('❌ Error deleting activity instance:', error);
         return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// ----
+
+// additional user toures for profile page ----
+
+// returns gender
+app.get('/gender', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ gender: user.gender }); // returns true or false as gender stored as bool for health analysis reasons
+    } catch (err) {
+        console.error('Error fetching gender:', err);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -1837,6 +1885,9 @@ app.post('/weight', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Error updating weight', error: err });
     }
 });
+
+// ----
+
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;
