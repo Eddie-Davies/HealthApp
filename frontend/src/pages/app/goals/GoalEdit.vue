@@ -538,5 +538,19 @@ sliderDisplay: {
             console.log(this.editableGoal.target, this.kcalIntake)
           }
         }},
+        timeDescription() {
+          if (this.editableGoal.type !== 'activity') return '';
+
+          const focus = this.activityConfig.focus;
+          const time = this.editableGoal.time;
+
+          if (focus === 'Speed' && this.isValidTime(time)) {
+            return `Under ${time}`;
+          } else if (focus === 'Consistency' && time) {
+            return `Per: ${time}`;
+          }
+
+          return '';
+        },
   };
   </script>
