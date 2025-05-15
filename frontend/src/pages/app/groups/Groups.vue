@@ -7,6 +7,7 @@
         <button class="btn btn-neutral" @click="showModal = true">Create a Group</button>
       </div>
 
+      <!-- Group section -->
       <div class="mt-8 w-full max-w-md">
         <div v-if="groups.length > 0">
           <h2 class="text-xl font-semibold mb-4 ml-2">Your Groups</h2>
@@ -23,7 +24,6 @@
           <button class="btn">Create a new group to start tracking!</button>
         </div>
 
-        <!-- Group Invites Section -->
         <GroupInvites
           :invites="invites"
           @accept="acceptInvite"
@@ -66,10 +66,11 @@ export default {
     };
   },
   methods: {
+    // Method to accept a group invite
     async acceptInvite(groupId) {
     try {
-      await axios.post(`/groups/accept/${groupId}`);
-      this.invites = this.invites.filter(invite => invite._id !== groupId);
+      await axios.post(`/groups/accept/${groupId}`); 
+      this.invites = this.invites.filter(invite => invite._id !== groupId); // Remove accepted invite from invites array
       // Optionally refresh groups
       const res = await axios.get('/groupsPage');
       this.groups = res.data.groups;
