@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-300 rounded-box p-4 flex flex-col mb-4 relative">
+  <div class="card bg-base-200 rounded-box p-4 flex flex-col mb-4 relative">
     <!-- Delete button in top-right corner -->
     <button @click="deleteActivity" class="btn btn-sm btn-error btn-ghost rounded-2xl absolute top-2 right-2">
       Delete

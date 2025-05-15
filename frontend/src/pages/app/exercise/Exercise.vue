@@ -1,29 +1,38 @@
 <template>
   <PageHeader :title="$route.meta.title" />
-  <div class="mt-20 px-4 pb-32 flex flex-col items-center">
+  <div v-if="isLoaded" class="mt-20 px-4 pb-32 flex flex-col items-center">
     <!-- Start Exercise -->
     <div class="w-full max-w-md">
       <ExerciseNew @start="startExercise" />
       <!-- Exercise Summary -->
+      <!-- Exercise Summary -->
       <div class="mt-10">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-semibold">Previous Exercise</h2>
-          <p class="text-right text-base-content/50 cursor-default">Tap on an exercise to edit.</p>
-        </div>
+        <div v-if="exercises.length > 0">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Previous Exercise</h2>
+            <p class="text-right text-base-content/50 cursor-default">Tap on an exercise to edit.</p>
+          </div>
 
-        <div class="flex justify-between items-center mb-4">
-          <input v-model="searchQuery" type="text" placeholder="Search exercises..." class="input input-bordered w-full max-w-xs" />
-          <div class="relative ml-4">
-            <div class="dropdown dropdown-bottom dropdown-end">
-              <div tabindex="0" role="button" class="m-1 p-4 btn cursor-pointer rounded-full"><i class="fa-solid fa-filter text-xl"></i></div>
-              <ul tabindex="0" class="dropdown-content menu bg-base-200 border-secondary border-2 rounded-box z-1 w-52 p-2 shadow-sm">
-                <li><a @click="sortOption = 'date_desc'; showDropdown = false">Date (Newest First)</a></li>
-                <li><a @click="sortOption = 'date_asc'; showDropdown = false">Date (Oldest First)</a></li>
-                <li><a @click="sortOption = 'unit_desc'; showDropdown = false">Units (Most)</a></li>
-                <li><a @click="sortOption = 'unit_asc'; showDropdown = false">Units (Least)</a></li>
-              </ul>
+          <div class="flex justify-between items-center mb-1">
+            <input v-model="searchQuery" type="text" placeholder="Search exercises..."
+              class="input input-bordered w-full max-w-xs" />
+            <div class="relative ml-4">
+              <div class="dropdown dropdown-bottom dropdown-end">
+                <div tabindex="0" role="button" class="m-1 p-4 btn cursor-pointer rounded-full"><i
+                    class="fa-solid fa-filter text-xl"></i></div>
+                <ul tabindex="0"
+                  class="dropdown-content menu bg-base-200 border-secondary border-2 rounded-box z-1 w-52 p-2 shadow-sm">
+                  <li><a @click="sortOption = 'date_desc'; showDropdown = false">Date (Newest First)</a></li>
+                  <li><a @click="sortOption = 'date_asc'; showDropdown = false">Date (Oldest First)</a></li>
+                  <li><a @click="sortOption = 'unit_desc'; showDropdown = false">Units (Most)</a></li>
+                  <li><a @click="sortOption = 'unit_asc'; showDropdown = false">Units (Least)</a></li>
+                </ul>
+              </div>
             </div>
           </div>
+        </div>
+        <div v-else class="tooltip flex justify-center items-center" data-tip="Click the button above :)">
+          <button class="btn">Log some new exercises to start tracking!</button>
         </div>
       </div>
     </div>
@@ -33,16 +42,28 @@
 
     <div class="w-full max-w-md">
       <div class="mt-3 grid grid-cols-1 gap-4">
-        <ExerciseCard v-for="(exercise, index) in filteredAndSortedExercises" :key="index" :exerciseName="exercise.exerciseName"
-          :activity="exercise.activity" :value="exercise.value" :time="exercise.time"
-          :activitiesDetails="exercise.activitiesDetails || []" :isMultiActivity="Boolean(exercise.isMultiActivity)"
-          :createdAt="exercise.date" :exerciseId="exercise._id" @delete="deleteExercise(index)" />
+        <ExerciseCard v-for="(exercise, index) in filteredAndSortedExercises" :key="index"
+          :exerciseName="exercise.exerciseName" :activity="exercise.activity" :value="exercise.value"
+          :time="exercise.time" :activitiesDetails="exercise.activitiesDetails || []"
+          :isMultiActivity="Boolean(exercise.isMultiActivity)" :createdAt="exercise.date" :exerciseId="exercise._id"
+          @delete="deleteExercise(index)" />
       </div>
 
       <div v-if="!showTrack && exercises && exercises.length > 5" class="flex justify-center mt-6 mb-15">
         <button @click="showAll = !showAll" class="btn btn-outline btn-neutral">
           {{ showAll ? 'Show Recent' : 'Show All' }}
         </button>
+      </div>
+    </div>
+    <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
+      class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+      <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
+        <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
+        <p>Are you sure you want to delete this meal?</p>
+        <div class="flex justify-end mt-6">
+          <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
+          <button class="btn btn-error" @click="confirmDeleteExercise">Yes, Delete</button>
+        </div>
       </div>
     </div>
   </div>
@@ -63,7 +84,10 @@ export default {
       showAll: false,
       exercises: [],
       sortOption: 'date_desc',
-      searchQuery: ''
+      searchQuery: '',
+      isLoaded: false,
+      pendingDeleteIndex: null,
+      showDeleteModal: false
     };
   },
   computed: {
@@ -112,6 +136,7 @@ export default {
       } catch (err) {
         console.error('Failed to fetch exercises:', err);
       }
+      this.isLoaded = true;
     },
 
     startExercise() {
@@ -133,17 +158,23 @@ export default {
       }
       this.showTrack = false;
     },
-
     async deleteExercise(index) {
+      this.pendingDeleteIndex = index;
+      this.showDeleteModal = true;
+    },
+    async confirmDeleteExercise() {
+      const index = this.pendingDeleteIndex;
+      if (index === null) return;
       const idToDelete = this.exercises[index]._id;
       try {
         await axios.delete(`/exercises/${idToDelete}`, { withCredentials: true });
         this.exercises.splice(index, 1);
+        this.showDeleteModal = false;
+        this.pendingDeleteIndex = null;
       } catch (err) {
         console.error('Failed to delete exercise:', err);
       }
     },
-
     totalUnits(exercise) {
       return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
     },
@@ -157,4 +188,3 @@ export default {
   }
 };
 </script>
-

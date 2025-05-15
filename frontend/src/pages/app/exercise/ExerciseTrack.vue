@@ -1,55 +1,57 @@
 <template>
-  <div class="flex flex-col items-center w-full px-4 pb-32">
-    <div class="w-full max-w-md flex flex-col items-start mb-5">
-      <button class="btn btn-ghost " @click="goBack">
-        ← Back
-      </button>
-    </div>
+  <div v-if="isLoaded">
+    <div class="flex flex-col items-center w-full px-4 pb-32">
+      <div class="w-full max-w-md flex flex-col items-start mb-5">
+        <button class="btn btn-ghost " @click="goBack">
+          ← Back
+        </button>
+      </div>
 
-    <!-- Wrapper to constrain width and align children to left -->
-    <div class="w-full max-w-md flex flex-col items-start">
-      <textarea v-model="newTitle"
-        class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
-        placeholder="Afternoon Run" rows="1"></textarea>
+      <!-- Wrapper to constrain width and align children to left -->
+      <div class="w-full max-w-md flex flex-col items-start">
+        <textarea v-model="newTitle"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
+          placeholder="Afternoon Run" rows="1"></textarea>
 
-      <!-- Timer Section -->
-      <div class="flex justify-between items-start mt-4 ml-1">
-        <div class="flex flex-col items-start">
-          <span class="text-xl font-semibold text-base-content/95">Elapsed</span>
-          <div class="flex items-center gap-3 mt-1">
-            <div class="text-lg text-neutral/85">{{ formatTime(timer) }}</div>
-            <div class="inline-grid *:[grid-area:1/1]">
-              <div class="status status-error animate-ping"></div>
-              <div class="status status-error"></div>
+        <!-- Timer Section -->
+        <div class="flex justify-between items-start mt-4 ml-1">
+          <div class="flex flex-col items-start">
+            <span class="text-xl font-semibold text-base-content/95">Elapsed</span>
+            <div class="flex items-center gap-3 mt-1">
+              <div class="text-lg text-neutral/85">{{ formatTime(timer) }}</div>
+              <div class="inline-grid *:[grid-area:1/1]">
+                <div class="status status-error animate-ping"></div>
+                <div class="status status-error"></div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex flex-col ml-10">
-          <span class="text-xl font-semibold text-base-content/95">Activities</span>
-          <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
+          <div class="flex flex-col ml-10">
+            <span class="text-xl font-semibold text-base-content/95">Activities</span>
+            <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="mt-8 xs:mt-4 w-full max-w-md">
-      <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id || exercise._id"
-        :title="exercise.title" :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
-        :activityInstanceId="exercise._id || exercise.id" @updateActivity="updateActivity"
-        @updateInteger="updateInteger" @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
-    </div>
+      <div class="mt-8 xs:mt-4 w-full max-w-md">
+        <ExerciseTrackCard v-for="(exercise, index) in exercises" :key="exercise.id || exercise._id"
+          :title="exercise.title" :activity="exercise.activity" :integer="exercise.integer" :unit="exercise.unit"
+          :activityInstanceId="exercise._id || exercise.id" @updateActivity="updateActivity"
+          @updateInteger="updateInteger" @updateUnit="updateUnit" @deleteActivity="deleteActivity" />
+      </div>
 
 
-    <div class="w-full max-w-md flex justify-center mt-4 xs:mt-2">
-      <button @click="addNewActivity" class="btn btn-primary">
-        + Add Activity
-      </button>
-    </div>
+      <div class="w-full max-w-md flex justify-center mt-4 xs:mt-2">
+        <button @click="addNewActivity" class="btn btn-primary">
+          + Add Activity
+        </button>
+      </div>
 
-    <div class="flex flex-wrap items-center justify-center w-full mt-10 gap-4">
-      <ExercisePlay @play="startTimer" :disabled="isRunning" />
-      <ExerciseFinish @finishWorkout="finishWorkout" />
-      <ExercisePause @pause="pauseTimer" :disabled="!isRunning" />
+      <div class="flex flex-wrap items-center justify-center w-full mt-10 gap-4">
+        <ExercisePlay @play="startTimer" :disabled="isRunning" />
+        <ExerciseFinish @finishWorkout="finishWorkout" />
+        <ExercisePause @pause="pauseTimer" :disabled="!isRunning" />
+      </div>
     </div>
   </div>
 </template>
@@ -84,7 +86,8 @@ export default {
       newTitle: '',
       exerciseId: this.$route.params.id,
       isLoaded: false,
-      activityTypes: []
+      activityTypes: [],
+      isLoaded: false
     };
   },
   async mounted() {

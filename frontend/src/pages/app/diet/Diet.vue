@@ -1,8 +1,8 @@
 <template>
   <PageHeader :title="$route.meta.title" />
-  <div class="mt-20 px-4 pb-16 flex flex-col items-center">
+  <div v-if="isLoaded" class="mt-20 px-4 pb-16 flex flex-col items-center">
     <NewMeal />
-    <div class="mt-16 w-full max-w-md mb-20">
+    <div class="mt-10 w-full max-w-md mb-20">
       <div v-if="meals.length > 0">
 
         <div class="flex-row justify-between items-center mb-4">
@@ -66,7 +66,8 @@ export default {
       meals: [],
       searchQuery: '',
       sortOption: 'date_desc',
-      showDropdown: false
+      showDropdown: false,
+      isLoaded: false
     };
   },
   computed: {
@@ -118,6 +119,7 @@ export default {
   },
   async mounted() {
     await this.fetchMeals();
+    this.isLoaded = true;
   }
 };
 </script>
