@@ -5,8 +5,8 @@ const mongoURI = process.env.MONGO_URI;
 
 
 mongoose.connect(mongoURI)
-    .then(() => console.log('✅ Successfully Connected to MongoDB!'))
-    .catch(err => console.log('❌ Error connecting to MongoDB:', err));
+    .then(() => console.log('Successfully Connected to MongoDB!'))
+    .catch(err => console.log('Error connecting to MongoDB:', err));
 
 // Food Schema
 const FoodSchema = new mongoose.Schema({
@@ -83,8 +83,8 @@ const UserSchema = new mongoose.Schema({
     bmi: Number,
     height: Number,
     targetWeight: Number,
-    recoveryCode: String,
-    emailCode: String,
+    recoveryCode: String, // used for password and username recovery
+    emailCode: String, // used for email verification when cahnging email address
     newEmail: String,
     meals: [MealSchema],
     foods: [FoodSchema],
