@@ -1,3 +1,4 @@
+
 <template>
     <div class="flex items-center justify-center py-4">
         <button class="btn btn-neutral" @click="goToNewMeal">Log New Meal</button>

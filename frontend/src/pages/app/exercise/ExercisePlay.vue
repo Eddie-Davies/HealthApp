@@ -1,3 +1,5 @@
+<!-- Component button for pausing an exercise -->
+
 <template>
     <div class="flex flex-col items-center">
       <button 

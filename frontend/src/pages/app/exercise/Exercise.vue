@@ -5,7 +5,6 @@
     <div class="w-full max-w-md">
       <ExerciseNew @start="startExercise" />
       <!-- Exercise Summary -->
-      <!-- Exercise Summary -->
       <div class="mt-10">
         <div v-if="exercises.length > 0">
           <div class="flex justify-between items-center mb-4">
@@ -13,6 +12,7 @@
             <p class="text-right text-base-content/50 cursor-default">Tap on an exercise to edit.</p>
           </div>
 
+          <!-- Search and filter controls -->
           <div class="flex justify-between items-center mb-1">
             <input v-model="searchQuery" type="text" placeholder="Search exercises..."
               class="input input-bordered w-full max-w-xs" />
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <!-- Workout in progress -->
+    <!-- show workout tracking interface if button is pressed -->
     <ExerciseTrack v-if="showTrack" @workoutFinished="handleWorkoutFinished" />
 
     <div class="w-full max-w-md">
@@ -59,7 +59,7 @@
       class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
       <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
         <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
-        <p>Are you sure you want to delete this meal?</p>
+        <p>Are you sure you want to delete this exercise?</p>
         <div class="flex justify-end mt-6">
           <button class="btn btn-outline mr-2" @click="showDeleteModal = false">Cancel</button>
           <button class="btn btn-error" @click="confirmDeleteExercise">Yes, Delete</button>
@@ -143,6 +143,7 @@ export default {
       this.$router.push('/home/exercise/new');
     },
 
+    // Handle completion of a workout
     handleWorkoutFinished(workout) {
       if (workout) {
         this.exercises.unshift({
@@ -158,10 +159,13 @@ export default {
       }
       this.showTrack = false;
     },
+
+     // Prepare to delete an exercise
     async deleteExercise(index) {
       this.pendingDeleteIndex = index;
       this.showDeleteModal = true;
     },
+    // Confirm and execute exercise deletion
     async confirmDeleteExercise() {
       const index = this.pendingDeleteIndex;
       if (index === null) return;
@@ -175,6 +179,7 @@ export default {
         console.error('Failed to delete exercise:', err);
       }
     },
+     // Calculate total units for an exercise (used for sorting)
     totalUnits(exercise) {
       return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
     },

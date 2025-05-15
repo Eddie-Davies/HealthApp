@@ -1,5 +1,6 @@
 
 <template>
+  <!-- Main container -->
     <div class="flex justify-center min-h-screen items-start pt-10">
       <div v-if="isLoaded" class="px-4">
         <h1 class="text-2xl font-semibold mb-10 text-center">Select Activity Type</h1>
@@ -21,6 +22,7 @@
             </div>
           </div>
   
+          <!-- List of activity types with delete buttons -->
           <div v-for="type in filteredTypes" :key="type._id"
             class="flex justify-between items-center p-3 hover:bg-base-200/50 bg-base-200 cursor-pointer rounded-full mb-2">
             <div class="flex-1 flex justify-between mr-3 text-base-content/95">
@@ -32,6 +34,7 @@
           </div>
         </div>
   
+        <!-- Form section -->
         <div class="mt-6 border-t border-neutral/50 pt-4">
           <h2 class="text-2xl font-semibold mb-5">Add new activity type:</h2>
           
@@ -48,6 +51,7 @@
             </div>
           </div>
   
+          <!-- Action buttons -->
           <button class="btn btn-primary w-full mb-3" @click="addType">
             Add to Activity Type List
           </button>
@@ -100,12 +104,14 @@ export default {
     },
 
     methods: {
+      // Adds a new activity type to the database
         async addType() {
             if (
                 !this.newType.name ||
                 !this.newType.unit
             ) return;
 
+            // Create new activity type object
             const newEntry = {
                 name: this.newType.name,
                 unit: this.newType.unit
@@ -121,6 +127,7 @@ export default {
             }
 
         },
+        // Initiates deletion process for an activity type
         async deleteType(id) {
             this.typeToDeleteId = id;
             this.showDeleteModal = true;

@@ -1,4 +1,5 @@
 <template>
+    <!-- The main container -->
     <div class="card bg-base-200 rounded-box p-4 flex flex-col mt-4 cursor-pointer hover:bg-base-200/60" @click="goToEditPage">
         <div class="flex justify-between items-center mb-2">
             <h1 class="text-lg font-bold text-base-content/95">
@@ -7,6 +8,7 @@
             <p class="text-sm text-neutral/50">{{ formattedDateTime }}</p>
         </div>
 
+        <!-- Food items and their calorie count -->
         <div class="grid grid-cols-2 text-sm">
             <div>
                 <p class="text-base-content/55 font-semibold" v-if="food.length">Food</p>
@@ -21,6 +23,7 @@
                 </ul>
             </div>
         </div>
+        <!-- Drinks section and their calorie count -->
         <div v-if="food.length" class="mt-4"></div>
         <div v-if="drinks.length" class="grid grid-cols-2 text-sm">
             <div>
@@ -42,6 +45,7 @@
 <script>
 export default {
     methods: {
+        // Navigates to the edit page for the given diet entry
         goToEditPage() {
             this.$router.push(`/home/diet/${this.id}`)
         }

@@ -8,7 +8,7 @@
       Total Calories: {{ totalCalories }} kcal
     </div>
   
-
+    <!-- Food section with items list and add button -->
     <div class="bg-base-200 rounded-box p-6 mt-4 flex border-2 border-secondary/70 flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
   <h3 class="font-bold text-xl mb-5">Food</h3>
   <div
@@ -30,9 +30,7 @@
   <button class="btn btn-neutral btn-soft btn-md rounded-xl mt-7" @click="goToSelect('food')">Add Food</button>
 </div>
 
-
-
-
+<!-- Drinks section with items list and add button -->
 <div class="bg-base-200 rounded-box p-6 mt-4 flex border-2 border-secondary/70 flex-col items-center justify-center px-4 w-full max-w-md mx-auto">
   <h3 class="font-bold text-xl mb-5">Drinks</h3>
   <div
@@ -55,7 +53,7 @@
 </div>
 
 
-    <div class="mt-10 flex w-full space-x-3 mb-20">
+   <div class="mt-10 flex w-full space-x-3 mb-20">
   <button class="btn btn-error flex-1" @click="cancelEdit">Cancel</button>
   <button class="btn btn-success flex-2" @click="saveMeal">Save Meal</button>
 </div>
@@ -64,6 +62,7 @@
   </div>
 </div>
 
+<!-- Delete confirmation modal -->
   <div v-if="showDeleteModal" @click.self="showDeleteModal = false"
     class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
     <div class="bg-base-100 p-6 rounded-xl shadow-lg max-w-sm w-full">
@@ -128,6 +127,7 @@ export default {
       }
     }
 
+    // Set default meal name based on time of day if no name is set
     if (!this.mealName) {
       const hour = new Date().getHours();
       if (hour < 11) {
@@ -139,6 +139,7 @@ export default {
       }
     }
 
+    // Check for food/drink items passed via route query params
     const { name, calories, type } = this.$route.query;
     if (name && calories && type) {
       const item = {
@@ -160,6 +161,7 @@ export default {
     this.isLoaded = true;
   },
   methods: {
+    // Navigate to food/drink selection page
     goToSelect(type) {
       localStorage.setItem(
         this.storageKey,
@@ -173,6 +175,7 @@ export default {
       });
     },
 
+    // Cancel editing and return to diet page
     cancelEdit() {
       localStorage.removeItem(this.storageKey);
       this.$router.push('/home/diet');
@@ -193,6 +196,7 @@ export default {
         })
       );
     },
+    // Save the meal (create new or update existing)
     async saveMeal() {
       const payload = {
         mealName: this.mealName,
@@ -218,6 +222,7 @@ export default {
     async deleteMeal() {
       this.showDeleteModal = true;
     },
+    // Delete the meal after confirmation
     async confirmDelete() {
       try {
         await axios.delete(`/meals/${this.mealId}`);
