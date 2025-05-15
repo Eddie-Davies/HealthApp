@@ -22,7 +22,7 @@
             <!-- Two Side-by-Side Cards -->
             <ProfileCard title="Maintenance Calories" :displayNumber="kcalDailyRec" unit="kcal" :useDecimal="false" />
             <div class="grid grid-cols-2 gap-6">
-                <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(last 24hrs)" />
+                <ProfileCardSmall title="Calorie Intake" :displayNumber="calories" unit="kcal" note="(today)" />
                 <ProfileCardSmall title="Recent Exercise" :displayNumber="exercise" unit="minutes"
                     note="(last 24hrs)" />
             </div>
@@ -81,11 +81,11 @@ export default {
         }
         // Get user Calories in last 24hrs
         try {
-            const res = await axios.get('/recent-calories');
+            const res = await axios.get('/today-calories');
             this.calories = res.data
             // console.log(this.calories)
         } catch (err) {
-            console.error('Error fetching last 24hr calories:', err.response?.data);
+            console.error('Error fetching todays calories:', err.response?.data);
         }
 
         try {
