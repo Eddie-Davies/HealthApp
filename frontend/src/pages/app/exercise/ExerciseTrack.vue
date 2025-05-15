@@ -25,10 +25,11 @@
               </div>
             </div>
           </div>
-
+          <div class="absolute ml-25">
           <div class="flex flex-col ml-10">
             <span class="text-xl font-semibold text-base-content/95">Activities</span>
             <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
+          </div>
           </div>
         </div>
       </div>
