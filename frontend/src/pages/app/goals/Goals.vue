@@ -1,68 +1,65 @@
 <template>
-  <div v-if="isLoaded">
-    <!-- Swiper slider to navigate through goal groups (personal + group) -->
-    <swiper loop :pagination="{
-      dynamicBullets: false,
-      clickable: true,
-      bulletActiveClass: '!bg-secondary !opacity-100'
-    }" :keyboard="{
-      enabled: true,
-    }" :touchEventsTarget="'container'" :modules="modules" class="mySwiper">
+  <swiper loop :pagination="{
+    dynamicBullets: false,
+    clickable: true,
+    bulletActiveClass: '!bg-secondary !opacity-100'
+  }" :keyboard="{
+    enabled: true,
+  }" :touchEventsTarget="'container'" :modules="modules" class="mySwiper">
 
-      <!-- Single swiper-slide that shows all types of goals -->
-      <swiper-slide v-for="(slide, index) in slides" :key="index">
-        <div class="flex-grow flex flex-col">
-          <PageHeader :title="slide.title" />
-          <div class="mt-20 pb-5">
-            <div class="flex justify-center">
-              <div v-if="slide.goals.length">
-                <TransitionGroup name="goal-tiles" tag="div"
-                  class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-                  <GoalCard v-for="goal in slide.goals" :key="goal._id" :target="goal.target" :progress="goal.progress"
-                    :trackFrom="goal.trackFrom" :progressLabel="goal.progressLabel"
-                    :remainingLabel="goal.remainingLabel" :unit="goal.unit" :type="goal.type" :date="goal.date"
-                    :time="goal.time" :colour="slide.colour" :createdDate="goal.createdDate"
-                    :maintainanceKcal="this.kcalIntake" :lastDayKcal="this.lastDayKcal" :currentWeight="this.weight"
-                    :exercises="this.exercises" @edit="openEditor(goal, false, slide.group)" />
-                </TransitionGroup>
-              </div>
-              <!-- Fallback message if no goals -->
-              <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
-                <div class="tooltip" data-tip="Click the button below :)">
-                  <div class="btn cursor-default">Add some new goals to start tracking!</div>
-                </div>
+    <!-- Single swiper-slide that shows all types of goals -->
+    <swiper-slide v-for="(slide, index) in slides" :key="index">
+      <div class="flex-grow flex flex-col">
+        <PageHeader :title="slide.title" />
+        <div class="mt-20 pb-5">
+          <div class="flex justify-center">
+            <div v-if="slide.goals.length">
+              <TransitionGroup name="goal-tiles" tag="div"
+                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+                <GoalCard v-for="goal in slide.goals" :key="goal._id" :target="goal.target" :progress="goal.progress"
+                  :trackFrom="goal.trackFrom" :progressLabel="goal.progressLabel" :remainingLabel="goal.remainingLabel"
+                  :unit="goal.unit" :type="goal.type" :date="goal.date" :time="goal.time" :colour="slide.colour"
+                  :createdDate="goal.createdDate" :maintainanceKcal="kcalIntake" :lastDayKcal="lastDayKcal"
+                  :currentWeight="weight" :exercises="exercises" @edit="openEditor(goal, false, slide.group)"
+                  @editAndSuggest="editAndSuggestGoal = goal" />
+              </TransitionGroup>
+            </div>
+            <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
+              <div class="tooltip" data-tip="Click the button below :)">
+                <div class="btn cursor-default">Add some new goals to start tracking!</div>
               </div>
             </div>
           </div>
-          <!-- Button to add a new goal -->
-          <div class="mt-10 mb-40 flex flex-wrap justify-center">
-            <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
-          </div>
         </div>
-      </swiper-slide>
-    </swiper>
+        <div class="mt-10 mb-40 flex flex-wrap justify-center">
+          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
+        </div>
+      </div>
+    </swiper-slide>
+  </swiper>
 
-    <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
-    <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
-    </GoalDescriptionAlert>
-    <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
+  <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
+  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
+  </GoalDescriptionAlert>
+  <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
-    <!-- Goal type selection -->
-    <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" :group="showTypeSelect"
-      @cancel="showTypeSelect = false" @custom="createNewGoal" @diet="createNewGoal" @activity="createNewGoal" />
+  <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" :group="showTypeSelect"
+    @cancel="showTypeSelect = false" @custom="createNewGoal" @diet="createNewGoal" @activity="createNewGoal" />
 
-    <DietGoalSelect v-if="showDietGoalSelect" @cancel="handleCancelDiet" @confirm="handleDietConfigComplete"
-      :goal="tempGoal" />
+  <DietGoalSelect v-if="showDietGoalSelect" @cancel="handleCancelDiet" @confirm="handleDietConfigComplete"
+    :goal="tempGoal" />
 
-    <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null" :goal="tempGoal"
-      :group="showActivityGoalSelect" @cancel="handleCancelActivity" @confirm="handleActivityTypeChosen" />
+  <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null" :goal="tempGoal"
+    :group="showActivityGoalSelect" @cancel="handleCancelActivity" @confirm="handleActivityTypeChosen" />
 
-    <ActivityGoalRefine v-if="showActivityGoalRefine" :goal="showActivityGoalRefine"
-      @cancel="handleCancelActivityRefine" @confirm="handleActivityConfigComplete" />
+  <ActivityGoalRefine v-if="showActivityGoalRefine" :goal="showActivityGoalRefine" @cancel="handleCancelActivityRefine"
+    @confirm="handleActivityConfigComplete" />
 
-    <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
-      @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
-  </div>
+  <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
+    @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
+
+  <EditAndSuggestion v-if="editAndSuggestGoal" :goal="editAndSuggestGoal" :isNew="false"
+    @cancel="editAndSuggestGoal = null" @save="handleEditAndSuggestSave" @confirm-delete="confirmDeleteGoal" />
 </template>
 
 <style>
@@ -157,6 +154,8 @@ import GoalDeleteAlert from './GoalDeleteAlert.vue';
 import GoalDescriptionAlert from './GoalDescriptionAlert.vue';
 import GoalTypeSelect from './GoalTypeSelect.vue';
 import ActivityGoalRefine from './ActivityGoalRefine.vue';
+import EditAndSuggestion from './EditAndSuggestion.vue';
+
 
 
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -181,7 +180,8 @@ export default {
     DietGoalSelect,
     ActivityGoalSelect,
     ActivityGoalRefine,
-    PageHeader
+    PageHeader,
+    EditAndSuggestion,
   },
   setup() {
     return {
@@ -212,7 +212,7 @@ export default {
       lastDayKcal: 0,
       weight: 0,
       errorMessage: '',
-      isLoaded: false
+      editAndSuggestGoal: null,
     };
   },
   computed: {
@@ -309,7 +309,13 @@ export default {
     }
     this.fetchExercises()
 
-    this.isLoaded = true;
+
+
+
+
+
+
+
   },
   methods: {
     // EXERCISE FETCH STUFF
@@ -367,8 +373,49 @@ export default {
     },
 
     openEditor(goal, isNew = false, groupId = null) {
-      this.editingGoal = { ...goal, group: groupId }; // sets editing goal to NOT null, meaning the edit page shows. Group name ensures its saved to correct location, defaults to NULL = no group
+      const goalCopy = { ...goal, group: groupId };
       this.isNewGoal = isNew;
+
+      const isComplete =
+        (goalCopy.progress >= goalCopy.target && goalCopy.type === 'custom') ||
+        (goalCopy.type === 'diet' && this.isDietGoalComplete(goalCopy)) ||
+        (goalCopy.type === 'activity' && this.isActivityGoalComplete(goalCopy));
+
+      if (isComplete && !isNew) {
+        this.editAndSuggestGoal = goalCopy;
+      } else {
+        this.editingGoal = goalCopy;
+      }
+    },
+    isDietGoalComplete(goal) {
+      if (goal.progressLabel === 'Less Calories') {
+        return this.kcalIntake - goal.target <= this.lastDayKcal;
+      } else if (goal.progressLabel === 'More Calories') {
+        return this.kcalIntake + goal.target <= this.lastDayKcal;
+      } else if (goal.progressLabel === 'Lose Weight') {
+        return this.weight <= goal.target;
+      } else if (goal.progressLabel === 'Gain Weight') {
+        return this.weight >= goal.target;
+      }
+      return false;
+    },
+    isActivityGoalComplete(goal) {
+      return goal.progress >= goal.target;
+    },
+    openEditorFromSuggestion(suggestion) {
+      const suggestedGoal = {
+        ...suggestion,
+        group: this.editAndSuggestGoal.group,
+        type: this.editAndSuggestGoal.type,
+        date: new Date()
+      };
+
+      this.editAndSuggestGoal = null;
+      this.openEditor(suggestedGoal, true, suggestedGoal.group);
+    },
+    handleEditAndSuggestSave(goal) {
+      this.saveGoal(goal);
+      this.editAndSuggestGoal = null; // closes modal
     },
     // GOAL SAVING
     async saveGoal(updatedGoal) {
@@ -543,6 +590,11 @@ export default {
       } catch (err) {
         console.error('Error deleting goal:', err.response?.data || err);
       }
+    },
+
+    handleDeleteAndClose(goal) {
+      this.confirmDeleteGoal(goal);
+      this.editAndSuggestGoal = null; // Close the modal
     },
 
     // GOAL CREATION

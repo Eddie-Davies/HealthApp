@@ -68,86 +68,92 @@
 
 
   <!-- DIET EDIT -->
-  <div v-else-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
-    @click.self="$emit('cancel')">
+<div v-else-if="goal.type == 'diet'" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+  @click.self="$emit('cancel')">
+  <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
+    <h2 class="text-lg font-semibold mb-4">{{ editableGoal.progressLabel }}</h2>
 
-    <div class="bg-base-200 p-6 rounded-xl w-96 text-center">
-      <h2 class="text-lg font-semibold mb-4">{{ editableGoal.progressLabel }}</h2>
-      <!-- Value Display -->
-      <div v-if="isWeightGoal" class="flex items-baseline justify-center">
-        <p v-if="isNew" class="text-sm opacity-70 mr-1">Starting Weight:</p>
-        <p v-else class="text-sm opacity-70 mr-1">Started at:</p>
+    <!-- Value Display -->
+    <div v-if="isWeightGoal" class="flex items-baseline justify-center">
+      <p v-if="isNew" class="text-sm opacity-70 mr-1">Starting Weight:</p>
+      <p v-else class="text-sm opacity-70 mr-1">Started at:</p>
+      <span class="font-semibold text-lg">{{ editableGoal.trackFrom }}</span>
+      <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
+    </div>
 
-        <span class="font-semibold text-lg">{{ editableGoal.trackFrom }}</span>
-        <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
-      </div>
+    <div :class="['flex items-baseline justify-center', !isCalorieGoal && 'mb-3']">
+      <span class="text-sm opacity-70 mr-1">Change by:</span>
+      <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
+      <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
+    </div>
 
-      <div :class="['flex items-baseline justify-center', !isCalorieGoal && 'mb-3']">
-        <span class="text-sm opacity-70 mr-1">Change by:</span>
-        <span class="font-semibold text-lg">{{ sliderDisplay }}</span>
-        <span class="text-sm font-semibold text-neutral/90">{{ editableGoal.unit }}</span>
-      </div>
+    <div v-if="isCalorieGoal" :class="['text-sm text-neutral/80', isCalorieGoal && 'mb-3']">
+      <span>For a total of </span>
+      <span class="font-semibold text-lg text-neutral">{{ totalDailyCals }}</span>
+      <span class="text-sm font-semibold text-neutral/90">kcal per day</span>
+    </div>
 
-      <div v-if="isCalorieGoal" :class="['text-sm text-neutral/80', isCalorieGoal && 'mb-3']">
-        <span>For a total of </span>
-        <span class="font-semibold text-lg text-neutral">{{ totalDailyCals }}</span>
-        <span class="text-sm font-semibold text-neutral/90">kcal per day</span>
-      </div>
-
-
-      <div class="flex flex-col gap-4">
-
-
-
-
-        <!--* Reasonable Calorie Goal *-->
-        <div class="collapse bg-base-100 border border-base-300">
-          <input type="radio" name="my-accordion-1" checked="checked" />
-          <div class="collapse-title font-semibold flex items-center">Reasonable {{ dietConfig.goalType.toLowerCase() }}
-            target: </div>
-          <div class="collapse-content text-sm">
-            <!-- only use decimals if its a weight goal, not for calories! -->
-            <input type="range" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min" :max="dietConfig.max"
-              v-model.number="sliderDisplay" class="w-full" />
-          </div>
+    <div class="flex flex-col gap-4">
+      <!-- Reasonable Calorie/Weight Goal -->
+      <div class="collapse bg-base-100 border border-base-300">
+        <input type="radio" name="my-accordion-1" checked="checked" />
+        <div class="collapse-title font-semibold flex items-center">
+          Reasonable {{ dietConfig.goalType.toLowerCase() }} target:
         </div>
-        <div class="collapse bg-base-100 border border-base-300">
-          <input type="radio" name="my-accordion-1" />
-          <div class="collapse-title font-semibold flex items-center">Custom Figure:</div>
-          <div class="collapse-content text-sm">
-            <input type="number" :step="isWeightGoal ? '0.1' : '1'" :min="dietConfig.min" :max="dietConfig.max"
-              v-model.number="sliderDisplay" class="input input-bordered w-20" />
-          </div>
+        <div class="collapse-content text-sm">
+          <input
+            type="range"
+            :step="isWeightGoal ? 1 : 0.1"
+            :min="dietConfig.min"
+            :max="dietConfig.max"
+            v-model.number="sliderDisplay"
+            class="w-full"
+          />
         </div>
-
-        <!-- Date Selector and Display -->
-        <div class="flex-col items-center justify-center text-center p-5 rounded-2xl bg-base-100">
-          <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
-          <div v-else class="text-sm">Deadline currently set to:</div>
-          <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
-        </div>
-        <label class="block text-sm mb-2 pt-2">Override Deadline:</label>
-        <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-5">
       </div>
 
-      <!-- Action Buttons -->
-      <div class="space-y-3 mt-4">
-        <!-- Row with Back and Confirm -->
-        <div class="flex space-x-3">
-          <button @click="$emit('cancel')" class="btn flex-1 btn-error">
-            Quit
-          </button>
-          <button :disabled="!isFormValid" class="btn flex-2 btn-success"
-            @click="$emit('save', editableGoal)">Confirm</button>
+      <!-- Custom Input -->
+      <div class="collapse bg-base-100 border border-base-300">
+        <input type="radio" name="my-accordion-1" />
+        <div class="collapse-title font-semibold flex items-center">Custom Figure:</div>
+        <div class="collapse-content text-sm">
+          <input
+            type="number"
+            :step="isWeightGoal ? 1 : 0.1"
+            :min="dietConfig.min"
+            :max="dietConfig.max"
+            v-model.number="sliderDisplay"
+            class="input input-bordered w-20"
+          />
         </div>
-
-        <!-- Delete button on its own row -->
-        <button v-if="!isNew" class="btn btn-error btn-soft w-full"
-          @click="$emit('confirm-delete', editableGoal)">Delete</button>
       </div>
 
+      <!-- Date Selector -->
+      <div class="flex-col items-center justify-center text-center p-5 rounded-2xl bg-base-100">
+        <div v-if="isTodaySelected" class="text-sm">Default Deadline (today's Date):</div>
+        <div v-else class="text-sm">Deadline currently set to:</div>
+        <h1 class="font-semibold text-2xl text-primary">{{ formattedDate }}</h1>
+      </div>
+
+      <label class="block text-sm mb-2 pt-2">Override Deadline:</label>
+      <input v-model="editableGoal.date" type="date" class="input input-bordered w-full mb-5" />
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-3 mt-4">
+      <div class="flex space-x-3">
+        <button @click="$emit('cancel')" class="btn flex-1 btn-error">Quit</button>
+        <button :disabled="!isFormValid" class="btn flex-2 btn-success" @click="$emit('save', editableGoal)">
+          Confirm
+        </button>
+      </div>
+      <button v-if="!isNew" class="btn btn-error btn-soft w-full" @click="$emit('confirm-delete', editableGoal)">
+        Delete
+      </button>
     </div>
   </div>
+</div>
+
 
 
 
