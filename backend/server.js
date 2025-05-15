@@ -595,10 +595,21 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         await user.save();
 
         // Remove the user from the group's membersByID
-        await GroupModel.updateOne(
-            { _id: groupId },
-            { $pull: { membersByID: user._id } }
+        const group = await GroupModel.findByIdAndUpdate(
+            groupId,
+            { $pull: { membersByID: user._id } },
+            { new: true }
         );
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // If no members are left in the group, delete it
+        if (group.membersByID.length === 0) {
+            await GroupModel.findByIdAndDelete(groupId);
+            return res.status(200).json({ message: 'Left group and deleted empty group' });
+        }
 
         res.status(200).json({ message: 'Successfully left the group' });
     } catch (error) {
@@ -606,6 +617,7 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
     try {
