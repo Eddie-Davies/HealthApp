@@ -46,10 +46,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-
 //generate a 6 digit recovery code used for password and username recovery
 function generateCode() {
-    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
     return recoveryCode;
 }
 
@@ -68,7 +66,6 @@ const authenticateToken = (req, res, next) => {
 };
 
 // password and username recovery ----
-
 app.post('/forgotPassword', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.body.email });
@@ -203,18 +200,18 @@ app.post('/newUsername', async (req, res) => {
             return res.status(401).json({ message: 'Invalid recovery code' });
         }
 
-        // check for existing username
+        // Check for existing username
         const existing = await UserModel.findOne({ username: reqNewUsername });
         if (existing) {
             return res.status(409).json({ message: 'Username already in use' });
         }
 
-        // update username and clear recovery code
+        // Update username and clear recovery code
         user.username = reqNewUsername;
         user.recoveryCode = null;
         await user.save();
 
-        // console.log('Username and recovery code updated successfully.');
+        console.log('Username and recovery code updated successfully.');
         res.status(200).json({ message: 'Username updated successfully' });
 
     } catch (error) {
@@ -595,10 +592,6 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         await user.save();
 
         // Remove the user from the group's membersByID
-        const group = await GroupModel.findByIdAndUpdate(
-            groupId,
-            { $pull: { membersByID: user._id } },
-            { new: true }
         );
 
         if (!group) {
@@ -1271,6 +1264,8 @@ app.get('/today-calories', authenticateToken, async (req, res) => {
     }
 });
 
+
+
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
     try {
@@ -1539,6 +1534,7 @@ app.post('/exercises', authenticateToken, async (req, res) => {
 // UPDATE EXERCISE BY ID
 app.put('/exercises/update/:id', authenticateToken, async (req, res) => {
     try {
+                const { exerciseName, activities, durationMs, date } = req.body;
         const exerciseId = req.params.id;
         const updatedExercise = req.body;
 
@@ -1676,6 +1672,20 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
 });
 
 // ----
+// returns gender
+app.get('/gender', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ gender: user.gender }); // returns true or false
+    } catch (err) {
+        console.error('Error fetching gender:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 // POST ACTIVITY TYPE
 app.post('/activityTypes', authenticateToken, async (req, res) => {
@@ -1765,7 +1775,6 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 
         return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
-        console.error('Error deleting activity instance:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -1913,8 +1922,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length - 2) + ' ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m', `WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });
