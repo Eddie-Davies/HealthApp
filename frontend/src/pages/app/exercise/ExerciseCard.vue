@@ -75,7 +75,7 @@ export default {
     },
     time: {
       type: String,
-      default: '00:00.00'
+      default: '00:00:00.00'
     },
     createdAt: {
       type: [String, Date],
