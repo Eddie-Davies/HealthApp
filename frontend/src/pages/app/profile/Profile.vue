@@ -52,6 +52,12 @@ export default {
         ProfileCardSmall,
         ProfileCardMed
     },
+    props: {
+        username: {
+            type: String,
+            required: true
+        }
+    },
     data() {
         return {
             weight: 0,
@@ -62,15 +68,14 @@ export default {
             exercise: 50, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
             memberSince: '04/05/2025', // default to date this was implemented instead of 00/00/0000.
-            gender: null,
-            username: '',
+            gender: null
         }
     },
     async mounted() {
         try {
             const res = await axios.get('/kcal-intake');
             this.kcalDailyRec = res.data
-            console.log('daily',this.kcalDailyRec)
+            console.log('daily', this.kcalDailyRec)
         } catch (err) {
             console.error('Error fetching daily kcal rec:', err.response?.data);
         }
@@ -121,13 +126,6 @@ export default {
         } catch (err) {
             console.error('Error fetching gender:', err.response?.data);
         }
-        try {
-            const res = await axios.get('/user');
-            this.username = res.data.username;
-        } catch (err) {
-            console.error('Error fetching username:', err.response?.data);
-        }
-
     },
     computed: {
         // Convert date of birth into current age.
