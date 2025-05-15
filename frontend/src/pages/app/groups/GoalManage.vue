@@ -12,9 +12,16 @@
           <div class="flex justify-between items-center">
             <div>
               <div class="font-semibold">Goal Description: {{ goal.description }}</div>
-              <div class="text-sm text-neutral/70">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
               <div class="text-sm text-neutral/70">Goal Type: {{ goal.type }}</div>
+              <div class="text-sm text-neutral/70">Goal Target: {{ goal.target }} {{ goal.unit }}</div>
+
               
+              <div v-if="goal.type === 'activity' && goal.remainingLabel === 'Under'" class="text-sm text-neutral/70">
+                Time Requirement: Under {{ goal.time }}
+              </div>
+              <div v-else-if="goal.type === 'activity' && goal.remainingLabel === 'Left'" class="text-sm text-neutral/70">
+                Per {{ goal.time }}
+              </div>
             </div>
 
             <div class="flex gap-3">
@@ -41,6 +48,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script>
