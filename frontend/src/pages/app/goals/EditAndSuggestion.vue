@@ -109,9 +109,9 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3 mt-6">
-                    <div class="flex space-x-3">
-                        <button @click="$emit('cancel')" class="btn flex-1 btn-error">Quit</button>
-                        <button :disabled="!isFormValid" class="btn flex-2 btn-success"
+                    <div class="flex md:space-x-3 space-y-2">
+                        <button @click="$emit('cancel')" class="btn w-full md:w-auto block md:flex-1 btn-error">Quit</button>
+                        <button :disabled="!isFormValid" class="btn w-full md:w-auto block md:flex-2 btn-success"
                             @click="$emit('save', editableGoal)">Confirm</button>
                     </div>
                     <button v-if="!isNew" class="btn btn-error btn-soft w-full"
