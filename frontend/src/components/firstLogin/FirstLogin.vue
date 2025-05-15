@@ -130,7 +130,7 @@ export default {
     },
     computed: {
         isFormValid() {
-            const { date_of_birth, gender, weight, height, targetWeight } = this.form;
+            const { date_of_birth, gender, weight, height, targetWeight, dailyCalorieIntake } = this.form;
             this.formErrors = [];
 
             if (!date_of_birth) {
