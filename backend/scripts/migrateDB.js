@@ -17,9 +17,9 @@ const {
 
 // Comment out completed migrations, add new migrate functions below:
 
-async function runMigration1() {
+async function runMigration1() { // add default values to meal, exercise and goals
     try {
-      console.log('✅ Connected to MongoDB (via database.js)');
+      console.log('Connected to MongoDB (via database.js)');
   
       await UserModel.updateMany({}, {
         $set: {
@@ -29,19 +29,19 @@ async function runMigration1() {
         }
       });
   
-      console.log('✅ Migration complete');
+      console.log('Migration complete');
       process.exit(0);
     } catch (err) {
-      console.error('❌ Migration failed:', err);
+      console.error('Migration failed:', err);
       process.exit(1);
     }
   }
   
 //   runMigration1();
 
-async function runMigration2() {
+async function runMigration2() { //set password for all users to null
     try {
-      console.log('✅ Connected to MongoDB (via database.js)');
+      console.log('Connected to MongoDB (via database.js)');
   
       await UserModel.updateMany({}, {
         $set: {
@@ -49,19 +49,19 @@ async function runMigration2() {
         }
       });
   
-      console.log('✅ Migration complete');
+      console.log('Migration complete');
       process.exit(0);
     } catch (err) {
-      console.error('❌ Migration failed:', err);
+      console.error('Migration failed:', err);
       process.exit(1);
     }
   }
 
   // runMigration2();
 
-  async function runMigration3() {
+  async function runMigration3() { // add recovery code to all users
     try {
-      console.log('✅ Connected to MongoDB (via database.js)');
+      console.log('Connected to MongoDB (via database.js)');
   
       const users = await UserModel.find({});
       for (const user of users) {
@@ -73,10 +73,10 @@ async function runMigration2() {
         });
       }
   
-      console.log('✅ Migration complete');
+      console.log(' Migration complete');
       process.exit(0);
     } catch (err) {
-      console.error('❌ Migration failed:', err);
+      console.error(' Migration failed:', err);
       process.exit(1);
     }
   }
@@ -85,7 +85,7 @@ async function runMigration2() {
 
 async function runMigration4() { // adding default usernames as we used emails until now
   try {
-    console.log('✅ Connected to MongoDB (via database.js)');
+    console.log(' Connected to MongoDB (via database.js)');
 
     const users = await UserModel.find({});
     for (const user of users) {
@@ -96,19 +96,19 @@ async function runMigration4() { // adding default usernames as we used emails u
       });
     }
 
-    console.log('✅ Migration complete');
+    console.log(' Migration complete');
     process.exit(0);
   } catch (err) {
-    console.error('❌ Migration failed:', err);
+    console.error(' Migration failed:', err);
     process.exit(1);
   }
 }
 
 // runMigration4();
 
-async function runMigration5() {
+async function runMigration5() { // adding default date_of_birth to all users
   try {
-    console.log('✅ Connected to MongoDB (via database.js)');
+    console.log(' Connected to MongoDB (via database.js)');
 
     const users = await UserModel.find({});
     const defaultDOB = new Date('2005-01-01');
@@ -125,15 +125,15 @@ async function runMigration5() {
           console.log(`Updated user ${user._id} with default DOB`);
           updatedCount++;
         } catch (innerErr) {
-          console.error(`❌ Failed to update user ${user._id}:`, innerErr);
+          console.error(` Failed to update user ${user._id}:`, innerErr);
         }
       }
     }
 
-    console.log(`✅ Migration complete – ${updatedCount} users updated`);
+    console.log(` Migration complete – ${updatedCount} users updated`);
 
   } catch (err) {
-    console.error('❌ Migration failed:', err);
+    console.error(' Migration failed:', err);
   }
   finally {
     process.exit(0);
@@ -142,9 +142,9 @@ async function runMigration5() {
 
 // runMigration5();
 
-async function runMigration_setAccountCreationDate() {
+async function runMigration_setAccountCreationDate() { // adding default accountCreationDate to all users
   try {
-    console.log('✅ Connected to MongoDB (via database.js)');
+    console.log(' Connected to MongoDB (via database.js)');
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -162,19 +162,19 @@ async function runMigration_setAccountCreationDate() {
       );
     }
 
-    console.log('✅ Migration complete');
+    console.log(' Migration complete');
     process.exit(0);
   } catch (err) {
-    console.error('❌ Migration failed:', err);
+    console.error(' Migration failed:', err);
     process.exit(1);
   }
 }
 
 // runMigration_setAccountCreationDate()
 
-async function runMigration6_addGroupInvites() {
+async function runMigration6_addGroupInvites() { // adding default groupInvites to all users
   try {
-    console.log('✅ Connected to MongoDB (via database.js)');
+    console.log(' Connected to MongoDB (via database.js)');
 
     const users = await UserModel.find({ groupInvites: { $exists: false } });
 
@@ -185,17 +185,17 @@ async function runMigration6_addGroupInvites() {
       );
     }
 
-    console.log(`✅ Migration complete – ${users.length} users updated`);
+    console.log(` Migration complete – ${users.length} users updated`);
     process.exit(0);
   } catch (err) {
-    console.error('❌ Migration failed:', err);
+    console.error(' Migration failed:', err);
     process.exit(1);
   }
 }
 
-async function runMigration7_convertSportToType() {
+async function runMigration7_convertSportToType() { // convert sport to type in goals
     try {
-        console.log('✅ Connected to MongoDB');
+        console.log(' Connected to MongoDB');
 
         // --- USER GOALS ---
         const users = await UserModel.find({ "goals.sport": { $exists: true } });
@@ -263,11 +263,11 @@ for (const goal of user.goals) {
             }
         }
 
-        console.log(`✅ Migration complete: ${userGoalsUpdated} users and ${groupGoalsUpdated} groups updated`);
+        console.log(` Migration complete: ${userGoalsUpdated} users and ${groupGoalsUpdated} groups updated`);
         process.exit(0);
 
     } catch (err) {
-        console.error('❌ Migration failed:', err);
+        console.error(' Migration failed:', err);
         process.exit(1);
     }
 }
