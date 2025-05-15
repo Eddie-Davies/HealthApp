@@ -52,8 +52,8 @@
   <button class="btn btn-neutral btn-soft btn-md rounded-xl mt-7" @click="goToSelect('drink')">Add Drink</button>
 </div>
 
-<!-- Save and Cancel buttons -->
-    <div class="mt-10 flex w-full space-x-3">
+
+   <div class="mt-10 flex w-full space-x-3 mb-20">
   <button class="btn btn-error flex-1" @click="cancelEdit">Cancel</button>
   <button class="btn btn-success flex-2" @click="saveMeal">Save Meal</button>
 </div>

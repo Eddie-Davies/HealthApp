@@ -46,7 +46,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-
 //generate a 6 digit recovery code used for password and username recovery
 function generateCode() {
     recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -68,7 +67,6 @@ const authenticateToken = (req, res, next) => {
 };
 
 // password and username recovery ----
-
 app.post('/forgotPassword', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: req.body.email });
@@ -203,18 +201,18 @@ app.post('/newUsername', async (req, res) => {
             return res.status(401).json({ message: 'Invalid recovery code' });
         }
 
-        // check for existing username
+        // Check for existing username
         const existing = await UserModel.findOne({ username: reqNewUsername });
         if (existing) {
             return res.status(409).json({ message: 'Username already in use' });
         }
 
-        // update username and clear recovery code
+        // Update username and clear recovery code
         user.username = reqNewUsername;
         user.recoveryCode = null;
         await user.save();
 
-        // console.log('Username and recovery code updated successfully.');
+        console.log('Username and recovery code updated successfully.');
         res.status(200).json({ message: 'Username updated successfully' });
 
     } catch (error) {
@@ -238,6 +236,7 @@ app.post('/user/request-email-verification', authenticateToken, async (req, res)
         }
 
         const emailCode = generateCode();
+        console.log(emailCode)
 
         const currentUser = await UserModel.findOne({ email: req.user.email });
         if (!currentUser) return res.status(404).json({ message: 'User not found' });
@@ -589,16 +588,25 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        // Remove the group from the user's groups
         user.groups = user.groups.filter(group => group.toString() !== groupId);
         await user.save();
 
-        // Remove the user from the group's membersByID
-        await GroupModel.updateOne(
-            { _id: groupId },
-            { $pull: { membersByID: user._id } }
+        const group = await GroupModel.findById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        group.membersByID = group.membersByID.filter(
+            memberId => memberId.toString() !== user._id.toString()
         );
+        await group.save();
+
+        // delete if no members deleted
+        if (group.membersByID.length === 0) {
+            await GroupModel.findByIdAndDelete(groupId);
+            return res.status(200).json({ message: 'Left group and deleted empty group' });
+        }
 
         res.status(200).json({ message: 'Successfully left the group' });
     } catch (error) {
@@ -606,6 +614,8 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 
 app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
     try {
@@ -1259,6 +1269,8 @@ app.get('/today-calories', authenticateToken, async (req, res) => {
     }
 });
 
+
+
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
     try {
@@ -1527,6 +1539,7 @@ app.post('/exercises', authenticateToken, async (req, res) => {
 // UPDATE EXERCISE BY ID
 app.put('/exercises/update/:id', authenticateToken, async (req, res) => {
     try {
+                const { exerciseName, activities, durationMs, date } = req.body;
         const exerciseId = req.params.id;
         const updatedExercise = req.body;
 
@@ -1664,6 +1677,20 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
 });
 
 // ----
+// returns gender
+app.get('/gender', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ gender: user.gender }); // returns true or false
+    } catch (err) {
+        console.error('Error fetching gender:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 // POST ACTIVITY TYPE
 app.post('/activityTypes', authenticateToken, async (req, res) => {
@@ -1753,7 +1780,6 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 
         return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
-        console.error('Error deleting activity instance:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -1761,20 +1787,6 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 // ----
 
 // additional user toures for profile page ----
-
-// returns gender
-app.get('/gender', authenticateToken, async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ email: req.user.email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ gender: user.gender }); // returns true or false as gender stored as bool for health analysis reasons
-    } catch (err) {
-        console.error('Error fetching gender:', err);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
 
 // GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
 app.get('/dob', authenticateToken, async (req, res) => {
@@ -1901,8 +1913,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length - 2) + ' ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m', `WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });

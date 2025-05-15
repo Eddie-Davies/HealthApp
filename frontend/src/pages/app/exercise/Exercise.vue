@@ -183,12 +183,12 @@ export default {
     totalUnits(exercise) {
       return exercise.activitiesDetails.reduce((sum, act) => sum + (act.integer || 0), 0);
     },
-
     formatTime(ms) {
-      if (!ms || typeof ms !== 'number') return '00:00.00';
-      const minutes = Math.floor(ms / 60000);
+      if (!ms || typeof ms !== 'number' || isNaN(ms)) return '00:00:00.00';
+      const hours = Math.floor(ms / 3600000);
+      const minutes = Math.floor((ms % 3600000) / 60000);
       const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
-      return `${String(minutes).padStart(2, '0')}:${seconds}`;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${seconds}`;
     }
   }
 };

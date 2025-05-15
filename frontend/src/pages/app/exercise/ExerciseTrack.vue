@@ -10,7 +10,7 @@
       <!-- Wrapper to constrain width and align children to left -->
       <div class="w-full max-w-md flex flex-col items-start">
         <textarea v-model="newTitle"
-          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full py-1"
           placeholder="Afternoon Run" rows="1"></textarea>
 
         <!-- Timer Section -->
@@ -25,10 +25,11 @@
               </div>
             </div>
           </div>
-
+          <div class="absolute ml-25">
           <div class="flex flex-col ml-10">
             <span class="text-xl font-semibold text-base-content/95">Activities</span>
             <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
+          </div>
           </div>
         </div>
       </div>
@@ -161,7 +162,7 @@ export default {
         this.timerInterval = setInterval(() => {
           this.timer += 10;
           this.saveToLocalStorage();
-        }, 1000);
+        }, 10);
       }
     },
     pauseTimer() {
@@ -173,11 +174,11 @@ export default {
       }
     },
     formatTime(milliseconds) {
+      const hrs = Math.floor(milliseconds / 3600000).toString().padStart(2, '0');
       const mins = Math.floor(milliseconds / 60000).toString().padStart(2, '0');
       const secs = Math.floor((milliseconds % 60000) / 1000).toString().padStart(2, '0');
       const ms = Math.floor((milliseconds % 1000) / 10).toString().padStart(2, '0');
-      return `${mins}:${secs}.${ms}`;
-    },
+      return `${hrs}:${mins}:${secs}.${ms}`;    },
     addNewActivity() {
       const newActivity = {
         id: this.nextId,
