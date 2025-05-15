@@ -4,7 +4,7 @@
         <!-- Page Title -->
         <PageHeader :title="$route.meta.title" />
 
-        <h2 class="text-2xl font-bold text-center mt-5">
+        <h2 class="text-xl font-semibold text-center mt-8 text-base-content/90">
             <span><i class="fa-solid fa-user mr-1"></i></span>
             {{ username }}
         </h2>
