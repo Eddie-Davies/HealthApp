@@ -60,32 +60,34 @@ import axios from 'axios';
 export default {
   name: 'MemberManagement',
   props: {
-    groupName: {
+    groupName: { // Name of group
       type: String,
       required: true
     },
-    members: {
+    members: { // Array of current members
       type: Array,
       default: () => []
     },
-    groupId: {
+    groupId: { // ID of group
       type: String,
       required: true
     }
   },
   data() {
     return {
-      newMemberUsername: '',
+      newMemberUsername: '', // Input for new member's username
       statusMessage: '',
       isError: false
     };
   },
   computed: {
+    // Dynamically set CSS class for status message
     statusClass() {
       return this.isError ? 'text-error' : 'text-success';
     }
   },
   methods: {
+    // Method to add new member to group
     async addMember() {
       if (!this.newMemberUsername) {
         this.statusMessage = 'Please enter a username.';
@@ -94,10 +96,12 @@ export default {
       }
 
       try {
+        // Send req to add new member
         const res = await axios.put('/groupsPage/addMember', {
           groupId: this.groupId,
           newMemberUsername: this.newMemberUsername
         });
+        // Show success confirmation
         this.statusMessage = res.data.message;
         this.isError = false;
         this.newMemberUsername = '';
