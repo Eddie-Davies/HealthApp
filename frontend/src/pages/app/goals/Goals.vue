@@ -1,4 +1,5 @@
 <template>
+  <!-- Swiper slider to navigate through goal groups (personal + group) -->
   <swiper
     loop
     :pagination="{
@@ -46,6 +47,7 @@
                   @edit="openEditor(goal, false, slide.group)" />
               </TransitionGroup>
             </div>
+            <!-- Fallback message if no goals -->
             <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
               <div class="tooltip" data-tip="Click the button below :)">
                 <div class="btn cursor-default">Add some new goals to start tracking!</div>
@@ -53,6 +55,7 @@
             </div>
           </div>
         </div>
+        <!-- Button to add a new goal -->
         <div class="mt-10 mb-40 flex flex-wrap justify-center">
           <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
         </div>
@@ -65,6 +68,7 @@
   </GoalDescriptionAlert>
   <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
+  <!-- Goal type selection -->
   <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" 
     :group="showTypeSelect"
     @cancel="showTypeSelect = false"
