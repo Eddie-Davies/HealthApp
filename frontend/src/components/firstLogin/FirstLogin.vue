@@ -1,74 +1,66 @@
 <template>
-  <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-    <div class="bg-base-200 p-6 rounded-box w-96 shadow-lg">
-      <h2 class="text-xl font-bold mb-4 text-center text-base-content">
-        Welcome to <span class="text-primary">Blossom</span>
-      </h2>
+    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+        <div class="bg-base-200 p-6 rounded-xl w-96">
+            <h2 class="text-xl font-bold mb-4 text-center">
+                Welcome to <span class="text-primary">Blossom</span>
+            </h2>
+            <form @submit.prevent="submitForm" class="space-y-3">
+                <div>
+                    <label class="block text-sm mb-1">Current Weight (kg)</label>
+                    <input v-model.number="form.weight" type="number" class="input input-bordered w-full" required />
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Height (cm)</label>
+                    <input v-model.number="form.height" type="number" class="input input-bordered w-full" required />
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Date of Birth</label>
+                    <input v-model="form.date_of_birth" type="date" class="input input-bordered w-full" required />
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Gender</label>
+                    <select v-model="form.gender" class="select select-bordered w-full" required>
+                        <option disabled value="">Select Gender</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Target Weight (kg)</label>
+                    <input v-model.number="form.targetWeight" type="number" class="input input-bordered w-full"
+                        required />
+                </div>
+                <div v-if="formErrors.length"
+                    class="bg-error/10 border border-error text-error text-sm p-3 rounded mb-2">
+                    <ul>
+                        <li v-for="(error, index) in formErrors" :key="index">• {{ error }}</li>
+                    </ul>
+                </div>
+                <div class="text-right pt-2">
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </div>
+            </form>
+            <div v-if="bmi" class="mt-4 p-4 bg-base-100 rounded-lg text-sm shadow">
+                <p><strong>Your BMI:</strong> {{ bmi.toFixed(1) }}</p>
+                <p class="mt-1" :class="bmiStatusClass">
+                    Status: {{ bmiStatus }}
+                </p>
+            </div>
 
-      <form @submit.prevent="submitForm" class="space-y-3">
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Current Weight (kg)</label>
-          <input v-model.number="form.weight" type="number" class="input input-bordered w-full" required />
+            <div v-if="healthyRange.min && form.targetWeight" class="mt-2 p-4 bg-base-100 rounded-lg text-sm shadow">
+                <p>
+                    <strong>Target Weight Check:</strong>
+                    <span :class="isTargetHealthy ? 'text-success' : 'text-error'">
+                        {{ isTargetHealthy ? 'Healthy' : 'Unhealthy' }} (Healthy Range: {{ healthyRange.min.toFixed(1)
+                        }}–{{ healthyRange.max.toFixed(1) }} kg)
+                    </span>
+                </p>
+                <p class="mt-1 text-sm italic text-gray-500">
+                    {{ targetWeightMessage }}
+                </p>
+            </div>
         </div>
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Height (cm)</label>
-          <input v-model.number="form.height" type="number" class="input input-bordered w-full" required />
-        </div>
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Date of Birth</label>
-          <input v-model="form.date_of_birth" type="date" class="input input-bordered w-full" required />
-        </div>
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Gender</label>
-          <select v-model="form.gender" class="select select-bordered w-full" required>
-            <option disabled value="">Select Gender</option>
-            <option>Male</option>
-            <option>Female</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Target Weight (kg)</label>
-          <input v-model.number="form.targetWeight" type="number" class="input input-bordered w-full" required />
-        </div>
-
-        <div>
-          <label class="block text-sm mb-1 text-base-content">Target Daily Calories</label>
-          <input v-model.number="form.dailyCalorieIntake" type="number" class="input input-bordered w-full" required />
-        </div>
-
-
-        <div v-if="formErrors.length" class="alert alert-error text-sm">
-          <ul>
-            <li v-for="(error, index) in formErrors" :key="index">• {{ error }}</li>
-          </ul>
-        </div>
-
-        <div class="text-right pt-2">
-          <button type="submit" class="btn btn-primary btn-sm">Save</button>
-        </div>
-      </form>
-
-      <div v-if="bmi" class="mt-4 p-4 bg-base-100 rounded-box text-sm shadow">
-        <p><strong>Your BMI:</strong> {{ bmi.toFixed(1) }}</p>
-        <p class="mt-1" :class="bmiStatusClass">
-          Status: {{ bmiStatus }}
-        </p>
-      </div>
-
-      <div v-if="healthyRange.min && form.targetWeight" class="mt-2 p-4 bg-base-100 rounded-box text-sm shadow">
-        <p>
-          <strong>Target Weight Check:</strong>
-          <span :class="isTargetHealthy ? 'text-success' : 'text-error'">
-            {{ isTargetHealthy ? 'Healthy' : 'Unhealthy' }} (Healthy Range: {{ healthyRange.min.toFixed(1)
-            }}–{{ healthyRange.max.toFixed(1) }} kg)
-          </span>
-        </p>
-        <p class="mt-1 text-sm italic text-base-content/50">
-          {{ targetWeightMessage }}
-        </p>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -91,7 +83,6 @@ export default {
                 weight: null,
                 height: null,
                 targetWeight: null,
-                dailyCalorieIntake: null,
             },
             formErrors: []
         };
@@ -130,7 +121,7 @@ export default {
     },
     computed: {
         isFormValid() {
-            const { date_of_birth, gender, weight, height, targetWeight, dailyCalorieIntake } = this.form;
+            const { date_of_birth, gender, weight, height, targetWeight } = this.form;
             this.formErrors = [];
 
             if (!date_of_birth) {
@@ -157,10 +148,6 @@ export default {
 
             if (!targetWeight || targetWeight <= 0) {
                 this.formErrors.push("Target weight must be a positive number.");
-            }
-
-            if (!dailyCalorieIntake || dailyCalorieIntake <= 0) {
-                this.formErrors.push("Target daily calories must be a positive number.");
             }
 
             return this.formErrors.length === 0;

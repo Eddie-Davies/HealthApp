@@ -13,7 +13,7 @@
   
   <script>
   import { ref } from 'vue';
-  export const globalErrorMessage = ref(''); // This will be used to set the error message globally
+  export const globalErrorMessage = ref('');
   
   export default {
     setup() {
