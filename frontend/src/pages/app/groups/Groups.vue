@@ -2,12 +2,16 @@
   <div class="min-h-screen overflow-y-auto bg-base-100 px-4 pb-16">
     <PageHeader :title="$route.meta.title" />
     
+    <!-- 'Create a Group' button that opens the modal -->
     <div class="mt-20 pb-16 flex flex-col items-center">
       <div class="flex items-center justify-center py-4">
         <button class="btn btn-neutral" @click="showModal = true">Create a Group</button>
       </div>
 
+      <!-- Group section -->
       <div class="mt-8 w-full max-w-md">
+
+        <!-- Show list of user’s groups if any exist -->
         <div v-if="groups.length > 0">
           <h2 class="text-xl font-semibold mb-4 ml-2">Your Groups</h2>
           <FamilyCard
@@ -23,7 +27,6 @@
           <button class="btn">Create a new group to start tracking!</button>
         </div>
 
-        <!-- Group Invites Section -->
         <GroupInvites
           :invites="invites"
           @accept="acceptInvite"
@@ -32,6 +35,7 @@
       </div>
     </div>
 
+    <!-- Modal for creating a new group -->
     <NewGroupModal 
       v-if="showModal" 
       @close="showModal = false" 
@@ -66,10 +70,11 @@ export default {
     };
   },
   methods: {
+    // Method to accept a group invite
     async acceptInvite(groupId) {
     try {
-      await axios.post(`/groups/accept/${groupId}`);
-      this.invites = this.invites.filter(invite => invite._id !== groupId);
+      await axios.post(`/groups/accept/${groupId}`); 
+      this.invites = this.invites.filter(invite => invite._id !== groupId); // Remove accepted invite from invites array
       // Optionally refresh groups
       const res = await axios.get('/groupsPage');
       this.groups = res.data.groups;
@@ -77,21 +82,25 @@ export default {
       console.error('Error accepting invite:', err);
     }
   },
+  // Method to decline a group invite
   async denyInvite(groupId) {
     try {
       await axios.post(`/groups/deny/${groupId}`);
-      this.invites = this.invites.filter(invite => invite._id !== groupId);
+      this.invites = this.invites.filter(invite => invite._id !== groupId); // Remove declined invite from invites array
     } catch (err) {
       console.error('Error denying invite:', err);
     }
   }
   },
+  // Run when component mounted to page
   async mounted() {
   try {
-    const response = await axios.get('/groupsPage');
+    // Get current list of groups
+    const response = await axios.get('/groupsPage'); 
     console.log(response.data);
-    this.groups = response.data.groups;
+    this.groups = response.data.groups; 
 
+    // Get pending group invitations
     const inviteRes = await axios.get('/groupInvites');
     console.log(inviteRes.data);
     this.invites = inviteRes.data.invites;

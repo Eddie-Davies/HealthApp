@@ -2,8 +2,10 @@
     <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('cancel')">
         <div class="bg-base-200 p-6 rounded-xl w-80 text-center">
             <h2 class="text-lg font-semibold mb-4">Select Goal Type</h2>
+            <!-- DEBUG GROUPS -->
+            <!-- <p class="text-lg">{{ group }}</p> -->
             <div class="flex justify-center gap-4">
-                <button
+                <button @click="$emit('activity', group, 'activity')"
                     class="btn btn-neutral btn-soft hover:btn-success border-2 w-20 h-20 flex flex-col items-center justify-center rounded-xl">
                     <i class="fas fa-running"></i>
                     <p>Activity</p>
