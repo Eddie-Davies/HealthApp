@@ -31,6 +31,12 @@
           <input v-model.number="form.targetWeight" type="number" class="input input-bordered w-full" required />
         </div>
 
+        <div>
+          <label class="block text-sm mb-1 text-base-content">Target Daily Calories</label>
+          <input v-model.number="form.dailyCalorieIntake" type="number" class="input input-bordered w-full" required />
+        </div>
+
+
         <div v-if="formErrors.length" class="alert alert-error text-sm">
           <ul>
             <li v-for="(error, index) in formErrors" :key="index">• {{ error }}</li>
@@ -150,6 +156,10 @@ export default {
 
             if (!targetWeight || targetWeight <= 0) {
                 this.formErrors.push("Target weight must be a positive number.");
+            }
+
+            if (!dailyCalorieIntake || dailyCalorieIntake <= 0) {
+                this.formErrors.push("Target daily calories must be a positive number.");
             }
 
             return this.formErrors.length === 0;

@@ -491,7 +491,8 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
             weight,
             height,
             targetWeight,
-            bmi
+            bmi,
+            dailyCalorieIntake,
         } = req.body;
 
         const errors = [];
@@ -510,6 +511,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         if (!height || height < 0) errors.push("Invalid height.");
         if (!targetWeight || targetWeight < 0) errors.push("Invalid target weight.");
         if (!bmi || bmi < 0) errors.push("Invalid BMI.");
+        if (!dailyCalorieIntake || dailyCalorieIntake < 0) errors.push("Invalid daily calorie intake.");
 
         if (errors.length > 0) {
             return res.status(400).json({ errors });
@@ -524,6 +526,7 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
                 height,
                 targetWeight,
                 bmi,
+                dailyCalorieIntake,
                 firstLogin: false
             },
             { new: true }
