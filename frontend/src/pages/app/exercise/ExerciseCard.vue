@@ -115,6 +115,7 @@ export default {
     }
   },
   methods: {
+    //Handing deleting and routing back
     handleDelete() {
       this.$emit('delete');
     },

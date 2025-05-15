@@ -71,6 +71,7 @@ export default {
     this.fetchActivityTypes();
   },
   methods: {
+    //Sync with our props
     syncWithProps() {
       this.editedActivity = this.activity?.[0] || this.activity || {};
       this.editedActivityId = this.editedActivity._id || null;
@@ -86,6 +87,7 @@ export default {
         integer: this.editedInteger
       });
     },
+    //fetching the activty types from the db
     async fetchActivityTypes() {
       try {
         const res = await axios.get('/activityTypes', { withCredentials: true });
