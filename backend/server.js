@@ -48,6 +48,7 @@ app.use(express.json());
 
 //generate a 6 digit recovery code used for password and username recovery
 function generateCode() {
+    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
     return recoveryCode;
 }
 
@@ -235,6 +236,7 @@ app.post('/user/request-email-verification', authenticateToken, async (req, res)
         }
 
         const emailCode = generateCode();
+        console.log(emailCode)
 
         const currentUser = await UserModel.findOne({ email: req.user.email });
         if (!currentUser) return res.status(404).json({ message: 'User not found' });
@@ -586,19 +588,21 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        // Remove the group from the user's groups
         user.groups = user.groups.filter(group => group.toString() !== groupId);
         await user.save();
 
-        // Remove the user from the group's membersByID
-        );
+        const group = await GroupModel.findById(groupId);
 
         if (!group) {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // If no members are left in the group, delete it
+        group.membersByID = group.membersByID.filter(
+            memberId => memberId.toString() !== user._id.toString()
+        );
+        await group.save();
+
+        // delete if no members deleted
         if (group.membersByID.length === 0) {
             await GroupModel.findByIdAndDelete(groupId);
             return res.status(200).json({ message: 'Left group and deleted empty group' });
@@ -610,6 +614,7 @@ app.put('/groupsPage/leaveGroup', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 app.put('/groupsPage/joinGroup', authenticateToken, async (req, res) => {
@@ -1782,20 +1787,6 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 // ----
 
 // additional user toures for profile page ----
-
-// returns gender
-app.get('/gender', authenticateToken, async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ email: req.user.email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ gender: user.gender }); // returns true or false as gender stored as bool for health analysis reasons
-    } catch (err) {
-        console.error('Error fetching gender:', err);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
 
 // GET DATE OF BIRTH: for now its just the age since we put the age instead???? TODO: CHANGE TO SENDING DOB AND CONVERTING TO AGE
 app.get('/dob', authenticateToken, async (req, res) => {
