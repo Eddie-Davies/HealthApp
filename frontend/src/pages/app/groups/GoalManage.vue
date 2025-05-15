@@ -1,6 +1,3 @@
-<!-- TODO : - Make it only show goals of this week
-            - .toTitleCase()
-  -->
 <template>
   <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50" @click.self="$emit('close')">
     <div class="bg-base-200 p-6 rounded-xl w-[90%] max-w-md space-y-4">
