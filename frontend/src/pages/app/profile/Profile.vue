@@ -65,7 +65,9 @@ export default {
             calories: 0,
             kcalDailyRec: 0,
             height: 0,
-            exercise: 50, // temporary value,
+            exercises: null,
+            localExercises: null,
+            exercise: 0, // temporary value,
             dob: 0, // change to null instead after implementing the rest.
             memberSince: '04/05/2025', // default to date this was implemented instead of 00/00/0000.
             gender: null
@@ -126,6 +128,68 @@ export default {
         } catch (err) {
             console.error('Error fetching gender:', err.response?.data);
         }
+        // Get last 24 hours of activity
+        await this.fetchExercises();
+        this.localExercises = this.exercises
+        const duration = this.getTotalDurationLast24Hours(this.localExercises);
+        this.exercise = duration
+    },
+    methods: {
+        // gets the last 24hours of activity to display to the user.
+        getTotalDurationLast24Hours(exerciseList) {
+            const matchedActivities = [];
+            const now = new Date();
+            console.log('exercise list ', exerciseList)
+            for (const exercise of exerciseList) {
+                if (!Array.isArray(exercise.activities)) continue;
+
+                const exerciseDate = new Date(exercise.date);
+                const hoursAgo = (now - exerciseDate) / (1000 * 60 * 60);
+
+                // only include exercises in the last 24 hours
+                if (hoursAgo > 24) continue;
+
+                const durationSeconds = exercise.durationMs / 10;
+
+                matchedActivities.push(durationSeconds);
+            }
+
+            // calcualte totla seconds and convert to minutes
+            let totalSeconds = 0;
+            for (const seconds of matchedActivities) {
+                totalSeconds += seconds;
+            }
+            const totalMinutes = Math.floor(totalSeconds / 60);
+
+            return totalMinutes;
+        },
+
+        // EXERCISE FETCH STUFF
+        async fetchExercises() {
+            try {
+                const res = await axios.get('/exercises', { withCredentials: true }); // ensure token is sent
+                this.exercises = res?.data?.exercises.map(workout => ({
+                    ...workout,
+                    isMultiActivity: workout.activities.length > 1,
+                    time: this.formatTime(workout.durationMs),
+                    activitiesDetails: workout.activities.map(act => ({
+                        activity: act.activityType[0]?.name || 'Unknown',
+                        unit: act.activityType[0]?.unit || '',
+                        integer: act.quantity
+                    }))
+                })) || [];
+                console.log(this.exercises)
+                return this
+            } catch (err) {
+                console.error('Failed to fetch exercises:', err);
+            }
+        },
+        formatTime(ms) {
+            if (!ms || typeof ms !== 'number') return '00:00.00';
+            const minutes = Math.floor(ms / 60000);
+            const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+            return `${String(minutes).padStart(2, '0')}:${seconds}`;
+        }
     },
     computed: {
         // Convert date of birth into current age.
@@ -183,6 +247,6 @@ export default {
             if (status === 'Obese') return 'text-error';
             return '';
         },
-    }
+    },
 }
 </script>

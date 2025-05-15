@@ -19,7 +19,9 @@ export default {
     },
     props: {
         title: String,
-        displayNumber: Number,
+        displayNumber: {
+            type: [Object, String, Number],
+        },
         message: String
     }
 }
