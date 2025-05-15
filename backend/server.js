@@ -1,4 +1,3 @@
-// import dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -11,13 +10,10 @@ const defaultFoods = require('./defaultFoods');
 const defaultActivityTypes = require('./defaultActivityTypes');
 require('dotenv').config({ path: __dirname + '/../.env' });
 
-// import secret stuff from .env
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret";
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
 const EMAIL_PASSWORD = process.env.EMAIL_NODEMAILER_PASSWORD
 
-
-// set up nodemailer transporter
 const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
@@ -32,7 +28,6 @@ const transporter = nodemailer.createTransport({
 const app = express();
 const port = 8000;
 
-// set up ip for mobile testing
 const envIP = process.env.VITE_IP;
 const allowedOrigin = envIP ? `http://${envIP}:3000` : null;
 const corsOptions = {
@@ -46,10 +41,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-
-//generate a 6 digit recovery code used for password and username recovery
 function generateCode() {
-    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
+    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit recovery code
     return recoveryCode;
 }
 
@@ -66,8 +59,6 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
-
-// password and username recovery ----
 
 app.post('/forgotPassword', async (req, res) => {
     try {
@@ -203,18 +194,18 @@ app.post('/newUsername', async (req, res) => {
             return res.status(401).json({ message: 'Invalid recovery code' });
         }
 
-        // check for existing username
+        // Check for existing username
         const existing = await UserModel.findOne({ username: reqNewUsername });
         if (existing) {
             return res.status(409).json({ message: 'Username already in use' });
         }
 
-        // update username and clear recovery code
+        // Update username and clear recovery code
         user.username = reqNewUsername;
         user.recoveryCode = null;
         await user.save();
 
-        // console.log('Username and recovery code updated successfully.');
+        console.log('Username and recovery code updated successfully.');
         res.status(200).json({ message: 'Username updated successfully' });
 
     } catch (error) {
@@ -223,9 +214,6 @@ app.post('/newUsername', async (req, res) => {
     }
 });
 
-// ----
-
-// email and username change ----
 
 app.post('/user/request-email-verification', authenticateToken, async (req, res) => {
     const { newEmail } = req.body;
@@ -330,9 +318,6 @@ app.post('/user/update-username', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
-
-// get full user schema data by email ----
 
 app.get('/user', authenticateToken, async (req, res) => {
     try {
@@ -347,10 +332,6 @@ app.get('/user', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-// ----
-
-// delete user account ----
 
 app.delete('/user/delete-account', authenticateToken, async (req, res) => {
     try {
@@ -376,9 +357,6 @@ app.delete('/user/delete-account', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
-
-// signup (create user) and login ----
 
 app.post('/signup', async (req, res) => {
     try {
@@ -408,7 +386,7 @@ app.post('/signup', async (req, res) => {
             errors.push("Password must be at least 8 characters long and contain at least one number, one lowercase letter, and one uppercase letter.");
         }
 
-        // Rrturn validation errors if any
+        // Return validation errors if any
         if (errors.length > 0) {
             return res.status(400).json({ errors });
         }
@@ -416,7 +394,7 @@ app.post('/signup', async (req, res) => {
         // no need to set firstLogin to true as it is the default value in the schema.
 
         console.log(`Incoming request to /signup: Email: ${email}`);
-        // check if email is already in database.
+        // Check if email is already in database.
         const emailInDB = await UserModel.findOne({ email });
         if (emailInDB) {
             console.log('User already has an account! ');
@@ -429,7 +407,7 @@ app.post('/signup', async (req, res) => {
             return res.status(401).json({ message: `This Username (${username}) is already associated with an account.` });
         }
 
-        // hash Password before storing
+        // Hash Password before storing
         const hashedPassword = await bcrypt.hash(password, 10)
 
 
@@ -467,7 +445,7 @@ app.post('/login', async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
 
-        console.log('Login successful, token generated. ');
+        console.log('✅ Login successful, token generated. ');
         res.json({ token });
 
     } catch (error) {
@@ -476,14 +454,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// ----
-
-// set initial user data on first login ----
-
 app.put('/users/firstLogin', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        // console.log(`Incoming request to /users/firstLogin: User ID: ${userId}`);
 
         const {
             date_of_birth,
@@ -491,13 +464,10 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
             weight,
             height,
             targetWeight,
-            bmi,
-            dailyCalorieIntake,
+            bmi
         } = req.body;
 
         const errors = [];
-
-        // data valdiation
 
         if (!date_of_birth || isNaN(Date.parse(date_of_birth))) {
             errors.push("Invalid date of birth.");
@@ -511,7 +481,6 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
         if (!height || height < 0) errors.push("Invalid height.");
         if (!targetWeight || targetWeight < 0) errors.push("Invalid target weight.");
         if (!bmi || bmi < 0) errors.push("Invalid BMI.");
-        if (!dailyCalorieIntake || dailyCalorieIntake < 0) errors.push("Invalid daily calorie intake.");
 
         if (errors.length > 0) {
             return res.status(400).json({ errors });
@@ -526,7 +495,6 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
                 height,
                 targetWeight,
                 bmi,
-                dailyCalorieIntake,
                 firstLogin: false
             },
             { new: true }
@@ -545,9 +513,6 @@ app.put('/users/firstLogin', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
-
-// get users groups and group control routes ----
 
 app.get('/groups', authenticateToken, async (req, res) => {
     try {
@@ -831,11 +796,8 @@ app.post('/groups/new', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
 
-// group goals control routes ----
-
-// CREATES NEW !GROUP! GOAL / publish group goal
+// CREATES NEW !GROUP! GOAL
 app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
     try {
         const { groupId } = req.params;
@@ -843,7 +805,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid group ID format.' });
         }
 
-        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom, time, createdDate } = req.body;
+        const { description, target, progressLabel, remainingLabel, unit, type, date, trackFrom } = req.body;
         const user = await UserModel.findOne({ email: req.user.email });
         const createdBy = user._id;
 
@@ -885,9 +847,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
         if (remainingLabel && typeof remainingLabel === 'string' && remainingLabel.trim() !== '') {
             newGoal.remainingLabel = remainingLabel;
         }
-        if (type == 'activity') {
-            newGoal.time = time
-        }
+
         group.goals.push(newGoal);
         await group.save();
 
@@ -929,7 +889,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             `
                 });
             } catch (emailErr) {
-                console.error('Error sending goal notification email:', emailErr);
+                console.error('❌ Error sending goal notification email:', emailErr);
                 // Still succeed but warn the frontend
                 return res.status(200).json({
                     message: 'Goal added, but failed to send email notifications.',
@@ -968,9 +928,6 @@ app.get('/groupsPage/:groupId/goals', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
-
-// get personal user goals and control routes ----
 
 // GETS USERS GOALS 
 app.get('/goals', authenticateToken, async (req, res) => {
@@ -1009,8 +966,8 @@ app.delete('/goals/:id', authenticateToken, async (req, res) => {
 // ADD NEW GOAL
 app.post('/goals/new', authenticateToken, async (req, res) => {
     try {
-        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time } = req.body;
-        console.log(time)
+        const { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group } = req.body;
+
         // Validate input
         if (
             typeof target !== 'number' || !Number.isInteger(target) || target <= 0 ||
@@ -1029,10 +986,9 @@ app.post('/goals/new', authenticateToken, async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const createdDate = new Date().toISOString(); // to track against activities
 
         // Create the new goal and save it to the user's goals
-        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group, time, createdDate };
+        const newGoal = { target, progress, trackFrom, progressLabel, remainingLabel, unit, type, date, group };
         user.goals.push(newGoal);
         await user.save();
 
@@ -1084,7 +1040,6 @@ app.put('/goals/update/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 //   ACCEPT GOAL: Copies GroupGoal to a users list of Goals
 app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) => {
     try {
@@ -1128,11 +1083,9 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
             copiedGoal.trackFrom = user.weight;
             console.log(user.weight)
         }
-        copiedGoal.createdDate = new Date().toISOString(); // e.g., "2025-05-13T12:17:44.104Z"
-
 
         delete copiedGoal.description;
-        delete copiedGoal._id; // Let MongoDB assign a new id
+        delete copiedGoal._id; // Let MongoDB assign a new _id
 
         user.goals.push(copiedGoal);
         await user.save();
@@ -1162,9 +1115,6 @@ app.delete('/groups/:groupId/goal/:goalId', authenticateToken, async (req, res) 
     }
 });
 
-// ----
-
-// get user meals and control routes ----
 
 // GET ALL USER MEALS
 app.get('/meals', authenticateToken, async (req, res) => {
@@ -1258,6 +1208,8 @@ app.get('/today-calories', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+
 
 // GET MEAL BY ID
 app.get('/meals/:id', authenticateToken, async (req, res) => {
@@ -1444,10 +1396,6 @@ app.delete('/food/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
-
-// get user exercises and control routes ----
-
 // GET ALL USER EXERCISES
 app.get('/exercises', authenticateToken, async (req, res) => {
     try {
@@ -1507,11 +1455,6 @@ app.post('/exercises', authenticateToken, async (req, res) => {
         if (!activities) {
             return res.status(400).json({ message: 'Activities are required' });
         }
-        for (const activity of activities) {
-            if (typeof activity.quantity !== 'number' || isNaN(activity.quantity)) {
-                return res.status(400).json({ message: 'Quantity must be a number' });
-            }
-        }
 
         const newexercise = { exerciseName, activities, durationMs, date };
         user.exercises.push(newexercise);
@@ -1544,11 +1487,6 @@ app.put('/exercises/update/:id', authenticateToken, async (req, res) => {
         }
         if (updatedExercise.exerciseName.length < 1 || updatedExercise.exerciseName.length > 30) {
             return res.status(400).json({ message: 'Exercise name must be between 1 and 30 characters long.' });
-        }
-        for (const activity of activities) {
-            if (typeof activity.quantity !== 'number' || isNaN(activity.quantity)) {
-                return res.status(400).json({ message: 'Quantity must be a number' });
-            }
         }
 
         // Find the exercise in the user's exercises by id
@@ -1598,7 +1536,7 @@ app.get('/activities', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json({ activities: user.activityTypes });
+        res.json({ activities: user.activities });
     } catch (err) {
         res.status(500).json({ message: 'Error fetching activities', error: err });
     }
@@ -1612,7 +1550,7 @@ app.post('/activity', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: 'activityType required' });
     }
     if (typeof quantity !== 'number' || quantity < 0) {
-        return res.status(400).json({ message: 'Quantity must be a number' });
+        return res.status(400).json({ message: 'quantity must be a number' });
     }
     try {
         const user = await UserModel.findOne({ email: req.user.email });
@@ -1663,7 +1601,20 @@ app.get('/activityTypes', authenticateToken, async (req, res) => {
     }
 });
 
-// ----
+// returns gender
+app.get('/gender', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ gender: user.gender }); // returns true or false
+    } catch (err) {
+        console.error('Error fetching gender:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 // POST ACTIVITY TYPE
 app.post('/activityTypes', authenticateToken, async (req, res) => {
@@ -1753,26 +1704,8 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 
         return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
-        console.error('Error deleting activity instance:', error);
+        console.error('❌ Error deleting activity instance:', error);
         return res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-// ----
-
-// additional user toures for profile page ----
-
-// returns gender
-app.get('/gender', authenticateToken, async (req, res) => {
-    try {
-        const user = await UserModel.findOne({ email: req.user.email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ gender: user.gender }); // returns true or false as gender stored as bool for health analysis reasons
-    } catch (err) {
-        console.error('Error fetching gender:', err);
-        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -1889,9 +1822,6 @@ app.post('/weight', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Error updating weight', error: err });
     }
 });
-
-// ----
-
 // Start the server
 app.listen(port, '0.0.0.0', () => {
     const prefix = `✨ Node.js server running at `;
@@ -1901,8 +1831,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length - 2) + ' ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m', `WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });

@@ -37,7 +37,7 @@ const routes = [
     children: [
       { path: "goals", component: Goals, meta: {title: 'My Goals'}},
       { path: "groups", component: Groups, meta: {title: 'My Groups'} },
-      { path: "profile", component: Profile, meta: {title: 'My Profile'}, props: true },
+      { path: "profile", component: Profile, meta: {title: 'My Profile'} },
       { path: "exercise", component: Exercise, meta: {title: 'My Exercise'}},
       { path: '/home/exercise/new', component: ExerciseTrack },
       { path: '/home/exercise/:id', component: ExerciseTrack},

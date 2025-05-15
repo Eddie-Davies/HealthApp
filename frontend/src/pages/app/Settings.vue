@@ -155,23 +155,23 @@
                 <div class="space-y-2 mt-2">
                   <div class="flex justify-between border-b border-base-300 pb-1">
                     <span>Aidan</span>
-                    <span class="text-right">Team Leader & Full Stack</span>
+                    <span class="text-right">Full Stack</span>
                   </div>
                   <div class="flex justify-between border-b border-base-300 pb-1">
                     <span>Eddie</span>
-                    <span class="text-right">Backend & Database</span>
+                    <span class="text-right">Backend Lead</span>
                   </div>
                   <div class="flex justify-between border-b border-base-300 pb-1">
                     <span>Will</span>
-                    <span class="text-right">Frontend & UI</span>
+                    <span class="text-right">Frontend Lead</span>
                   </div>
                   <div class="flex justify-between border-b border-base-300 pb-1">
                     <span>Mason</span>
-                    <span class="text-right">Backend & Email</span>
+                    <span class="text-right">Frontend Intern</span>
                   </div>
                   <div class="flex justify-between">
                     <span>Emil</span>
-                    <span class="text-right">Backend & Validation</span>
+                    <span class="text-right">The Goat</span>
                   </div>
                 </div>
               </div>

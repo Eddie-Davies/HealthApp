@@ -75,28 +75,23 @@ export default {
   name: 'NewGroupModal',
   data() {
     return {
-      name: '', // Name of new group
-      newMember: '', // Temporary input for a username to invite
-      members: [], // Array of username to invite
-      errorMessage: '' // Errors shown to user
+      name: '',
+      newMember: '',
+      members: [],
+      errorMessage: ''
     };
   },
   methods: {
-    // Method that adds a new (valid) username to the list of member you want to invite
     addMember() {
-      const trimmed = this.newMember.trim(); // Trim input
-      // If not empty and not in members list then add
+      const trimmed = this.newMember.trim();
       if (trimmed && !this.members.includes(trimmed)) {
         this.members.push(trimmed);
-        this.newMember = ''; // Clear input field after adding
+        this.newMember = '';
       }
     },
-    // Method that removes a member
     removeMember(index) {
       this.members.splice(index, 1);
     },
-
-    // Method to create a new group
     async createGroup() {
       this.errorMessage = '';
 

@@ -39,11 +39,11 @@
             <div class="flex flex-col lg:flex-row gap-4 mb-5 w-full ">
               <div class="flex flex-col justify-start space-y-2">
                 <label class="block text-sm text-base-content/70 font-semibold">Activity Name:</label>
-                <input v-model="newType.name" placeholder="e.g. Run" class="input input-bordered w-full lg:w-auto" />
+                <input v-model="newType.name" placeholder="e.g., Running" class="input input-bordered w-full lg:w-auto" />
               </div>
               <div class="flex flex-col lg:ml-6 space-y-2">
                 <label class="block text-sm text-base-content/70 font-semibold">Unit:</label>
-                <input v-model="newType.unit" placeholder="e.g. km" class="input input-bordered w-full lg:w-auto" />
+                <input v-model="newType.unit" placeholder="e.g., Minutes" class="input input-bordered w-full lg:w-auto" />
               </div>
             </div>
           </div>

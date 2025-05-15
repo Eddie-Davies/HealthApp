@@ -13,7 +13,7 @@
       <div v-if="$route.path === '/home' || $route.path === '/home/'" class="text-center my-4">
         <p class="text-lg text-base-content/80">Welcome! Use the navigation bar to explore the app.</p>
       </div>
-      <router-view :username="user.username" />
+      <router-view></router-view>
       <Navbar />
     </div>
 
@@ -73,8 +73,7 @@ export default {
   data() {
     return {
       user: null,
-      loading: true, // Added loading state
-      username: '',
+      loading: true // Added loading state
     };
   },
   methods: {
@@ -104,19 +103,8 @@ export default {
 
       const response = await axios.get('user');
 
-      console.log('User received:', response.data);
+      console.log('✅ User received:', response.data);
       this.user = response.data;
-
-      this.username = response.data.username;
-
-      const profileRoute = this.$router.options.routes
-        .find(r => r.path === '/home')
-        .children.find(c => c.path === 'profile');
-      
-      if (profileRoute) {
-        profileRoute.meta.username = this.username;
-      }
-
     } catch (error) {
       console.error('Error fetching user:', error.response?.data || error.message);
     } finally {

@@ -5,8 +5,8 @@ const mongoURI = process.env.MONGO_URI;
 
 
 mongoose.connect(mongoURI)
-    .then(() => console.log('Successfully Connected to MongoDB!'))
-    .catch(err => console.log('Error connecting to MongoDB:', err));
+    .then(() => console.log('✅ Successfully Connected to MongoDB!'))
+    .catch(err => console.log('❌ Error connecting to MongoDB:', err));
 
 // Food Schema
 const FoodSchema = new mongoose.Schema({
@@ -60,9 +60,7 @@ const GoalSchema = new mongoose.Schema({
     unit: String,
     trackFrom: {type: Number, default: null},
     type: String,
-    time: String,
     date: { type: Date, default: Date.now },
-    createdDate: { type: Date, default: Date.now},
     group: { type: String, default: null },
     sourceGroupId: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' }
 });
@@ -83,8 +81,8 @@ const UserSchema = new mongoose.Schema({
     bmi: Number,
     height: Number,
     targetWeight: Number,
-    recoveryCode: String, // used for password and username recovery
-    emailCode: String, // used for email verification when cahnging email address
+    recoveryCode: String,
+    emailCode: String,
     newEmail: String,
     meals: [MealSchema],
     foods: [FoodSchema],
@@ -104,7 +102,6 @@ const GroupGoalSchema = new mongoose.Schema({
     description: String, // for when you receive an email. We will force users to describe the goal they share.
     unit: String,
     type: String,
-    time: String,
     date: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 })
