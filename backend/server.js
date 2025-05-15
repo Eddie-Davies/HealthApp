@@ -11,6 +11,7 @@ const defaultFoods = require('./defaultFoods');
 const defaultActivityTypes = require('./defaultActivityTypes');
 require('dotenv').config({ path: __dirname + '/../.env' });
 
+// import secret stuff from .env
 const SECRET_KEY = process.env.JWT_SECRET || "default_secret";
 const EMAIL_ADDRESS = process.env.EMAIL_ADDRESS
 const EMAIL_PASSWORD = process.env.EMAIL_NODEMAILER_PASSWORD
