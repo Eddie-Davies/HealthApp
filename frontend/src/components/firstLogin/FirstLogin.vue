@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-base-300/80 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
     <div class="bg-base-200 p-6 rounded-box w-96 shadow-lg">
       <h2 class="text-xl font-bold mb-4 text-center text-base-content">
         Welcome to <span class="text-primary">Blossom</span>
