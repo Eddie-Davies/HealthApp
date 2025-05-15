@@ -91,6 +91,7 @@ export default {
                 weight: null,
                 height: null,
                 targetWeight: null,
+                dailyCalorieIntake: null,
             },
             formErrors: []
         };
