@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen overflow-y-auto bg-base-100 px-4 pb-16">
+  <div v-if="isLoaded" class="min-h-screen overflow-y-auto bg-base-100 px-4 pb-16">
     <PageHeader :title="$route.meta.title" />
     
     <!-- 'Create a Group' button that opens the modal -->
@@ -66,7 +66,8 @@ export default {
       groups: [],
       members: [],
       goals : 0,
-      invites: []
+      invites: [],
+      isLoaded: false
     };
   },
   methods: {
@@ -107,6 +108,7 @@ export default {
   } catch (error) {
     console.error('Error fetching groups:', error);
   }
+  this.isLoaded = true;
 }
 
 };

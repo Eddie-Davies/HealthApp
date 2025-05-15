@@ -1,99 +1,68 @@
 <template>
-  <!-- Swiper slider to navigate through goal groups (personal + group) -->
-  <swiper
-    loop
-    :pagination="{
+  <div v-if="isLoaded">
+    <!-- Swiper slider to navigate through goal groups (personal + group) -->
+    <swiper loop :pagination="{
       dynamicBullets: false,
       clickable: true,
       bulletActiveClass: '!bg-secondary !opacity-100'
-    }"
-    :keyboard="{
+    }" :keyboard="{
       enabled: true,
-    }"
-    :touchEventsTarget="'container'"
-    :modules="modules"
-    class="mySwiper">
-    
-    <!-- Single swiper-slide that shows all types of goals -->
-    <swiper-slide v-for="(slide, index) in slides" :key="index">
-      <div class="flex-grow flex flex-col">
-        <PageHeader :title="slide.title" />
-        <div class="mt-20 pb-5">
-          <div class="flex justify-center">
-            <div v-if="slide.goals.length">
-              <TransitionGroup
-                name="goal-tiles"
-                tag="div"
-                class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
-                <GoalCard
-                  v-for="goal in slide.goals"
-                  :key="goal._id"
-                  :target="goal.target"
-                  :progress="goal.progress"
-                  :trackFrom="goal.trackFrom"
-                  :progressLabel="goal.progressLabel"
-                  :remainingLabel="goal.remainingLabel"
-                  :unit="goal.unit"
-                  :type="goal.type"
-                  :date="goal.date"
-                  :time="goal.time"
-                  :colour="slide.colour"
-                  :createdDate="goal.createdDate"
+    }" :touchEventsTarget="'container'" :modules="modules" class="mySwiper">
 
-                  :maintainanceKcal="this.kcalIntake"
-                  :lastDayKcal="this.lastDayKcal"
-                  :currentWeight="this.weight"
-                  :exercises="this.exercises"
-                  @edit="openEditor(goal, false, slide.group)" />
-              </TransitionGroup>
-            </div>
-            <!-- Fallback message if no goals -->
-            <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
-              <div class="tooltip" data-tip="Click the button below :)">
-                <div class="btn cursor-default">Add some new goals to start tracking!</div>
+      <!-- Single swiper-slide that shows all types of goals -->
+      <swiper-slide v-for="(slide, index) in slides" :key="index">
+        <div class="flex-grow flex flex-col">
+          <PageHeader :title="slide.title" />
+          <div class="mt-20 pb-5">
+            <div class="flex justify-center">
+              <div v-if="slide.goals.length">
+                <TransitionGroup name="goal-tiles" tag="div"
+                  class="grid max-[345px]:grid-cols-1 grid-cols-2 cols-850-3 cols-1150-4 gap-6 justify-items-center">
+                  <GoalCard v-for="goal in slide.goals" :key="goal._id" :target="goal.target" :progress="goal.progress"
+                    :trackFrom="goal.trackFrom" :progressLabel="goal.progressLabel"
+                    :remainingLabel="goal.remainingLabel" :unit="goal.unit" :type="goal.type" :date="goal.date"
+                    :time="goal.time" :colour="slide.colour" :createdDate="goal.createdDate"
+                    :maintainanceKcal="this.kcalIntake" :lastDayKcal="this.lastDayKcal" :currentWeight="this.weight"
+                    :exercises="this.exercises" @edit="openEditor(goal, false, slide.group)" />
+                </TransitionGroup>
+              </div>
+              <!-- Fallback message if no goals -->
+              <div v-else class="flex justify-center items-center text-center text-lg text-base-content/80 ">
+                <div class="tooltip" data-tip="Click the button below :)">
+                  <div class="btn cursor-default">Add some new goals to start tracking!</div>
+                </div>
               </div>
             </div>
           </div>
+          <!-- Button to add a new goal -->
+          <div class="mt-10 mb-40 flex flex-wrap justify-center">
+            <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
+          </div>
         </div>
-        <!-- Button to add a new goal -->
-        <div class="mt-10 mb-40 flex flex-wrap justify-center">
-          <GoalNew :group="slide.group" @new-goal="showTypeSelect = slide.group; console.log('group', slide.group)" />
-        </div>
-      </div>
-    </swiper-slide>
-  </swiper>
+      </swiper-slide>
+    </swiper>
 
-  <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
-  <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
-  </GoalDescriptionAlert>
-  <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
+    <GoalGroupAlert v-if="showAlert" @continue="confirmSaveApproved" @cancel="cancelSave" />
+    <GoalDescriptionAlert v-if="showDescriptionBox" @continue="confirmDescriptionApproved" @cancel="cancelDescription">
+    </GoalDescriptionAlert>
+    <GoalDeleteAlert v-if="confirmingDelete" @confirm="confirmDeleteApproved" @cancel="cancelDelete"></GoalDeleteAlert>
 
-  <!-- Goal type selection -->
-  <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" 
-    :group="showTypeSelect"
-    @cancel="showTypeSelect = false"
-    @custom="createNewGoal"
-    @diet="createNewGoal"
-    @activity="createNewGoal" />
+    <!-- Goal type selection -->
+    <GoalTypeSelect v-if="showTypeSelect || showTypeSelect == null" :group="showTypeSelect"
+      @cancel="showTypeSelect = false" @custom="createNewGoal" @diet="createNewGoal" @activity="createNewGoal" />
 
-  <DietGoalSelect v-if="showDietGoalSelect" 
-  @cancel="handleCancelDiet"
-  @confirm="handleDietConfigComplete"
-  :goal="tempGoal"/>
+    <DietGoalSelect v-if="showDietGoalSelect" @cancel="handleCancelDiet" @confirm="handleDietConfigComplete"
+      :goal="tempGoal" />
 
-  <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null"
-  :goal="tempGoal"
-  :group="showActivityGoalSelect"
-  @cancel="handleCancelActivity"
-  @confirm="handleActivityTypeChosen"/>
+    <ActivityGoalSelect v-if="showActivityGoalSelect || showActivityGoalSelect == null" :goal="tempGoal"
+      :group="showActivityGoalSelect" @cancel="handleCancelActivity" @confirm="handleActivityTypeChosen" />
 
-  <ActivityGoalRefine v-if="showActivityGoalRefine"
-  :goal="showActivityGoalRefine"
-  @cancel="handleCancelActivityRefine"
-  @confirm="handleActivityConfigComplete"/>
+    <ActivityGoalRefine v-if="showActivityGoalRefine" :goal="showActivityGoalRefine"
+      @cancel="handleCancelActivityRefine" @confirm="handleActivityConfigComplete" />
 
-  <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
-    @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
+    <GoalEdit v-if="editingGoal" :goal="editingGoal" :isNew="isNewGoal" @save="descriptionPrompt"
+      @confirm-delete="confirmDeleteGoal" @cancel="editingGoal = null" />
+  </div>
 </template>
 
 <style>
@@ -120,21 +89,27 @@ body {
   flex-direction: column;
   /* OLD: overflow-y: visible; allow scrolling when content is taller */
 }
+
 .swiper-pagination {
   margin-top: 100px;
   margin-bottom: 100px
 }
+
 /* ANIMATION FOR TILES */
-.goal-tiles-move, .goal-tiles-enter-active,.goal-tiles-leave-active {
+.goal-tiles-move,
+.goal-tiles-enter-active,
+.goal-tiles-leave-active {
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.goal-tiles-enter-from, .goal-tiles-leave-to {
+.goal-tiles-enter-from,
+.goal-tiles-leave-to {
   transform: scale(0);
   opacity: 0;
 }
 
-.goal-tiles-enter-to, .goal-tiles-leave-from {
+.goal-tiles-enter-to,
+.goal-tiles-leave-from {
   transform: scale(1);
   opacity: 1;
 }
@@ -149,9 +124,10 @@ body {
 }
 
 /* Small delay so leaving elements start their animation first */
-.goal-tiles-leave-active + .goal-tiles-move {
+.goal-tiles-leave-active+.goal-tiles-move {
   transition-delay: 0.05s;
 }
+
 /* DEBUG: */
 /* .swiper {
  background-color: rgb(64, 114, 62);
@@ -166,7 +142,6 @@ body {
   background-color: rgb(160, 160, 160) !important;
   opacity: 100% !important;
 } */
-
 </style>
 
 <script>
@@ -236,7 +211,8 @@ export default {
       kcalIntake: 0,
       lastDayKcal: 0,
       weight: 0,
-      errorMessage: ''
+      errorMessage: '',
+      isLoaded: false
     };
   },
   computed: {
@@ -259,10 +235,10 @@ export default {
         'text-error', // dark-red
 
       ];
-      
+
       // Add group slides
       this.groups.forEach((group, index) => {
-        const colour = colourList[index % colourList.length]; 
+        const colour = colourList[index % colourList.length];
         // console.log(group._id)
         slides.push({
           title: `${group.name} Goals`,
@@ -332,14 +308,8 @@ export default {
       console.error('Error last day kcal:', err.response?.data)
     }
     this.fetchExercises()
-    
-      
-    
 
-
-
-    
-
+    this.isLoaded = true;
   },
   methods: {
     // EXERCISE FETCH STUFF
@@ -361,13 +331,13 @@ export default {
         console.error('Failed to fetch exercises:', err);
       }
     },
-        formatTime(ms) {
+    formatTime(ms) {
       if (!ms || typeof ms !== 'number') return '00:00.00';
       const minutes = Math.floor(ms / 60000);
       const seconds = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
       return `${String(minutes).padStart(2, '0')}:${seconds}`;
     },
-    
+
 
     // OG STUFF
     toTitleCase(str) { // for use to convert poorly formatted group names. Possibly move this to backend checking when choosing group name in the first place.
@@ -386,8 +356,8 @@ export default {
       // this.openEditor(configuredGoal, true, this.tempGroupId);
       this.openEditor(configuredGoal, true, configuredGoal.group);
     },
-    handleActivityConfigComplete(configuredGoal){
-      this.showActivityGoalRefine= false
+    handleActivityConfigComplete(configuredGoal) {
+      this.showActivityGoalRefine = false
       this.openEditor(configuredGoal, true, configuredGoal.group)
     },
     handleActivityTypeChosen(configuredGoal) {
@@ -479,10 +449,10 @@ export default {
 
     },
     handleCancelDiet(group) {
-      console.log('cancel diet group' , group)
+      console.log('cancel diet group', group)
       this.showDietGoalSelect = false;
       this.showTypeSelect = group;
-      
+
     },
     handleCancelActivity(group) {
       this.showActivityGoalSelect = false;
@@ -574,10 +544,10 @@ export default {
         console.error('Error deleting goal:', err.response?.data || err);
       }
     },
-    
+
     // GOAL CREATION
     createNewGoal(groupId = null, goalType = 'custom') {
-      console.log('group ID:' , groupId)
+      console.log('group ID:', groupId)
       console.log(groupId, goalType)
       this.showTypeSelect = false
       const newGoal = {
@@ -595,17 +565,17 @@ export default {
       console.log(goalType)
       if (goalType == 'custom') {
         console.log('custom detected')
-        this.openEditor(newGoal, true, groupId); 
-      } else if (goalType == 'diet') { 
-          this.tempGoal = { ...newGoal };
-          this.tempGroupId = groupId;
-          this.showDietGoalSelect = true;
-      } else if (goalType == 'activity') { 
-          this.tempGoal = {...newGoal};
-          this.tempGroupId = groupId;
-          this.showActivityGoalSelect = true;
-      } 
-      
+        this.openEditor(newGoal, true, groupId);
+      } else if (goalType == 'diet') {
+        this.tempGoal = { ...newGoal };
+        this.tempGroupId = groupId;
+        this.showDietGoalSelect = true;
+      } else if (goalType == 'activity') {
+        this.tempGoal = { ...newGoal };
+        this.tempGroupId = groupId;
+        this.showActivityGoalSelect = true;
+      }
+
     }
   }
 };
