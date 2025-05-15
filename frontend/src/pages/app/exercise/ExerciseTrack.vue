@@ -10,7 +10,7 @@
       <!-- Wrapper to constrain width and align children to left -->
       <div class="w-full max-w-md flex flex-col items-start">
         <textarea v-model="newTitle"
-          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full p-0"
+          class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full py-1"
           placeholder="Afternoon Run" rows="1"></textarea>
 
         <!-- Timer Section -->
