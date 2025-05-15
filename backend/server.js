@@ -467,7 +467,7 @@ app.post('/login', async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
 
-        console.log('✅ Login successful, token generated. ');
+        console.log('Login successful, token generated. ');
         res.json({ token });
 
     } catch (error) {
@@ -926,7 +926,7 @@ app.post('/groups/:groupId/new-goal', authenticateToken, async (req, res) => {
             `
                 });
             } catch (emailErr) {
-                console.error('❌ Error sending goal notification email:', emailErr);
+                console.error('Error sending goal notification email:', emailErr);
                 // Still succeed but warn the frontend
                 return res.status(200).json({
                     message: 'Goal added, but failed to send email notifications.',
@@ -1129,7 +1129,7 @@ app.post('/goals/accept/:groupId/:goalId', authenticateToken, async (req, res) =
 
 
         delete copiedGoal.description;
-        delete copiedGoal._id; // Let MongoDB assign a new _id
+        delete copiedGoal._id; // Let MongoDB assign a new id
 
         user.goals.push(copiedGoal);
         await user.save();
@@ -1750,7 +1750,7 @@ app.post('/exercises/delete-activity-instance', authenticateToken, async (req, r
 
         return res.status(200).json({ message: 'Activity deleted successfully' });
     } catch (error) {
-        console.error('❌ Error deleting activity instance:', error);
+        console.error('Error deleting activity instance:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -1898,8 +1898,8 @@ app.listen(port, '0.0.0.0', () => {
     console.log(prefix + localURL + ('     (For fast development on this device)'));
 
     if (networkURL) {
-        console.log(' '.repeat(prefix.length - 2) + '✅ ' + networkURL + ' (Other devices)');
+        console.log(' '.repeat(prefix.length - 2) + ' ' + networkURL + ' (Other devices)');
     } else {
-        console.error('\x1b[31m%s\x1b[0m', `⚠️  WARNING: Add your computer's IP Address to .env for mobile testing support.`);
+        console.error('\x1b[31m%s\x1b[0m', `WARNING: Add your computer's IP Address to .env for mobile testing support.`);
     }
 });
