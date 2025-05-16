@@ -11,7 +11,7 @@
       <div class="w-full max-w-md flex flex-col items-start">
         <textarea v-model="newTitle"
           class="textarea textarea-ghost text-base-content text-4xl font-semibold text-left focus:outline-none focus:ring-0 border-none shadow-none resize-none w-full py-1"
-          placeholder="Afternoon Run" rows="1"></textarea>
+          placeholder="Solo Park Run" rows="1"></textarea>
 
         <!-- Timer Section -->
         <div class="flex justify-between items-start mt-4 ml-1">
