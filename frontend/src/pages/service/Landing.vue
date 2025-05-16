@@ -51,7 +51,7 @@
     <!-- Sign up (bottom of page) -->
     <div class="text-center py-4 mt-12">
       <h2 class="text-2xl font-bold text-neutral">Let's track!</h2>
-      <router-link to="/home" class="btn bg-secondary text-white mt-7 border-0">
+      <router-link to="/home" class="btn bg-secondary text-secondary-content mt-7 border-0">
         Go to my Home
       </router-link>
     </div>
