@@ -11,7 +11,7 @@
   <div class="hero bg-base-200 min-h-screen flex items-center justify-center">
     <div class="hero-content flex flex-col items-center w-full max-w-[90%] md:max-w-lg">
       <div class="text-center">
-        <h1 class="text-5xl font-bold">Sign up!</h1>
+        <h1 class="text-5xl font-bold">Sign up</h1>
       </div>
 
       <div class="card bg-base-100 w-full max-w-sm sm:w-[90%] md:w-full shadow-2xl mt-10">
