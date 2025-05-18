@@ -587,6 +587,7 @@ export default {
 
         // Exit editing mode
         this.editingGoal = null;
+        this.editAndSuggestGoal = null
       } catch (err) {
         console.error('Error deleting goal:', err.response?.data || err);
       }
