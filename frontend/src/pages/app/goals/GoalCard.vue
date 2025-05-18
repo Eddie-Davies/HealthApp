@@ -1,124 +1,128 @@
 <template>
-  <div v-if="!isComplete" @click="$emit('edit') "
-    class="cursor-pointer card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
-    <!-- Top: Eaten + Remaining -->
-    <div class="flex justify-between w-full">
-      <div>
-        <p :class="colour" class="font-semibold">{{ completed.label }}</p>
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">
-          <span v-if="type == 'activity' && remainingLabel == 'Under'">{{ targetDisplay }}</span>
-          <span v-else>{{ completed.value }}</span>
-        </h1>
-        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
+  <div>
+    <div v-if="!isComplete" @click="$emit('edit')"
+      class="cursor-pointer card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
+      <!-- Top: Eaten + Remaining -->
+      <div class="flex justify-between w-full">
+        <div>
+          <p :class="colour" class="font-semibold">{{ completed.label }}</p>
+          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">
+            <span v-if="type == 'activity' && remainingLabel == 'Under'">{{ targetDisplay }}</span>
+            <span v-else>{{ completed.value }}</span>
+          </h1>
+          <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
 
-        <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
-        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">
-          <span v-if="type == 'activity' && remainingLabel == 'Under'">time</span>
-          <span v-else-if="type=='activity' && remainingLabel == 'Left'">this {{ timePeriodDisplay }}</span>
-          <span v-else>{{ unit }}</span>
-        </p>
-      </div>
-      <!-- Vertical Progress Bar -->
-      <div class="flex flex-col items-center justify-end">
-        <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
-        <div class="w-4 h-20 lg:h-28 bg-neutral/30 rounded-full overflow-hidden relative">
+          <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
+          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
+          <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">
+            <span v-if="type == 'activity' && remainingLabel == 'Under'">time</span>
+            <span v-else-if="type == 'activity' && remainingLabel == 'Left'">this {{ timePeriodDisplay }}</span>
+            <span v-else>{{ unit }}</span>
+          </p>
+        </div>
+        <!-- Vertical Progress Bar -->
+        <div class="flex flex-col items-center justify-end">
+          <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
+          <div class="w-4 h-20 lg:h-28 bg-neutral/30 rounded-full overflow-hidden relative">
 
-          <div class="absolute bottom-0 w-full rounded-full overflow-hidden" :class="{
+            <div class="absolute bottom-0 w-full rounded-full overflow-hidden" :class="{
               'bg-gradient-to-t from-secondary to-primary': colour === 'text-secondary',
               'bg-gradient-to-t from-green-400 to-green-600': colour === 'text-success',
               'bg-gradient-to-t from-sky-400 to-sky-600': colour === 'text-info',
               'bg-gradient-to-t from-amber-400 to-amber-600': colour === 'text-warning',
               'bg-gradient-to-t from-rose-400 to-rose-600': colour === 'text-error',
             }" :style="{ height: progressPercentage + '%', transition: 'height 0.5s ease' }">
+            </div>
           </div>
+
+          <!-- ICON DISPLAY -->
+          <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral/50 fa-solid fa-utensils"></i></span>
+          <span v-else-if="type == 'activity'" class="pt-1"><i
+              class="text-neutral/50 fa-solid fa-person-running"></i></span>
+          <span v-else class="pt-1"><i class="text-neutral/50 fa-solid fa-flag text-sm"></i></span>
+
         </div>
-        
-        <!-- ICON DISPLAY -->
-        <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral/50 fa-solid fa-utensils"></i></span>
-        <span v-else-if="type == 'activity'" class="pt-1"><i class="text-neutral/50 fa-solid fa-person-running"></i></span>
-        <span v-else class="pt-1"><i class="text-neutral/50 fa-solid fa-flag text-sm"></i></span>
-
+      </div>
+      <!-- Bottom: Date -->
+      <div v-if="parsedDate > Date.now() && !isComplete">
+        <div class="flex justify-start items-center text-xs text-neutral/70 lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+        </div>
+      </div>
+      <div v-else-if="isComplete">
+        <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+          <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
+        </div>
+      </div>
+      <div v-else>
+        <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+          <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
+        </div>
       </div>
     </div>
-    <!-- Bottom: Date -->
-    <div v-if="parsedDate > Date.now() && !isComplete">
-      <div class="flex justify-start items-center text-xs text-neutral/70 lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
-      </div>
-    </div>
-    <div v-else-if="isComplete">
-      <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
-        <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
-      </div>
-    </div>
-    <div v-else>
-      <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
-        <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
-      </div>
-    </div>
-  </div>
 
-  <div v-if="isComplete" @click="$emit('editAndSuggest') "
-    class="cursor-pointer card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
-    <!-- Top: Eaten + Remaining -->
-    <div class="flex justify-between w-full">
-      <div>
-        <p :class="colour" class="font-semibold">{{ completed.label }}</p>
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">
-          <span v-if="type == 'activity' && remainingLabel == 'Under'">{{ targetDisplay }}</span>
-          <span v-else>{{ completed.value }}</span>
-        </h1>
-        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
+    <div v-if="isComplete" @click="$emit('editAndSuggest')"
+      class="cursor-pointer card bg-base-300 rounded-box p-4 size-38 lg:size-50 flex flex-col justify-between shrink-0 lg:text-lg text-sm">
+      <!-- Top: Eaten + Remaining -->
+      <div class="flex justify-between w-full">
+        <div>
+          <p :class="colour" class="font-semibold">{{ completed.label }}</p>
+          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">
+            <span v-if="type == 'activity' && remainingLabel == 'Under'">{{ targetDisplay }}</span>
+            <span v-else>{{ completed.value }}</span>
+          </h1>
+          <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">{{ unit }}</p>
 
-        <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
-        <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
-        <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">
-          <span v-if="type == 'activity' && remainingLabel == 'Under'">time</span>
-          <span v-else-if="type=='activity' && remainingLabel == 'Left'">this {{ timePeriodDisplay }}</span>
-          <span v-else>{{ unit }}</span>
-        </p>
-      </div>
-      <!-- Vertical Progress Bar -->
-      <div class="flex flex-col items-center justify-end">
-        <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
-        <div class="w-4 h-20 lg:h-28 bg-neutral/30 rounded-full overflow-hidden relative">
+          <p :class="colour" class="font-semibold mt-3">{{ remaining.label }}</p>
+          <h1 class="lg:text-lg text-base font-semibold text-neutral/80 leading-none mt-0.5">{{ remaining.value }}</h1>
+          <p class="text-neutral/60 leading-none mt-0.5 lg:mt-1">
+            <span v-if="type == 'activity' && remainingLabel == 'Under'">time</span>
+            <span v-else-if="type == 'activity' && remainingLabel == 'Left'">this {{ timePeriodDisplay }}</span>
+            <span v-else>{{ unit }}</span>
+          </p>
+        </div>
+        <!-- Vertical Progress Bar -->
+        <div class="flex flex-col items-center justify-end">
+          <p class="mb-1 text-neutral/60">{{ targetDisplay }}</p>
+          <div class="w-4 h-20 lg:h-28 bg-neutral/30 rounded-full overflow-hidden relative">
 
-          <div class="absolute bottom-0 w-full rounded-full overflow-hidden" :class="{
+            <div class="absolute bottom-0 w-full rounded-full overflow-hidden" :class="{
               'bg-gradient-to-t from-secondary to-primary': colour === 'text-secondary',
               'bg-gradient-to-t from-green-400 to-green-600': colour === 'text-success',
               'bg-gradient-to-t from-sky-400 to-sky-600': colour === 'text-info',
               'bg-gradient-to-t from-amber-400 to-amber-600': colour === 'text-warning',
               'bg-gradient-to-t from-rose-400 to-rose-600': colour === 'text-error',
             }" :style="{ height: progressPercentage + '%', transition: 'height 0.5s ease' }">
+            </div>
           </div>
-        </div>
-        
-        <!-- ICON DISPLAY -->
-        <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral/50 fa-solid fa-utensils"></i></span>
-        <span v-else-if="type == 'activity'" class="pt-1"><i class="text-neutral/50 fa-solid fa-person-running"></i></span>
-        <span v-else class="pt-1"><i class="text-neutral/50 fa-solid fa-flag text-sm"></i></span>
 
+          <!-- ICON DISPLAY -->
+          <span v-if="type == 'diet'" class="pt-1"><i class="text-neutral/50 fa-solid fa-utensils"></i></span>
+          <span v-else-if="type == 'activity'" class="pt-1"><i
+              class="text-neutral/50 fa-solid fa-person-running"></i></span>
+          <span v-else class="pt-1"><i class="text-neutral/50 fa-solid fa-flag text-sm"></i></span>
+
+        </div>
       </div>
-    </div>
-    <!-- Bottom: Date -->
-    <div v-if="parsedDate > Date.now() && !isComplete">
-      <div class="flex justify-start items-center text-xs text-neutral/70 lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
+      <!-- Bottom: Date -->
+      <div v-if="parsedDate > Date.now() && !isComplete">
+        <div class="flex justify-start items-center text-xs text-neutral/70 lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+        </div>
       </div>
-    </div>
-    <div v-else-if="isComplete">
-      <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
-        <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
+      <div v-else-if="isComplete">
+        <div class="flex justify-start items-center text-xs text-success lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+          <span class="fa-solid fa-check ml-1.5 mt-0.5"></span>
+        </div>
       </div>
-    </div>
-    <div v-else>
-      <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
-        <p>{{ formattedDate }}</p>
-        <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
+      <div v-else>
+        <div class="flex justify-start items-center text-xs text-error lg:-mt-3 mt-3">
+          <p>{{ formattedDate }}</p>
+          <span class="fa-solid fa-clock ml-1.5 mt-0.5"></span>
+        </div>
       </div>
     </div>
   </div>
