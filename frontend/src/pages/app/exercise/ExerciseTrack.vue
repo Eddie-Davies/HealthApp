@@ -30,7 +30,6 @@
             <span class="text-xl font-semibold text-base-content/95">Activities</span>
             <span class="text-lg text-neutral/85 mt-1">{{ exercises.length }}</span>
           </div>
-          </div>
         </div>
       </div>
 
@@ -54,6 +53,7 @@
         <ExercisePause @pause="pauseTimer" :disabled="!isRunning" />
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -191,29 +191,35 @@ export default {
       this.nextId++;
       this.saveToLocalStorage();
     },
-    async deleteActivity(instanceIdToDelete) {
-      // Check if this is a local-only activity (no _id assigned yet)
-      if (!instanceIdToDelete) {
-        this.exercises = this.exercises.filter(ex => ex._id !== undefined); // safety: remove all unsaved
-        this.saveToLocalStorage();
-        return;
-      }
+    deleteActivity(instanceIdToDelete) {
+      console.log('Trying to delete activity with instance ID:', instanceIdToDelete);
 
-      try {
-        console.log('Deleting activity instance _id:', instanceIdToDelete);
+      // Remove the matching activity by id or local id
+      this.exercises = this.exercises.filter(ex => {
+        // Match by _id for saved activities
+        if (ex._id && ex._id === instanceIdToDelete) {
+          return false;
+        }
+        // Match by local id for unsaved activities
+        if (!ex._id && ex.id === instanceIdToDelete) {
+          return false;
+        }
+        return true;
+      });
 
-        await axios.post('/exercises/delete-activity-instance', {
+      this.saveToLocalStorage();
+
+      // If is a saved activity (_id length is 24), also delete it from the backend
+      if (this.exerciseId && instanceIdToDelete && instanceIdToDelete.toString().length === 24) {
+        axios.post('/exercises/delete-activity-instance', {
           exerciseId: this.exerciseId,
           activityId: instanceIdToDelete
-        }, { withCredentials: true });
-
-        // Remove from local list for UI update
-        this.exercises = this.exercises.filter(ex => ex._id !== instanceIdToDelete);
-        this.saveToLocalStorage();
-      } catch (err) {
-        console.error('Failed to delete activity:', err.response?.data || err);
+        }, { withCredentials: true }).catch(err => {
+          console.error('Failed to delete from backend:', err.response?.data || err);
+        });
       }
     },
+
     updateInteger({ title, integer }) {
       const ex = this.exercises.find((e) => e.title === title);
       if (ex) {
@@ -249,17 +255,15 @@ export default {
         exerciseName: this.newTitle,
         activities: activitiesDetails,
         durationMs: this.timer,
+        date: new Date()
       };
-
-      if (this.isNew) {
-        completedWorkout.date = new Date();
-      }
 
       try {
         if (this.isNew) {
           await axios.post('/exercises', completedWorkout);
         } else {
           await axios.put(`/exercises/update/${this.exerciseId}`, completedWorkout);
+          localStorage.removeItem(this.storageKey);
         }
         localStorage.removeItem(this.storageKey);
         this.$router.push('/home/exercise');
