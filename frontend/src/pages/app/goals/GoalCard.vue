@@ -242,7 +242,7 @@ export default {
 
               const type = activity.activityType.find(t => t.name === this.progressLabel);
               const exerciseDate = new Date(exercise.date);
-              const durationSeconds = exercise.durationMs / 10; // not actually ms, so only need to div by 10.
+              const durationSeconds = exercise.durationMs / 1000;
 
               matchedActivities.push({
                 date: exerciseDate,

@@ -159,12 +159,16 @@ export default {
     startTimer() {
       if (!this.isRunning) {
         this.isRunning = true;
+        console.log(this.timer)
+        this.startTime = Date.now() - this.timer; // this.timer holds previously elapsed time
+
         this.timerInterval = setInterval(() => {
-          this.timer += 10;
+          this.timer = Date.now() - this.startTime;
           this.saveToLocalStorage();
-        }, 10);
+        }, 10); // update display every 100ms or so — not every 10ms
       }
     },
+
     pauseTimer() {
       if (this.isRunning) {
         this.isRunning = false;

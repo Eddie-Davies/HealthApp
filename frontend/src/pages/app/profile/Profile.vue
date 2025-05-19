@@ -149,7 +149,7 @@ export default {
                 // only include exercises in the last 24 hours
                 if (hoursAgo > 24) continue;
 
-                const durationSeconds = exercise.durationMs / 10;
+                const durationSeconds = exercise.durationMs / 1000;
 
                 matchedActivities.push(durationSeconds);
             }
